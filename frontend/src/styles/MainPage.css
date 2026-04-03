@@ -102,11 +102,33 @@
 .all-done {
   text-align: center;
   margin-top: 1rem;
-  padding: 0.8rem;
-  background: rgba(255, 194, 13, 0.12);
-  border: 1px solid rgba(255, 194, 13, 0.3);
-  border-radius: 10px;
+  padding: 1.2rem;
+  background: rgba(255, 194, 13, 0.1);
+  border: 1px solid rgba(255, 194, 13, 0.25);
+  border-radius: 12px;
+}
+
+.all-done-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.all-done-title {
   color: #ffc20d;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 0.4rem;
+}
+
+.all-done-text {
+  color: #ccc;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 0.4rem;
+}
+
+.all-done-hint {
+  color: #888;
+  font-size: 0.75rem;
+  font-style: italic;
 }

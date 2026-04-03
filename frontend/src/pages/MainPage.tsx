@@ -89,7 +89,10 @@ export const MainPage: React.FC = () => {
 
       {allDone && (
         <div className="all-done">
-          All 10 predictions locked in!
+          <div className="all-done-icon">&#9989;</div>
+          <div className="all-done-title">All bets are in!</div>
+          <div className="all-done-text">Results will be available on June 18 — the day after the last Week 1 match.</div>
+          <div className="all-done-hint">You can still review and change your predictions until kickoff.</div>
         </div>
       )}
     </div>
