@@ -1,0 +1,74 @@
+.champions-page {
+  padding: 1rem;
+  padding-bottom: 2rem;
+}
+
+.champions-page .page-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.champions-page .page-header h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffc20d;
+}
+
+.champions-page .empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.champions-page .empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.champions-page .empty-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+
+.champions-page .empty-text {
+  font-size: 0.85rem;
+  color: #888;
+  line-height: 1.5;
+}
+
+.results-table {
+  border: 1px solid rgba(255, 194, 13, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.results-table .table-header {
+  display: flex;
+  background: rgba(255, 194, 13, 0.08);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+.results-table .table-row {
+  display: flex;
+  padding: 0.7rem 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  align-items: center;
+}
+
+.results-table .table-row.top-1 { background: rgba(255, 215, 0, 0.08); }
+.results-table .table-row.top-2 { background: rgba(192, 192, 192, 0.06); }
+.results-table .table-row.top-3 { background: rgba(205, 127, 50, 0.06); }
+
+.results-table .col.rank { width: 40px; text-align: center; }
+.results-table .col.player { flex: 1; font-weight: 600; color: #fff; }
+.results-table .col.num { width: 55px; text-align: center; font-size: 0.85rem; }
+.results-table .col.num.total { color: #ffc20d; font-weight: 700; }
+
+.results-table .medal { font-size: 1.1rem; }
+.results-table .rank-num { color: #666; font-size: 0.85rem; }
