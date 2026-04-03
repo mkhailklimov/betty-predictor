@@ -3,260 +3,694 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Betty Predictor - World Cup 2026 Predictions</title>
-    <meta name="description" content="Predict World Cup 2026 scores, compete with friends, and earn TON rewards. A Telegram Mini App.">
-    <meta property="og:title" content="Betty Predictor">
-    <meta property="og:description" content="Sniff the score - get TONn of emotions!">
-    <meta property="og:type" content="website">
+    <title>Betty Predictor - World Cup 2026</title>
+    <meta name="description" content="Predict World Cup 2026 scores, compete with friends, and earn TON rewards.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --yellow: #ffd90f;
+            --dark: #1f1c09;
+            --dark2: #2a2610;
+            --dark3: #3a3518;
+            --text: #e8e0c0;
+            --text-dim: #9a9070;
+            --accent: #ffd90f;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #ffd90f;
-            color: #000;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--dark);
+            color: var(--text);
             min-height: 100vh;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
         }
 
-        .page {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1.5rem;
-            position: relative;
-        }
-
-        /* Subtle background texture */
-        .page::before {
-            content: '';
-            position: absolute;
+        /* --- Navigation --- */
+        .nav {
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(circle at 10% 15%, rgba(0,0,0,0.04) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0,0,0,0.04) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 0%, transparent 60%);
-            pointer-events: none;
+            z-index: 100;
+            background: var(--dark);
+            border-bottom: 1px solid var(--dark3);
+            backdrop-filter: blur(10px);
         }
 
-        .content {
-            position: relative;
-            z-index: 1;
+        .nav-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-inner::-webkit-scrollbar { display: none; }
+
+        .nav-btn {
+            flex: 1;
+            min-width: 0;
+            padding: 0.9rem 0.5rem;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+            white-space: nowrap;
             text-align: center;
-            max-width: 400px;
-            width: 100%;
         }
 
-        /* Logo */
-        .logo-wrap {
-            margin-bottom: 1.5rem;
+        .nav-btn.active {
+            color: var(--yellow);
+            border-bottom-color: var(--yellow);
         }
 
-        .logo {
-            width: 160px;
-            height: 160px;
+        .nav-btn:hover { color: var(--yellow); }
+
+        /* --- Sections --- */
+        .section {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+            min-height: calc(100vh - 50px);
+        }
+
+        .section.active { display: block; }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--yellow);
+            margin-bottom: 1.2rem;
+        }
+
+        /* --- Home --- */
+        .hero {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .hero-logo {
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #000;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
+            border: 3px solid var(--yellow);
+            box-shadow: 0 0 30px rgba(255, 217, 15, 0.15);
+            margin-bottom: 1.2rem;
         }
 
-        .logo:hover {
-            transform: scale(1.05) rotate(-2deg);
-        }
-
-        /* Title */
-        .title {
-            font-size: 2.5rem;
+        .hero h1 {
+            font-size: 2.2rem;
             font-weight: 900;
-            letter-spacing: -0.02em;
-            line-height: 1.1;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+
+        .hero-sub {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .hero-slogan {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text);
+            margin-bottom: 2rem;
+        }
+
+        .hero-slogan strong { color: var(--yellow); }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--yellow);
+            color: var(--dark);
+            padding: 0.9rem 2rem;
+            border-radius: 50px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 20px rgba(255, 217, 15, 0.2);
+        }
+
+        .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 25px rgba(255, 217, 15, 0.3); }
+
+        .cta-btn svg { width: 20px; height: 20px; }
+
+        .hero-stats {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .stat-box {
+            background: var(--dark2);
+            border: 1px solid var(--dark3);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            text-align: center;
+            min-width: 90px;
+        }
+
+        .stat-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--yellow);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            margin-top: 0.2rem;
+        }
+
+        /* --- Tables --- */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--dark3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        thead { background: var(--dark2); }
+
+        th {
+            padding: 0.7rem 0.8rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--dark3);
+        }
+
+        td {
+            padding: 0.65rem 0.8rem;
+            border-bottom: 1px solid var(--dark3);
+            white-space: nowrap;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr:hover { background: var(--dark2); }
+
+        .rank-col { text-align: center; color: var(--text-dim); width: 40px; }
+        .rank-1 { color: #ffd700; font-weight: 700; }
+        .rank-2 { color: #c0c0c0; font-weight: 700; }
+        .rank-3 { color: #cd7f32; font-weight: 700; }
+
+        .nick-col { font-weight: 600; color: #fff; }
+        .num-col { text-align: center; }
+        .ton-col { color: var(--yellow); font-weight: 700; text-align: right; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-win { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
+        .badge-loss { background: rgba(244, 67, 54, 0.15); color: #f44336; }
+
+        /* --- Matches --- */
+        .match-card {
+            background: var(--dark2);
+            border: 1px solid var(--dark3);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .match-date {
+            min-width: 55px;
+            text-align: center;
+        }
+
+        .match-day {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .match-time {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--yellow);
+        }
+
+        .match-divider {
+            width: 2px;
+            height: 32px;
+            background: var(--dark3);
+            border-radius: 1px;
+        }
+
+        .match-info { flex: 1; }
+
+        .match-teams {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .match-venue {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 0.2rem;
+        }
+
+        .match-group {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--yellow);
+            background: rgba(255, 217, 15, 0.1);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        /* --- About / Rules --- */
+        .rule {
+            background: var(--dark2);
+            border: 1px solid var(--dark3);
+            border-radius: 10px;
+            padding: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .rule-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
             margin-bottom: 0.5rem;
         }
 
-        .title-sub {
+        .rule-icon {
+            font-size: 1.3rem;
+        }
+
+        .rule-title {
             font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            opacity: 0.6;
-            margin-bottom: 1.25rem;
+            font-weight: 700;
+            color: #fff;
         }
 
-        /* Slogan */
-        .slogan {
-            font-size: 1.15rem;
-            font-weight: 400;
+        .rule-text {
+            font-size: 0.85rem;
+            color: var(--text-dim);
             line-height: 1.5;
-            margin-bottom: 2.5rem;
-            font-style: italic;
         }
 
-        .slogan strong {
+        .rule-points {
+            display: inline-block;
+            background: rgba(255, 217, 15, 0.1);
+            color: var(--yellow);
             font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
         }
 
-        /* CTA Button */
-        .cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            background: #000;
-            color: #ffd90f;
-            border: none;
-            padding: 1rem 2.2rem;
-            border-radius: 60px;
-            font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.3);
-        }
-
-        .cta:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-        }
-
-        .cta svg {
-            width: 22px;
-            height: 22px;
-            flex-shrink: 0;
-        }
-
-        /* Features */
-        .features {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2.5rem;
-            width: 100%;
-        }
-
-        .feature {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.07);
-            border-radius: 16px;
-            padding: 1.2rem 0.8rem;
+        .rules-summary {
+            background: var(--dark2);
+            border: 2px solid var(--yellow);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
             text-align: center;
         }
 
-        .feature-icon {
-            font-size: 1.6rem;
-            margin-bottom: 0.4rem;
+        .rules-summary h3 {
+            color: var(--yellow);
+            margin-bottom: 0.5rem;
         }
 
-        .feature-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        .rules-summary p {
+            color: var(--text);
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
 
-        /* Footer */
+        /* --- Empty state --- */
+        .empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-dim);
+        }
+
+        .empty-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+        /* --- Footer --- */
         .footer {
             text-align: center;
-            padding: 1.2rem;
+            padding: 2rem 1rem;
             font-size: 0.7rem;
-            opacity: 0.4;
-            font-weight: 600;
-            position: relative;
-            z-index: 1;
+            color: var(--text-dim);
+            border-top: 1px solid var(--dark3);
+            margin-top: 2rem;
         }
 
-        /* Animations */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .logo-wrap { animation: fadeUp 0.5s ease both; }
-        .title { animation: fadeUp 0.5s ease 0.1s both; }
-        .title-sub { animation: fadeUp 0.5s ease 0.15s both; }
-        .slogan { animation: fadeUp 0.5s ease 0.2s both; }
-        .cta { animation: fadeUp 0.5s ease 0.3s both, pulse 2.5s ease-in-out 1.5s infinite; }
-        .features { animation: fadeUp 0.5s ease 0.4s both; }
-
-        /* Pulse on the button */
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
-            50% { box-shadow: 0 4px 30px rgba(0,0,0,0.4); }
-        }
-
-        /* Small screens */
-        @media (max-height: 680px) {
-            .logo { width: 120px; height: 120px; }
-            .title { font-size: 2rem; }
-            .slogan { font-size: 1rem; margin-bottom: 1.5rem; }
-            .features { margin-top: 1.5rem; }
-        }
-
-        @media (max-width: 360px) {
-            .title { font-size: 2rem; }
-            .cta { padding: 0.9rem 1.8rem; font-size: 1rem; }
-            .feature { padding: 1rem 0.5rem; }
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero-stats { flex-wrap: wrap; }
+            .stat-box { min-width: 80px; }
+            table { font-size: 0.78rem; }
+            th, td { padding: 0.5rem 0.6rem; }
         }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="content">
-            <div class="logo-wrap">
-                <img src="betty-logo.png" alt="Betty the Schnauzer" class="logo">
+
+<!-- Navigation -->
+<nav class="nav">
+    <div class="nav-inner">
+        <button class="nav-btn active" data-section="home">Home</button>
+        <button class="nav-btn" data-section="champions">Champions</button>
+        <button class="nav-btn" data-section="matches">Matches</button>
+        <button class="nav-btn" data-section="leaderboard">Leaderboard</button>
+        <button class="nav-btn" data-section="about">About</button>
+    </div>
+</nav>
+
+<!-- Home -->
+<div id="home" class="section active">
+    <div class="hero">
+        <img src="betty-logo.png" alt="Betty" class="hero-logo">
+        <h1>Betty Predictor</h1>
+        <p class="hero-sub">World Cup 2026</p>
+        <p class="hero-slogan">Sniff the score &mdash; get <strong>TONn</strong> of emotions!</p>
+        <a href="https://t.me/betty_worldcup2026_bot/app" class="cta-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+            Launch in Telegram
+        </a>
+        <div class="hero-stats">
+            <div class="stat-box">
+                <div class="stat-num">48</div>
+                <div class="stat-label">Matches</div>
             </div>
-
-            <h1 class="title">Betty Predictor</h1>
-            <p class="title-sub">World Cup 2026</p>
-
-            <p class="slogan">Sniff the score &mdash; get <strong>TONn</strong> of emotions!</p>
-
-            <a href="https://t.me/betty_worldcup2026_bot/app" class="cta">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-                </svg>
-                Launch App
-            </a>
-
-            <div class="features">
-                <div class="feature">
-                    <div class="feature-icon">&#9917;</div>
-                    <div class="feature-label">Predict</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">&#127942;</div>
-                    <div class="feature-label">Compete</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">&#128142;</div>
-                    <div class="feature-label">Earn TON</div>
-                </div>
+            <div class="stat-box">
+                <div class="stat-num">10</div>
+                <div class="stat-label">Per Week</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num" id="players-count">0</div>
+                <div class="stat-label">Players</div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="footer">BETTY PREDICTOR &copy; 2025</div>
+<!-- Champions -->
+<div id="champions" class="section">
+    <h2 class="section-title">Champions History</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th class="rank-col">#</th>
+                    <th>Player</th>
+                    <th class="num-col">Results</th>
+                    <th class="num-col">Scores</th>
+                    <th class="num-col">Applied</th>
+                    <th class="rank-col">Rank</th>
+                </tr>
+            </thead>
+            <tbody id="champions-body">
+                <tr>
+                    <td class="rank-col rank-1">1</td>
+                    <td class="nick-col">-</td>
+                    <td class="num-col">-</td>
+                    <td class="num-col">-</td>
+                    <td class="num-col">-</td>
+                    <td class="rank-col">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="empty" id="champions-empty">
+        <div class="empty-icon">&#127942;</div>
+        <p>No champions yet. Tournament starts June 11!</p>
+    </div>
+</div>
+
+<!-- Matches -->
+<div id="matches" class="section">
+    <h2 class="section-title">Week 1 Matches</h2>
+    <div id="matches-list">
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Thu, Jun 11</div><div class="match-time">21:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">Mexico vs. South Africa</div><div class="match-venue">Estadio Azteca, Mexico City</div></div>
+            <div class="match-group">A</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Fri, Jun 12</div><div class="match-time">18:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">Canada vs. Bosnia & Herzegovina</div><div class="match-venue">BMO Field, Toronto</div></div>
+            <div class="match-group">B</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Fri, Jun 12</div><div class="match-time">21:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">USA vs. Paraguay</div><div class="match-venue">SoFi Stadium, Los Angeles</div></div>
+            <div class="match-group">D</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Sat, Jun 13</div><div class="match-time">18:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">Brazil vs. Morocco</div><div class="match-venue">MetLife Stadium, New Jersey</div></div>
+            <div class="match-group">C</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Sun, Jun 14</div><div class="match-time">15:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">Germany vs. Curacao</div><div class="match-venue">NRG Stadium, Houston</div></div>
+            <div class="match-group">E</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Sun, Jun 14</div><div class="match-time">18:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">Netherlands vs. Japan</div><div class="match-venue">AT&T Stadium, Dallas</div></div>
+            <div class="match-group">F</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Mon, Jun 15</div><div class="match-time">18:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">Spain vs. Cape Verde</div><div class="match-venue">Mercedes-Benz Stadium, Atlanta</div></div>
+            <div class="match-group">H</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Tue, Jun 16</div><div class="match-time">18:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">France vs. Senegal</div><div class="match-venue">MetLife Stadium, New Jersey</div></div>
+            <div class="match-group">I</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Wed, Jun 17</div><div class="match-time">15:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">England vs. Croatia</div><div class="match-venue">AT&T Stadium, Dallas</div></div>
+            <div class="match-group">L</div>
+        </div>
+        <div class="match-card">
+            <div class="match-date"><div class="match-day">Wed, Jun 17</div><div class="match-time">18:00</div></div>
+            <div class="match-divider"></div>
+            <div class="match-info"><div class="match-teams">Argentina vs. Algeria</div><div class="match-venue">Arrowhead Stadium, Kansas City</div></div>
+            <div class="match-group">J</div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaderboard -->
+<div id="leaderboard" class="section">
+    <h2 class="section-title">TON Leaderboard</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th class="rank-col">#</th>
+                    <th>Player</th>
+                    <th class="num-col">Rounds</th>
+                    <th class="ton-col">TON Won</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+            </tbody>
+        </table>
+    </div>
+    <div class="empty" id="leaderboard-empty">
+        <div class="empty-icon">&#128142;</div>
+        <p>TON rewards will be distributed after Week 1 results.</p>
+    </div>
+</div>
+
+<!-- About -->
+<div id="about" class="section">
+    <h2 class="section-title">How It Works</h2>
+
+    <div class="rules-summary">
+        <h3>Sniff the score &mdash; earn TON!</h3>
+        <p>Predict match outcomes and exact scores to earn points. Top players win TON cryptocurrency every week.</p>
+    </div>
+
+    <div class="rule">
+        <div class="rule-header">
+            <span class="rule-icon">&#9917;</span>
+            <span class="rule-title">Sniff the Result</span>
+        </div>
+        <div class="rule-text">Correctly predict the match outcome (Win 1 / Draw / Win 2).</div>
+        <div class="rule-points">+1 point</div>
+    </div>
+
+    <div class="rule">
+        <div class="rule-header">
+            <span class="rule-icon">&#127919;</span>
+            <span class="rule-title">Sniff the Score</span>
+        </div>
+        <div class="rule-text">Nail the exact final score of the match.</div>
+        <div class="rule-points">+3 points</div>
+    </div>
+
+    <div class="rule">
+        <div class="rule-header">
+            <span class="rule-icon">&#127942;</span>
+            <span class="rule-title">Weekly Rankings</span>
+        </div>
+        <div class="rule-text">Points are tallied every week (10 matches per round). Top players on the leaderboard earn TON rewards.</div>
+    </div>
+
+    <div class="rule">
+        <div class="rule-header">
+            <span class="rule-icon">&#128142;</span>
+            <span class="rule-title">TON Rewards</span>
+        </div>
+        <div class="rule-text">TON cryptocurrency is distributed weekly to top predictors. Claim your rewards directly in the Telegram Mini App via your TON wallet.</div>
+    </div>
+
+    <div class="rule">
+        <div class="rule-header">
+            <span class="rule-icon">&#9200;</span>
+            <span class="rule-title">Deadline</span>
+        </div>
+        <div class="rule-text">Predictions must be submitted before match kickoff. Once the match starts, predictions are locked.</div>
+    </div>
+
+    <div class="rule">
+        <div class="rule-header">
+            <span class="rule-icon">&#129309;</span>
+            <span class="rule-title">Fair Play</span>
+        </div>
+        <div class="rule-text">One prediction per match, per player. No editing after submission. Multiple accounts are not allowed.</div>
+    </div>
+</div>
+
+<div class="footer">Betty Predictor &copy; 2025 &mdash; World Cup 2026</div>
+
+<script>
+// Navigation
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.section).classList.add('active');
+    });
+});
+
+// Load leaderboard from API
+async function loadLeaderboard() {
+    try {
+        const res = await fetch('https://betty-api.mihel-klimm.workers.dev/api/leaderboard');
+        const data = await res.json();
+        const tbody = document.getElementById('leaderboard-body');
+        const empty = document.getElementById('leaderboard-empty');
+
+        if (data.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+
+        empty.style.display = 'none';
+        document.getElementById('players-count').textContent = data.length;
+
+        tbody.innerHTML = data.map((entry, i) => `
+            <tr>
+                <td class="rank-col ${i < 3 ? 'rank-' + (i + 1) : ''}">${entry.rank}</td>
+                <td class="nick-col">${entry.username}</td>
+                <td class="num-col">${entry.correct_predictions + entry.correct_scores}</td>
+                <td class="ton-col">${entry.points > 0 ? (entry.points * 0.1).toFixed(1) : '0'} TON</td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Leaderboard error:', err);
+    }
+}
+
+// Load champions (previous round winners)
+async function loadChampions() {
+    try {
+        const res = await fetch('https://betty-api.mihel-klimm.workers.dev/api/leaderboard');
+        const data = await res.json();
+        const tbody = document.getElementById('champions-body');
+        const empty = document.getElementById('champions-empty');
+
+        if (data.length === 0) {
+            tbody.parentElement.parentElement.style.display = 'none';
+            empty.style.display = 'block';
+            return;
+        }
+
+        empty.style.display = 'none';
+        tbody.parentElement.parentElement.style.display = '';
+
+        tbody.innerHTML = data.map((entry, i) => `
+            <tr>
+                <td class="rank-col ${i < 3 ? 'rank-' + (i + 1) : ''}">${entry.rank}</td>
+                <td class="nick-col">${entry.username}</td>
+                <td class="num-col">${entry.correct_predictions}</td>
+                <td class="num-col">${entry.correct_scores}</td>
+                <td class="num-col">${entry.correct_predictions + entry.correct_scores}</td>
+                <td class="rank-col ${i < 3 ? 'rank-' + (i + 1) : ''}">${entry.rank}</td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Champions error:', err);
+    }
+}
+
+loadLeaderboard();
+loadChampions();
+</script>
 </body>
 </html>
