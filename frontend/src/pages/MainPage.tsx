@@ -20,14 +20,26 @@ function savePredictions(preds: Record<number, { outcome: string; score: string 
 export const MainPage: React.FC = () => {
   const [predictions, setPredictions] = React.useState(loadPredictions)
   const [currentIndex, setCurrentIndex] = React.useState(0)
+  const [showToast, setShowToast] = React.useState(false)
+  const doneRef = React.useRef<HTMLDivElement>(null)
 
   const handlePredict = (matchId: number, outcome: string, score: string) => {
     const updated = { ...predictions, [matchId]: { outcome, score } }
     setPredictions(updated)
     savePredictions(updated)
 
-    // Auto-advance to next card after a short delay
-    if (currentIndex < WEEK1_MATCHES.length - 1) {
+    const newCount = Object.keys(updated).length
+    const isAllDone = newCount === WEEK1_MATCHES.length
+
+    if (isAllDone) {
+      // Show toast and scroll to message
+      setShowToast(true)
+      setTimeout(() => {
+        doneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 300)
+      setTimeout(() => setShowToast(false), 4000)
+    } else if (currentIndex < WEEK1_MATCHES.length - 1) {
+      // Auto-advance to next card
       setTimeout(() => setCurrentIndex(currentIndex + 1), 600)
     }
   }
@@ -88,12 +100,16 @@ export const MainPage: React.FC = () => {
       </div>
 
       {allDone && (
-        <div className="all-done">
+        <div className="all-done" ref={doneRef}>
           <div className="all-done-icon">&#9989;</div>
           <div className="all-done-title">Bets placed!</div>
           <div className="all-done-text">You can change your predictions until each match begins.</div>
           <div className="all-done-hint">Results will be available on June 18 — the day after the last Week 1 match.</div>
         </div>
+      )}
+
+      {showToast && (
+        <div className="toast">&#9989; Bets placed!</div>
       )}
     </div>
   )
