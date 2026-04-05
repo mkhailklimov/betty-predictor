@@ -100,22 +100,40 @@ export default {
         if (token) {
           user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         }
-        if (!user) {
-          user = await env.DB.prepare('SELECT * FROM users LIMIT 1').first();
-        }
         if (!user) return json({ detail: 'User not found' }, 401);
 
         const match = await env.DB.prepare('SELECT * FROM matches WHERE id = ?').bind(match_id).first();
         if (!match) return json({ detail: 'Match not found' }, 404);
         if (match.status === 'finished') return json({ detail: 'Cannot predict on finished match' }, 400);
 
+        // Kickoff lockout: reject if match has started (using UTC time field)
+        if (match.time) {
+          const kickoff = new Date(match.time.replace(' ', 'T') + 'Z');
+          if (new Date() >= kickoff) {
+            return json({ detail: 'Betting closed — match has started' }, 403);
+          }
+        }
+
+        const scoreJson = predicted_score ? JSON.stringify(predicted_score) : null;
+
+        // Upsert: update if exists, insert if new
         const existing = await env.DB.prepare(
           'SELECT * FROM predictions WHERE user_id = ? AND match_id = ?'
         ).bind(user.id, match_id).first();
-        if (existing) return json({ detail: 'You already predicted on this match' }, 400);
+
+        if (existing) {
+          await env.DB.prepare(
+            'UPDATE predictions SET prediction_type = ?, predicted_score = ?, updated_at = datetime("now") WHERE id = ?'
+          ).bind(prediction_type, scoreJson, existing.id).run();
+
+          const updated = await env.DB.prepare('SELECT * FROM predictions WHERE id = ?').bind(existing.id).first();
+          if (updated && updated.predicted_score) {
+            try { updated.predicted_score = JSON.parse(updated.predicted_score); } catch {}
+          }
+          return json(updated, 200);
+        }
 
         const id = uuid();
-        const scoreJson = predicted_score ? JSON.stringify(predicted_score) : null;
         await env.DB.prepare(
           'INSERT INTO predictions (id, user_id, match_id, prediction_type, predicted_score) VALUES (?, ?, ?, ?, ?)'
         ).bind(id, user.id, match_id, prediction_type, scoreJson).run();

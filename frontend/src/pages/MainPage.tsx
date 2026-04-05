@@ -1,6 +1,7 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
 import { WEEK1_MATCHES } from '../data/matches'
+import { predictionsApi } from '../services/api'
 import '../styles/MainPage.css'
 
 const STORAGE_KEY = 'betty_predictions_v2'
@@ -13,33 +14,64 @@ function loadPredictions(): Record<number, { outcome: string; score: string }> {
   }
 }
 
-function savePredictions(preds: Record<number, { outcome: string; score: string }>) {
+function savePredictionsLocal(preds: Record<number, { outcome: string; score: string }>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(preds))
+}
+
+// Map frontend match id (1-10) to backend match id (match-1 to match-10)
+function toBackendMatchId(id: number): string {
+  return `match-${id}`
 }
 
 export const MainPage: React.FC = () => {
   const [predictions, setPredictions] = React.useState(loadPredictions)
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [showToast, setShowToast] = React.useState(false)
+  const [toastMessage, setToastMessage] = React.useState('')
   const doneRef = React.useRef<HTMLDivElement>(null)
 
-  const handlePredict = (matchId: number, outcome: string, score: string) => {
+  const handlePredict = async (matchId: number, outcome: string, score: string) => {
+    // Save to localStorage immediately (optimistic)
     const updated = { ...predictions, [matchId]: { outcome, score } }
     setPredictions(updated)
-    savePredictions(updated)
+    savePredictionsLocal(updated)
+
+    // Save to backend
+    const [h, a] = score.split(':').map(Number)
+    try {
+      await predictionsApi.create({
+        match_id: toBackendMatchId(matchId),
+        prediction_type: outcome as '1' | 'X' | '2',
+        predicted_score: { home: h, away: a },
+      })
+    } catch (error: any) {
+      const detail = error?.response?.data?.detail
+      if (detail === 'Betting closed — match has started') {
+        setToastMessage('&#128274; Betting closed — match has started')
+        setShowToast(true)
+        setTimeout(() => setShowToast(false), 3000)
+        // Revert localStorage
+        const reverted = { ...predictions }
+        delete reverted[matchId]
+        setPredictions(reverted)
+        savePredictionsLocal(reverted)
+        return
+      }
+      // Other errors — prediction saved locally, will sync later
+      console.error('Backend save failed:', detail || error)
+    }
 
     const newCount = Object.keys(updated).length
     const isAllDone = newCount === WEEK1_MATCHES.length
 
     if (isAllDone) {
-      // Show toast and scroll to message
+      setToastMessage('&#9989; Bets placed!')
       setShowToast(true)
       setTimeout(() => {
         doneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 300)
       setTimeout(() => setShowToast(false), 4000)
     } else if (currentIndex < WEEK1_MATCHES.length - 1) {
-      // Auto-advance to next card
       setTimeout(() => setCurrentIndex(currentIndex + 1), 600)
     }
   }
@@ -109,7 +141,7 @@ export const MainPage: React.FC = () => {
       )}
 
       {showToast && (
-        <div className="toast">&#9989; Bets placed!</div>
+        <div className="toast" dangerouslySetInnerHTML={{ __html: toastMessage }}></div>
       )}
     </div>
   )
