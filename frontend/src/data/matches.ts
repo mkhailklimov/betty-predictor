@@ -81,7 +81,7 @@ export const WEEK1_MATCHES: MatchData[] = [
     group: 'H',
     venue: 'Atlanta',
     home: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Lamine Yamal' },
-    away: { name: 'Cape Verde', code: 'CPV', flag: '\u{1F1E8}\u{1F1FB}', keyPlayer: 'Ryan Mendes' },
+    away: { name: 'Cape Verde', code: 'CVE', flag: '\u{1F1E8}\u{1F1FB}', keyPlayer: 'Ryan Mendes' },
   },
   {
     id: 8,
