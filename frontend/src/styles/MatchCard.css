@@ -179,6 +179,37 @@
   color: #ffc20d;
 }
 
+/* Locked state */
+.mc--locked {
+  opacity: 0.7;
+  position: relative;
+}
+
+.mc__locked-badge {
+  text-align: center;
+  background: rgba(244, 67, 54, 0.12);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f44336;
+}
+
+.mc__outcomes--locked {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.mc__saved--locked {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mc__saved--locked .mc__saved-text {
+  color: #888;
+}
+
 @media (max-width: 360px) {
   .mc__card-img, .mc__card-fallback {
     max-width: 110px;

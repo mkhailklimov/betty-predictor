@@ -1,6 +1,7 @@
 export interface MatchData {
   id: number
   date: string
+  kickoff: string  // ISO 8601 UTC timestamp
   group: string
   venue: string
   home: {
@@ -17,6 +18,18 @@ export interface MatchData {
   }
 }
 
+// Debug: set to an ISO date string to simulate a specific time, or null for real time
+// Example: '2026-06-13T09:00:00Z' to simulate June 13, 9 AM UTC
+export const DEBUG_TIME: string | null = null
+
+export function getNow(): Date {
+  return DEBUG_TIME ? new Date(DEBUG_TIME) : new Date()
+}
+
+export function isMatchLocked(match: MatchData): boolean {
+  return getNow() >= new Date(match.kickoff)
+}
+
 // Team codes that have card images in /teams/Cards/
 export const TEAM_CARDS: Record<string, boolean> = {
   MEX: true, SAF: true, CAN: true, BIH: true, USA: true, PAR: true, BRA: true, MOR: true, GER: true, CUR: true, NED: true, JAP: true, FRA: true, ALG: true, ARG: true, SEN: true, ENG: true, CRO: true, ESP: true, CVE: true,
@@ -29,7 +42,8 @@ export function getCardImage(code: string): string | null {
 export const WEEK1_MATCHES: MatchData[] = [
   {
     id: 1,
-    date: 'Thu, June 11',
+    date: 'Thu, June 11 · 9:00 PM ET',
+    kickoff: '2026-06-12T01:00:00Z', // 21:00 ET (UTC-4)
     group: 'A',
     venue: 'Mexico City',
     home: { name: 'Mexico', code: 'MEX', flag: '\u{1F1F2}\u{1F1FD}', keyPlayer: 'Edson Alvarez' },
@@ -37,7 +51,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 2,
-    date: 'Fri, June 12',
+    date: 'Fri, June 12 · 6:00 PM ET',
+    kickoff: '2026-06-12T22:00:00Z', // 18:00 ET
     group: 'B',
     venue: 'Toronto',
     home: { name: 'Canada', code: 'CAN', flag: '\u{1F1E8}\u{1F1E6}', keyPlayer: 'Alphonso Davies' },
@@ -45,7 +60,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 3,
-    date: 'Fri, June 12',
+    date: 'Fri, June 12 · 9:00 PM ET',
+    kickoff: '2026-06-13T01:00:00Z', // 21:00 ET
     group: 'D',
     venue: 'Los Angeles',
     home: { name: 'USA', code: 'USA', flag: '\u{1F1FA}\u{1F1F8}', keyPlayer: 'Christian Pulisic' },
@@ -53,7 +69,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 4,
-    date: 'Sat, June 13',
+    date: 'Sat, June 13 · 6:00 PM ET',
+    kickoff: '2026-06-13T22:00:00Z', // 18:00 ET
     group: 'C',
     venue: 'New Jersey',
     home: { name: 'Brazil', code: 'BRA', flag: '\u{1F1E7}\u{1F1F7}', keyPlayer: 'Vinicius Jr' },
@@ -61,7 +78,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 5,
-    date: 'Sun, June 14',
+    date: 'Sun, June 14 · 3:00 PM ET',
+    kickoff: '2026-06-14T19:00:00Z', // 15:00 ET
     group: 'E',
     venue: 'Houston',
     home: { name: 'Germany', code: 'GER', flag: '\u{1F1E9}\u{1F1EA}', keyPlayer: 'Jamal Musiala' },
@@ -69,7 +87,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 6,
-    date: 'Sun, June 14',
+    date: 'Sun, June 14 · 6:00 PM ET',
+    kickoff: '2026-06-14T22:00:00Z', // 18:00 ET
     group: 'F',
     venue: 'Dallas',
     home: { name: 'Netherlands', code: 'NED', flag: '\u{1F1F3}\u{1F1F1}', keyPlayer: 'Cody Gakpo' },
@@ -77,7 +96,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 7,
-    date: 'Mon, June 15',
+    date: 'Mon, June 15 · 6:00 PM ET',
+    kickoff: '2026-06-15T22:00:00Z', // 18:00 ET
     group: 'H',
     venue: 'Atlanta',
     home: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Lamine Yamal' },
@@ -85,7 +105,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 8,
-    date: 'Tue, June 16',
+    date: 'Tue, June 16 · 6:00 PM ET',
+    kickoff: '2026-06-16T22:00:00Z', // 18:00 ET
     group: 'I',
     venue: 'New Jersey',
     home: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' },
@@ -93,7 +114,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 9,
-    date: 'Wed, June 17',
+    date: 'Wed, June 17 · 3:00 PM ET',
+    kickoff: '2026-06-17T19:00:00Z', // 15:00 ET
     group: 'L',
     venue: 'Dallas',
     home: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' },
@@ -101,7 +123,8 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
   {
     id: 10,
-    date: 'Wed, June 17',
+    date: 'Wed, June 17 · 6:00 PM ET',
+    kickoff: '2026-06-17T22:00:00Z', // 18:00 ET
     group: 'J',
     venue: 'Kansas City',
     home: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' },
