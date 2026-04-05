@@ -75,9 +75,37 @@ Full infrastructure migration and TG Mini App improvements. Backend moved to Clo
 
 ---
 
+## Match Times — Unified ET Format
+
+All match times across both the landing site and TG Mini App now display in Eastern Time (ET):
+
+| # | Match | Time (ET) |
+|---|-------|-----------|
+| 1 | Mexico vs South Africa | Thu, Jun 11 · 9:00 PM ET |
+| 2 | Canada vs Bosnia & Herzegovina | Fri, Jun 12 · 6:00 PM ET |
+| 3 | USA vs Paraguay | Fri, Jun 12 · 9:00 PM ET |
+| 4 | Brazil vs Morocco | Sat, Jun 13 · 6:00 PM ET |
+| 5 | Germany vs Curacao | Sun, Jun 14 · 3:00 PM ET |
+| 6 | Netherlands vs Japan | Sun, Jun 14 · 6:00 PM ET |
+| 7 | Spain vs Cape Verde | Mon, Jun 15 · 6:00 PM ET |
+| 8 | France vs Senegal | Tue, Jun 16 · 6:00 PM ET |
+| 9 | England vs Croatia | Wed, Jun 17 · 3:00 PM ET |
+| 10 | Argentina vs Algeria | Wed, Jun 17 · 6:00 PM ET |
+
+Internal kickoff timestamps stored as UTC for lockout comparison.
+
+---
+
 ## Commits
 
 ```
+8fdda77 Update landing site match times to ET format
+e3df9ae Add TG Mini App dev changelog for April 5
+9c1c20a Add kickoff lockout + ET times on match cards (debug time disabled)
+324655b Add toast notification and auto-scroll when all bets placed
+5f69d1e Update completion message: Bets placed, change until kickoff
+fa3cc20 Fix Cape Verde card: match code CPV → CVE to match image filename
+779af1c Add changelog for April 5 session, update slogan with emojis
 5ba6a47 Complete deployment log for April 3: full context, architecture, restore instructions, TODO
 8d3c6dc Restructure tabs: Champions (last round), Matches (default), Leaderboard (TON history)
 c8af487 Add completion message after all 10 predictions are made
