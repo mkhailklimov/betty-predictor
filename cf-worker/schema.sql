@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
   is_premium INTEGER DEFAULT 0,
   points INTEGER DEFAULT 0,
   predictions_count INTEGER DEFAULT 0,
+  tours_played INTEGER DEFAULT 0,
+  ton_wallet TEXT,
+  ton_consent INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
