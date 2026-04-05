@@ -40,7 +40,7 @@ export default {
         if (!tg_id) return json({ detail: 'tg_id required' }, 400);
 
         const existing = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(tg_id).first();
-        if (existing) return json({ detail: 'User already registered' }, 400);
+        if (existing) return json(existing, 200);
 
         const id = uuid();
         const displayName = username || first_name || `User_${tg_id}`;
