@@ -6,3 +6,8 @@ compatibility_date = "2024-12-01"
 binding = "DB"
 database_name = "betty-db"
 database_id = "a064b461-a310-484e-80de-66a684e71c7c"
+
+# Cron trigger: runs every hour to update match is_active status
+# Starts mattering June 11, 2026 — before that, all matches stay is_active=1
+[triggers]
+crons = ["0 * * * *"]

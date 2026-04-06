@@ -18,6 +18,38 @@ function uuid() {
 }
 
 export default {
+  // Cron Trigger: runs every hour, auto-updates match is_active status
+  async scheduled(event, env, ctx) {
+    const now = new Date();
+    const { results: matches } = await env.DB.prepare('SELECT * FROM matches').all();
+
+    for (const match of matches) {
+      if (!match.time) continue;
+
+      const kickoff = new Date(match.time.includes('T') ? match.time : match.time.replace(' ', 'T') + 'Z');
+      const endEstimate = new Date(kickoff.getTime() + 3 * 60 * 60 * 1000); // ~3h after kickoff
+
+      let newStatus = match.is_active;
+
+      if (now >= endEstimate) {
+        newStatus = 3; // Game ended, hide
+      } else if (now >= kickoff) {
+        newStatus = 2; // Game started, locked
+      }
+      // 0 and 1 are set manually via admin
+
+      if (newStatus !== match.is_active) {
+        await env.DB.prepare(
+          'UPDATE matches SET is_active = ?, status = ?, updated_at = datetime("now") WHERE id = ?'
+        ).bind(
+          newStatus,
+          newStatus === 2 ? 'live' : newStatus === 3 ? 'finished' : match.status,
+          match.id
+        ).run();
+      }
+    }
+  },
+
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
