@@ -484,10 +484,9 @@
         <p class="placeholder-msg">Results will appear here once matches are played.</p>
     </div>
 
-    <!-- 3. MATCHES — current week list -->
+    <!-- 3. MATCHES -->
     <div id="matches" class="section">
-        <h2>Matches — Week 1</h2>
-        <p class="section-desc">June 11–17, 2026</p>
+        <div id="week-tabs" style="display:flex;gap:0.5rem;margin-bottom:1rem;justify-content:center;"></div>
         <div id="matches-container" class="predictions-list">
             <p class="loading-msg">Loading matches...</p>
         </div>
@@ -542,7 +541,7 @@
 
         // Google Sheet
         const SHEET_ID = '1h51r7hnqrzKrLdarypIyrTWS4zRkFL-UGQSrSUwMGus';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Matches`;
 
         function parseCSV(csv) {
             const lines = csv.trim().split('\n');
@@ -563,28 +562,57 @@
             });
         }
 
+        let allMatches = [];
+        let activeWeek = null;
+
+        function renderWeek(weekstart) {
+            activeWeek = weekstart;
+            const container = document.getElementById('matches-container');
+            const tabs = document.getElementById('week-tabs');
+            const weeks = [...new Set(allMatches.map(m => m.Weekstart))];
+
+            // Week labels
+            const weekLabels = {};
+            weeks.forEach((w, i) => { weekLabels[w] = 'Week ' + (i + 1); });
+
+            tabs.innerHTML = weeks.map(w =>
+                `<button onclick="renderWeek('${w}')" style="
+                    padding:0.5rem 1rem;border-radius:8px;font-weight:700;font-size:0.8rem;
+                    border:1px solid rgba(255,194,13,${w === weekstart ? '0.8' : '0.2'});
+                    background:${w === weekstart ? '#ffc20d' : 'rgba(255,194,13,0.08)'};
+                    color:${w === weekstart ? '#0d0d0d' : '#ffc20d'};
+                    cursor:pointer;font-family:inherit;
+                ">${weekLabels[w]}</button>`
+            ).join('');
+
+            const weekMatches = allMatches.filter(m => m.Weekstart === weekstart);
+            container.innerHTML = '';
+            weekMatches.forEach(m => {
+                const localTime = m['Matchdate Local Time'] || '';
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.innerHTML = `
+                    <div class="predict-header">
+                        <span class="predict-group">Group ${m.Group}</span>
+                        <span class="predict-date">${localTime}</span>
+                    </div>
+                    <div class="predict-venue">${m.Venue}</div>
+                    <div style="text-align:center;font-size:1.05rem;font-weight:600;color:#e0e0e0;padding:0.3rem 0;">
+                        ${m['Home Team']} vs. ${m['Away Team']}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
         async function loadMatches() {
             const container = document.getElementById('matches-container');
             try {
                 const resp = await fetch(SHEET_URL);
                 const csv = await resp.text();
-                const matches = parseCSV(csv);
-                container.innerHTML = '';
-                matches.forEach(m => {
-                    const card = document.createElement('div');
-                    card.className = 'match-card';
-                    card.innerHTML = `
-                        <div class="predict-header">
-                            <span class="predict-group">Group ${m.Group}</span>
-                            <span class="predict-date">${m.Date}</span>
-                        </div>
-                        <div class="predict-venue">${m.Venue}</div>
-                        <div style="text-align:center;font-size:1.05rem;font-weight:600;color:#e0e0e0;padding:0.3rem 0;">
-                            ${m.Matchup}
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
+                allMatches = parseCSV(csv);
+                const weeks = [...new Set(allMatches.map(m => m.Weekstart))];
+                renderWeek(weeks[0] || '');
             } catch (err) {
                 container.innerHTML = '<p class="placeholder-msg">Could not load matches.</p>';
             }
