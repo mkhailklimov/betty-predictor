@@ -13,7 +13,7 @@ World Cup 2026 is the biggest one yet — 48 teams, 104 matches, hosted across U
 The concept is simple:
 - **Pick the winner** (Win 1 / Draw / Win 2) for each match
 - **Predict the exact score** (from 0:0 to 9:0)
-- **Earn points** — correct outcome = 1 point, exact score = 3 points, max 4 per match
+- **Earn points** — correct outcome = 1 point, exact score = 3 points (total, not added)
 - **Win TON** — top scorer each week takes home 1 TON
 
 The twist? If two players tie on points, the one who placed their bets **earlier** wins. First come, first served. No procrastinating.
@@ -174,11 +174,10 @@ The beauty of predictions is that everyone becomes an expert. "Obviously Germany
 | What you got right | Points |
 |--------------------|--------|
 | Nothing | 0 |
-| Correct outcome (1/X/2) | +1 |
-| Correct exact score | +3 |
-| Both (outcome implied by score) | +4 |
+| Correct outcome only (1/X/2) | 1 |
+| Correct exact score (implies outcome) | 3 |
 
-Maximum per week: **40 points** (4 × 10 matches).
+Maximum per week: **30 points** (3 × 10 matches). Just like soccer — 1 or 3, no in-between.
 
 The tiebreaker rule adds strategy: if you're confident in your picks, submit early. Waiting until the last minute is risky — someone with the same score who bet earlier takes the TON.
 

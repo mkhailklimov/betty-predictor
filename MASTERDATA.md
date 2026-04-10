@@ -109,7 +109,7 @@ CREATE TABLE bets (
   prediction      TEXT NOT NULL,                  -- '1', 'X', or '2'
   score_home      INTEGER NOT NULL,               -- Predicted home goals
   score_away      INTEGER NOT NULL,               -- Predicted away goals
-  points_earned   INTEGER,                        -- NULL until match ends. 0, 1, 3, or 4
+  points_earned   INTEGER,                        -- NULL until match ends. 0, 1, or 3
   created_at      TEXT DEFAULT (datetime('now')), -- First bet placed
   updated_at      TEXT DEFAULT (datetime('now')), -- Last modification
   UNIQUE(user_id, match_id)                       -- One bet per user per match
@@ -122,8 +122,7 @@ CREATE TABLE bets (
 |------------|--------|-------------|
 | Wrong | **0** | Neither outcome nor score correct |
 | Correct outcome (1/X/2) | **+1** | Predicted the right result |
-| Correct exact score | **+3** | Predicted the exact score (implies correct outcome) |
-| Maximum per match | **+4** | Correct outcome (+1) + correct exact score (+3) |
+| Correct exact score | **3** | Predicted the exact score (includes correct outcome). This is the total, not added to +1. |
 
 ### Rules
 

@@ -39,7 +39,7 @@ CREATE TABLE bets (
   prediction TEXT NOT NULL,       -- 1, X, 2
   score_home INTEGER NOT NULL,
   score_away INTEGER NOT NULL,
-  points_earned INTEGER,          -- NULL → 0/1/3/4 after match ends
+  points_earned INTEGER,          -- NULL → 0/1/3 after match ends
   created_at TEXT,
   updated_at TEXT,
   UNIQUE(user_id, match_id)
@@ -130,8 +130,7 @@ Bets tab pre-populated with 21 existing bets from D1.
 |------------|--------|
 | Wrong | 0 |
 | Correct outcome (1/X/2) | +1 |
-| Correct exact score | +3 |
-| Max per match | +4 (1+3) |
+| Correct exact score | 3 (total, not added to +1) |
 
 ---
 
