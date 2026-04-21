@@ -18,8 +18,15 @@ function uuid() {
 }
 
 export default {
-  // Cron Trigger: runs every hour, auto-updates match is_active status
+  // Cron triggers — dispatch by schedule string:
+  //   "0 * * * *"  → hourly match-status update
+  //   "0 6 * * 5"  → weekly users D1→Sheets sync
   async scheduled(event, env, ctx) {
+    if (event.cron === '0 6 * * 5') {
+      ctx.waitUntil(syncUsersToSheet(env));
+      return;
+    }
+    // Default: hourly match-status update
     const now = new Date();
     const { results: matches } = await env.DB.prepare('SELECT * FROM matches').all();
 
@@ -312,6 +319,18 @@ export default {
         return json({ message: `Claimed ${pending.length} rewards`, total_ton: totalTon });
       }
 
+      // --- Admin: manual trigger of the weekly Users sync ---
+      // Call: curl -X POST https://<worker>/api/admin/sync-users \
+      //        -H "Authorization: Bearer $ADMIN_TOKEN"
+      if (method === 'POST' && path === '/api/admin/sync-users') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const result = await syncUsersToSheet(env);
+        return json(result);
+      }
+
       // --- Telegram ---
       if (method === 'POST' && path === '/api/telegram/web-app-data') {
         const body = await request.json();
@@ -344,4 +363,107 @@ function parseScores(results) {
     }
     return r;
   });
+}
+
+// ---------------------------------------------------------------------------
+// Google Sheets sync: users D1 → "Users" tab. Invoked weekly (Fri 06:00 UTC)
+// and via POST /api/admin/sync-users. Requires secrets:
+//   GOOGLE_SA_JSON         — service-account JSON (entire file contents)
+//   SHEETS_SPREADSHEET_ID  — target spreadsheet id
+// ---------------------------------------------------------------------------
+
+const USERS_HEADER = [
+  'id', 'tg_id', 'username', 'is_premium', 'points', 'predictions_count',
+  'tours_played', 'ton_wallet', 'ton_consent', 'ton_earned', 'ton_distributed',
+  'created_at', 'updated_at',
+];
+
+async function syncUsersToSheet(env) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+  const { results: users } = await env.DB.prepare('SELECT * FROM users').all();
+
+  const rows = [USERS_HEADER];
+  for (const u of users) {
+    rows.push(USERS_HEADER.map(k => u[k] == null ? '' : String(u[k])));
+  }
+
+  const accessToken = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+
+  // Clear the Users tab, then write the full snapshot.
+  await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Users!A:Z:clear`,
+    accessToken, 'POST', {}
+  );
+  await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Users!A1?valueInputOption=RAW`,
+    accessToken, 'PUT', { range: 'Users!A1', majorDimension: 'ROWS', values: rows }
+  );
+
+  return { ok: true, synced: users.length, at: new Date().toISOString() };
+}
+
+async function sheetsFetch(url, token, method, body) {
+  const r = await fetch(url, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`Sheets ${method} ${url} → ${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+// Build a JWT signed with the SA private key (RS256) and exchange it for an
+// OAuth access token scoped to Sheets writes. Uses Web Crypto — no deps.
+async function getGoogleAccessToken(sa) {
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const claim = {
+    iss: sa.client_email,
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now,
+    exp: now + 3600,
+  };
+  const toB64Url = (s) => btoa(s).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+  const headerEnc = toB64Url(JSON.stringify(header));
+  const claimEnc = toB64Url(JSON.stringify(claim));
+  const signingInput = `${headerEnc}.${claimEnc}`;
+
+  const key = await crypto.subtle.importKey(
+    'pkcs8',
+    pemToDer(sa.private_key),
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const sigBuf = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(signingInput));
+  const sig = toB64Url(String.fromCharCode(...new Uint8Array(sigBuf)));
+  const jwt = `${signingInput}.${sig}`;
+
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    }),
+  });
+  if (!r.ok) throw new Error(`Google token: ${r.status} ${await r.text()}`);
+  const { access_token } = await r.json();
+  return access_token;
+}
+
+function pemToDer(pem) {
+  const b64 = pem
+    .replace(/-----BEGIN [^-]+-----/, '')
+    .replace(/-----END [^-]+-----/, '')
+    .replace(/\s+/g, '');
+  const bin = atob(b64);
+  const buf = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  return buf.buffer;
 }
