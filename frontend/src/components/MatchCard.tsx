@@ -1,5 +1,5 @@
 import React from 'react'
-import { MatchData, ALL_SCORES, getCardImage, isMatchLocked } from '../data/matches'
+import { MatchData, ALL_SCORES, getCardImage, isMatchLocked, flagToTwemojiUrl } from '../data/matches'
 import '../styles/MatchCard.css'
 
 interface MatchCardProps {
@@ -59,7 +59,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
             <img src={homeCard} alt={match.home.name} className="mc__card-img" />
           ) : (
             <div className="mc__card-fallback">
-              <span className="mc__card-flag">{match.home.flag}</span>
+              <img src={flagToTwemojiUrl(match.home.flag)} alt={match.home.name} className="mc__card-flag-img" />
             </div>
           )}
           <span className="mc__card-name">{match.home.name}</span>
@@ -76,7 +76,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
             <img src={awayCard} alt={match.away.name} className="mc__card-img" />
           ) : (
             <div className="mc__card-fallback">
-              <span className="mc__card-flag">{match.away.flag}</span>
+              <img src={flagToTwemojiUrl(match.away.flag)} alt={match.away.name} className="mc__card-flag-img" />
             </div>
           )}
           <span className="mc__card-name">{match.away.name}</span>

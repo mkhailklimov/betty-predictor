@@ -133,6 +133,52 @@
   font-style: italic;
 }
 
+.all-done--full {
+  margin-top: 2rem;
+  padding: 2rem 1.4rem;
+}
+
+.all-done--full .all-done-icon {
+  font-size: 3.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.all-done--full .all-done-title {
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.all-done--full .all-done-text {
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.all-done--full .all-done-hint {
+  font-size: 0.95rem;
+  font-style: normal;
+  color: #ccc;
+  margin-bottom: 1.4rem;
+}
+
+.all-done-review-btn {
+  background: #ffc20d;
+  color: #0d0d0d;
+  border: none;
+  padding: 0.8rem 1.6rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+}
+
+.all-done-review-btn--inline {
+  margin-top: 1rem;
+  background: transparent;
+  color: #ffc20d;
+  border: 1px solid rgba(255, 194, 13, 0.4);
+}
+
 /* Toast notification */
 .toast {
   position: fixed;

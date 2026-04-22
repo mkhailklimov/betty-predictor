@@ -39,6 +39,18 @@ export function getCardImage(code: string): string | null {
   return TEAM_CARDS[code] ? `/teams/Cards/${code}.png` : null
 }
 
+// Convert a flag-emoji string (e.g. "\u{1F1E8}\u{1F1FF}") to a Twemoji SVG URL.
+// TG WebViews often lack glyphs for less-common flags; Twemoji renders them as
+// inline <img>s and works everywhere.
+export function flagToTwemojiUrl(flag: string): string {
+  const codes: string[] = []
+  for (const ch of flag) {
+    const cp = ch.codePointAt(0)
+    if (cp && cp !== 0xFE0F) codes.push(cp.toString(16))
+  }
+  return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${codes.join('-')}.svg`
+}
+
 export const WEEK1_MATCHES: MatchData[] = [
   {
     id: 1,

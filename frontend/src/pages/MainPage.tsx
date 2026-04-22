@@ -23,11 +23,21 @@ function toBackendMatchId(id: number): string {
   return `match-${id}`
 }
 
+// Date of the day AFTER the last match of the active week — for the "check results on …" line.
+function resultsAvailableDate(): string {
+  const last = ACTIVE_MATCHES[ACTIVE_MATCHES.length - 1]
+  if (!last) return ''
+  const d = new Date(last.kickoff)
+  d.setUTCDate(d.getUTCDate() + 1)
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', timeZone: 'UTC' })
+}
+
 export const MainPage: React.FC = () => {
   const [predictions, setPredictions] = React.useState(loadPredictions)
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [showToast, setShowToast] = React.useState(false)
   const [toastMessage, setToastMessage] = React.useState('')
+  const [reviewMode, setReviewMode] = React.useState(false)
   const doneRef = React.useRef<HTMLDivElement>(null)
 
   const handlePredict = async (matchId: number, outcome: string, score: string) => {
@@ -80,6 +90,32 @@ export const MainPage: React.FC = () => {
   const currentMatch = ACTIVE_MATCHES[currentIndex]
   const allDone = completedCount === ACTIVE_MATCHES.length
 
+  // When all predictions are in and the user hasn't opted into review mode,
+  // show a full confirmation screen instead of the card stack. This guarantees
+  // the "bets saved" message is visible on every TG WebView (scrollIntoView is
+  // unreliable inside Telegram's WebView).
+  if (allDone && !reviewMode) {
+    return (
+      <div className="main-page">
+        <div className="page-header">
+          <h1>{ACTIVE_WEEK_LABEL}</h1>
+        </div>
+        <div className="all-done all-done--full" ref={doneRef}>
+          <div className="all-done-icon">&#9989;</div>
+          <div className="all-done-title">Your bets are saved!</div>
+          <div className="all-done-text">You can change any prediction until that match kicks off.</div>
+          <div className="all-done-hint">Check your results on <strong>{resultsAvailableDate()}</strong>.</div>
+          <button
+            className="all-done-review-btn"
+            onClick={() => setReviewMode(true)}
+          >
+            Review or change my bets
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="main-page">
       <div className="page-header">
@@ -131,13 +167,13 @@ export const MainPage: React.FC = () => {
         </button>
       </div>
 
-      {allDone && (
-        <div className="all-done" ref={doneRef}>
-          <div className="all-done-icon">&#9989;</div>
-          <div className="all-done-title">Bets placed!</div>
-          <div className="all-done-text">You can change your predictions until each match begins.</div>
-          <div className="all-done-hint">Results will be available the day after the last match of {ACTIVE_WEEK_LABEL}.</div>
-        </div>
+      {allDone && reviewMode && (
+        <button
+          className="all-done-review-btn all-done-review-btn--inline"
+          onClick={() => setReviewMode(false)}
+        >
+          Back to confirmation
+        </button>
       )}
 
       {showToast && (
