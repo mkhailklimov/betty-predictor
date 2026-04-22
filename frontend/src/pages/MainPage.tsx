@@ -1,6 +1,6 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
-import { WEEK1_MATCHES } from '../data/matches'
+import { ACTIVE_MATCHES, ACTIVE_WEEK_LABEL } from '../data/matches'
 import { predictionsApi } from '../services/api'
 import '../styles/MainPage.css'
 
@@ -62,7 +62,7 @@ export const MainPage: React.FC = () => {
     }
 
     const newCount = Object.keys(updated).length
-    const isAllDone = newCount === WEEK1_MATCHES.length
+    const isAllDone = newCount === ACTIVE_MATCHES.length
 
     if (isAllDone) {
       setToastMessage('&#9989; Bets placed!')
@@ -71,27 +71,27 @@ export const MainPage: React.FC = () => {
         doneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 300)
       setTimeout(() => setShowToast(false), 4000)
-    } else if (currentIndex < WEEK1_MATCHES.length - 1) {
+    } else if (currentIndex < ACTIVE_MATCHES.length - 1) {
       setTimeout(() => setCurrentIndex(currentIndex + 1), 600)
     }
   }
 
   const completedCount = Object.keys(predictions).length
-  const currentMatch = WEEK1_MATCHES[currentIndex]
-  const allDone = completedCount === WEEK1_MATCHES.length
+  const currentMatch = ACTIVE_MATCHES[currentIndex]
+  const allDone = completedCount === ACTIVE_MATCHES.length
 
   return (
     <div className="main-page">
       <div className="page-header">
-        <h1>Week 1</h1>
+        <h1>{ACTIVE_WEEK_LABEL}</h1>
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${(completedCount / WEEK1_MATCHES.length) * 100}%` }}
+            style={{ width: `${(completedCount / ACTIVE_MATCHES.length) * 100}%` }}
           />
         </div>
         <p className="progress-text">
-          Match {currentIndex + 1} of {WEEK1_MATCHES.length}
+          Match {currentIndex + 1} of {ACTIVE_MATCHES.length}
           {completedCount > 0 && ` · ${completedCount} predicted`}
         </p>
       </div>
@@ -114,7 +114,7 @@ export const MainPage: React.FC = () => {
           &#8592; Prev
         </button>
         <span className="card-nav-dots">
-          {WEEK1_MATCHES.map((m, i) => (
+          {ACTIVE_MATCHES.map((m, i) => (
             <span
               key={m.id}
               className={`dot ${i === currentIndex ? 'dot--current' : ''} ${predictions[m.id] ? 'dot--done' : ''}`}
@@ -124,8 +124,8 @@ export const MainPage: React.FC = () => {
         </span>
         <button
           className="card-nav-btn"
-          onClick={() => setCurrentIndex(Math.min(WEEK1_MATCHES.length - 1, currentIndex + 1))}
-          disabled={currentIndex === WEEK1_MATCHES.length - 1}
+          onClick={() => setCurrentIndex(Math.min(ACTIVE_MATCHES.length - 1, currentIndex + 1))}
+          disabled={currentIndex === ACTIVE_MATCHES.length - 1}
         >
           Next &#8594;
         </button>
@@ -136,7 +136,7 @@ export const MainPage: React.FC = () => {
           <div className="all-done-icon">&#9989;</div>
           <div className="all-done-title">Bets placed!</div>
           <div className="all-done-text">You can change your predictions until each match begins.</div>
-          <div className="all-done-hint">Results will be available on June 18 — the day after the last Week 1 match.</div>
+          <div className="all-done-hint">Results will be available the day after the last match of {ACTIVE_WEEK_LABEL}.</div>
         </div>
       )}
 
