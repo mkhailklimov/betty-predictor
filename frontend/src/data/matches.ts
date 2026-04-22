@@ -30,9 +30,14 @@ export function isMatchLocked(match: MatchData): boolean {
   return getNow() >= new Date(match.kickoff)
 }
 
-// Team codes that have card images in /teams/Cards/
+// Team codes that have card images in /teams/Cards/.
+// Kept in sync with the PNGs present in frontend/public/teams/Cards/ (sourced from the
+// canonical Cards Drive folder). Teams not listed here fall back to Twemoji SVG flags.
 export const TEAM_CARDS: Record<string, boolean> = {
-  MEX: true, SAF: true, CAN: true, BIH: true, USA: true, PAR: true, BRA: true, MOR: true, GER: true, CUR: true, NED: true, JAP: true, FRA: true, ALG: true, ARG: true, SEN: true, ENG: true, CRO: true, ESP: true, CVE: true,
+  ALG: true, ARG: true, BIH: true, BRA: true, CAN: true, CRO: true, CUR: true, CVE: true,
+  ENG: true, ESP: true, FRA: true, GER: true, JAP: true, KOR: true, MEX: true, MOR: true,
+  NED: true, NOR: true, PAR: true, SAF: true, SCO: true, SEN: true, SWE: true, TUR: true,
+  USA: true, UZB: true,
 }
 
 export function getCardImage(code: string): string | null {
