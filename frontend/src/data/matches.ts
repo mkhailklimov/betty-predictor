@@ -40,8 +40,11 @@ export const TEAM_CARDS: Record<string, boolean> = {
   SCO: true, SEN: true, SWE: true, SWZ: true, TUR: true, USA: true, UZB: true,
 }
 
+// Bump when any card PNG is updated — appended as ?v= to bust WebView caches.
+const CARD_ASSETS_VERSION = '3'
+
 export function getCardImage(code: string): string | null {
-  return TEAM_CARDS[code] ? `/teams/Cards/${code}.png` : null
+  return TEAM_CARDS[code] ? `/teams/Cards/${code}.png?v=${CARD_ASSETS_VERSION}` : null
 }
 
 // Locally bundled SVG flags for teams with no card PNG. TG WebViews and some
