@@ -44,6 +44,16 @@ export function getCardImage(code: string): string | null {
   return TEAM_CARDS[code] ? `/teams/Cards/${code}.png` : null
 }
 
+// Locally bundled SVG flags for teams with no card PNG. TG WebViews and some
+// networks block the jsdelivr CDN, so we serve these from our own origin.
+const LOCAL_FLAGS: Record<string, boolean> = {
+  CZE: true, SWZ: true, QAT: true, AUS: true, POR: true,
+}
+
+export function getLocalFlag(code: string): string | null {
+  return LOCAL_FLAGS[code] ? `/teams/Flags/${code}.svg` : null
+}
+
 // Convert a flag-emoji string (e.g. "\u{1F1E8}\u{1F1FF}") to a Twemoji SVG URL.
 // TG WebViews often lack glyphs for less-common flags; Twemoji renders them as
 // inline <img>s and works everywhere.
