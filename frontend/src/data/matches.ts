@@ -20,7 +20,7 @@ export interface MatchData {
 
 // Debug: set to an ISO date string to simulate a specific time, or null for real time
 // Example: '2026-06-13T09:00:00Z' to simulate June 13, 9 AM UTC
-export const DEBUG_TIME: string | null = '2026-06-19T20:00:00Z'
+export const DEBUG_TIME: string | null = null
 
 export function getNow(): Date {
   return DEBUG_TIME ? new Date(DEBUG_TIME) : new Date()
