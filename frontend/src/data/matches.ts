@@ -41,7 +41,7 @@ export const TEAM_CARDS: Record<string, boolean> = {
 }
 
 // Bump when any card PNG is updated — appended as ?v= to bust WebView caches.
-const CARD_ASSETS_VERSION = '3'
+const CARD_ASSETS_VERSION = '4'
 
 export function getCardImage(code: string): string | null {
   return TEAM_CARDS[code] ? `/teams/Cards/${code}.png?v=${CARD_ASSETS_VERSION}` : null
