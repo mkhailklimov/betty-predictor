@@ -9,6 +9,7 @@ cf-worker/.betty-sa.json
 cf-worker/one-shot-sync.py
 cf-worker/.admin-token
 cf-worker/.wrangler/
+.wrangler/
 
 # Node
 node_modules/
