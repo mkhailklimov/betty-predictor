@@ -41,8 +41,6 @@ function App() {
         // Register (returns existing user if already registered)
         const { data } = await userApi.register({
           tg_id: tgId,
-          first_name: tgUser?.first_name || 'Player',
-          last_name: tgUser?.last_name,
           username: tgUser?.username,
         })
         setUser(data)

@@ -31,7 +31,7 @@ api.interceptors.request.use((config) => {
 
 // User API
 export const userApi = {
-  register: (userData: { tg_id: string; first_name: string; last_name?: string; username?: string }) =>
+  register: (userData: { tg_id: string; username?: string }) =>
     api.post<User>('/api/user/register', userData),
   getMe: () => api.get<User>('/api/user/me'),
   getProfile: (userId: string) => api.get<User>(`/api/user/${userId}`),
