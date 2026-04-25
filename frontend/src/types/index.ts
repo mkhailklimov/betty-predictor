@@ -36,7 +36,7 @@ export interface Prediction {
 export interface LeaderboardEntry {
   rank: number
   user_id: string
-  first_name: string
+  username: string
   points: number
   correct_predictions: number
   correct_scores: number

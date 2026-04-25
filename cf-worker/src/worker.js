@@ -75,14 +75,14 @@ export default {
       // --- Users ---
       if (method === 'POST' && path === '/api/user/register') {
         const body = await request.json();
-        const { tg_id, first_name, last_name, username } = body;
+        const { tg_id, username } = body;
         if (!tg_id) return json({ detail: 'tg_id required' }, 400);
 
         const existing = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(tg_id).first();
         if (existing) return json(existing, 200);
 
         const id = uuid();
-        const displayName = username || first_name || `User_${tg_id}`;
+        const displayName = username || `User_${tg_id}`;
         await env.DB.prepare(
           'INSERT INTO users (id, tg_id, username) VALUES (?, ?, ?)'
         ).bind(id, tg_id, displayName).run();
