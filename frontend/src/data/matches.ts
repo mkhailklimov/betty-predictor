@@ -35,8 +35,11 @@ export const TEAM_CARDS: Record<string, boolean> = {
   MEX: true, SAF: true, CAN: true, BIH: true, USA: true, PAR: true, BRA: true, MOR: true, GER: true, CUR: true, NED: true, JAP: true, FRA: true, ALG: true, ARG: true, SEN: true, ENG: true, CRO: true, ESP: true, CVE: true,
 }
 
+// Bump when any card PNG is updated — appended as ?v= to bust WebView caches.
+const CARD_ASSETS_VERSION = '1'
+
 export function getCardImage(code: string): string | null {
-  return TEAM_CARDS[code] ? `/teams/Cards/${code}.png` : null
+  return TEAM_CARDS[code] ? `/teams/Cards/${code}.png?v=${CARD_ASSETS_VERSION}` : null
 }
 
 export const WEEK1_MATCHES: MatchData[] = [
