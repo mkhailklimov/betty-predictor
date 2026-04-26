@@ -91,6 +91,22 @@ export default {
         return json(user, 201);
       }
 
+      if (method === 'POST' && path === '/api/user/wallet') {
+        const body = await request.json();
+        const { ton_address } = body;
+        if (!ton_address || typeof ton_address !== 'string') {
+          return json({ detail: 'ton_address required' }, 400);
+        }
+        const token = getToken(request);
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
+        if (!user) return json({ detail: 'User not found' }, 401);
+        await env.DB.prepare(
+          'UPDATE users SET ton_wallet = ?, ton_consent = 1, updated_at = datetime("now") WHERE id = ?'
+        ).bind(ton_address, user.id).run();
+        return json({ ok: true });
+      }
+
       if (method === 'GET' && path === '/api/user/me') {
         const token = getToken(request);
         if (token) {

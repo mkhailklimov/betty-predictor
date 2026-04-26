@@ -1,5 +1,5 @@
 import React from 'react'
-import { MatchData, ALL_SCORES, getCardImage, isMatchLocked } from '../data/matches'
+import { MatchData, ALL_SCORES, getCardImage, getLocalFlag, isMatchLocked, flagToTwemojiUrl } from '../data/matches'
 import '../styles/MatchCard.css'
 
 interface MatchCardProps {
@@ -19,6 +19,8 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
   const locked = isMatchLocked(match)
   const homeCard = getCardImage(match.home.code)
   const awayCard = getCardImage(match.away.code)
+  const homeFlag = getLocalFlag(match.home.code) || flagToTwemojiUrl(match.home.flag)
+  const awayFlag = getLocalFlag(match.away.code) || flagToTwemojiUrl(match.away.flag)
 
   const handleOutcome = (outcome: string) => {
     if (locked) return
@@ -59,7 +61,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
             <img src={homeCard} alt={match.home.name} className="mc__card-img" />
           ) : (
             <div className="mc__card-fallback">
-              <span className="mc__card-flag">{match.home.flag}</span>
+              <img src={homeFlag} alt={match.home.name} className="mc__card-flag-img" />
             </div>
           )}
           <span className="mc__card-name">{match.home.name}</span>
@@ -76,7 +78,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
             <img src={awayCard} alt={match.away.name} className="mc__card-img" />
           ) : (
             <div className="mc__card-fallback">
-              <span className="mc__card-flag">{match.away.flag}</span>
+              <img src={awayFlag} alt={match.away.name} className="mc__card-flag-img" />
             </div>
           )}
           <span className="mc__card-name">{match.away.name}</span>

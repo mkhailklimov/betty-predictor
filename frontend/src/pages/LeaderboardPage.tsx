@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import { leaderboardApi } from '../services/api'
-import { LeaderboardEntry } from '../types'
+import { TonConnectButton, useTonAddress } from '@tonconnect/ui-react'
+import { leaderboardApi, userApi } from '../services/api'
+import { LeaderboardEntry, User } from '../types'
 import '../styles/LeaderboardPage.css'
 
 export const LeaderboardPage: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [me, setMe] = useState<User | null>(null)
+  const [savedAddress, setSavedAddress] = useState<string | null>(null)
+  const tonAddress = useTonAddress()
 
   useEffect(() => {
     const loadLeaderboard = async () => {
       try {
         setIsLoading(true)
-        const { data } = await leaderboardApi.getOverall()
-        setLeaderboard(data)
+        const [{ data: lb }, { data: meData }] = await Promise.all([
+          leaderboardApi.getOverall(),
+          userApi.getMe().catch(() => ({ data: null as User | null })),
+        ])
+        setLeaderboard(lb)
+        setMe(meData)
       } catch (error) {
         console.error('Error loading leaderboard:', error)
       } finally {
@@ -21,6 +29,18 @@ export const LeaderboardPage: React.FC = () => {
     }
     loadLeaderboard()
   }, [])
+
+  // Persist newly-connected wallet to backend (once per address).
+  useEffect(() => {
+    if (!tonAddress || tonAddress === savedAddress) return
+    userApi.saveWallet(tonAddress)
+      .then(() => setSavedAddress(tonAddress))
+      .catch((e) => console.error('saveWallet failed:', e))
+  }, [tonAddress, savedAddress])
+
+  const myEntry = me ? leaderboard.find((e) => e.user_id === me.id) : null
+  const hasEarned = !!myEntry && myEntry.points > 0
+  const isConnected = !!tonAddress
 
   if (isLoading) {
     return (
@@ -65,6 +85,19 @@ export const LeaderboardPage: React.FC = () => {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {hasEarned && !isConnected && (
+        <div className="ton-connect-zone">
+          <p className="ton-connect-hint">You've earned TON — connect a wallet to receive your prize.</p>
+          <TonConnectButton />
+        </div>
+      )}
+      {hasEarned && isConnected && (
+        <div className="ton-connect-zone">
+          <p className="ton-connect-hint">Wallet connected — prizes will be sent here.</p>
+          <TonConnectButton />
         </div>
       )}
     </div>

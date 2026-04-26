@@ -1,6 +1,6 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
-import { WEEK1_MATCHES } from '../data/matches'
+import { ACTIVE_MATCHES, ACTIVE_WEEK_LABEL } from '../data/matches'
 import { predictionsApi } from '../services/api'
 import '../styles/MainPage.css'
 
@@ -23,11 +23,21 @@ function toBackendMatchId(id: number): string {
   return `match-${id}`
 }
 
+// Date of the day AFTER the last match of the active week — for the "check results on …" line.
+function resultsAvailableDate(): string {
+  const last = ACTIVE_MATCHES[ACTIVE_MATCHES.length - 1]
+  if (!last) return ''
+  const d = new Date(last.kickoff)
+  d.setUTCDate(d.getUTCDate() + 1)
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', timeZone: 'UTC' })
+}
+
 export const MainPage: React.FC = () => {
   const [predictions, setPredictions] = React.useState(loadPredictions)
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [showToast, setShowToast] = React.useState(false)
   const [toastMessage, setToastMessage] = React.useState('')
+  const [reviewMode, setReviewMode] = React.useState(false)
   const doneRef = React.useRef<HTMLDivElement>(null)
 
   const handlePredict = async (matchId: number, outcome: string, score: string) => {
@@ -62,7 +72,7 @@ export const MainPage: React.FC = () => {
     }
 
     const newCount = Object.keys(updated).length
-    const isAllDone = newCount === WEEK1_MATCHES.length
+    const isAllDone = newCount === ACTIVE_MATCHES.length
 
     if (isAllDone) {
       setToastMessage('&#9989; Bets placed!')
@@ -71,27 +81,53 @@ export const MainPage: React.FC = () => {
         doneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 300)
       setTimeout(() => setShowToast(false), 4000)
-    } else if (currentIndex < WEEK1_MATCHES.length - 1) {
+    } else if (currentIndex < ACTIVE_MATCHES.length - 1) {
       setTimeout(() => setCurrentIndex(currentIndex + 1), 600)
     }
   }
 
   const completedCount = Object.keys(predictions).length
-  const currentMatch = WEEK1_MATCHES[currentIndex]
-  const allDone = completedCount === WEEK1_MATCHES.length
+  const currentMatch = ACTIVE_MATCHES[currentIndex]
+  const allDone = completedCount === ACTIVE_MATCHES.length
+
+  // When all predictions are in and the user hasn't opted into review mode,
+  // show a full confirmation screen instead of the card stack. This guarantees
+  // the "bets saved" message is visible on every TG WebView (scrollIntoView is
+  // unreliable inside Telegram's WebView).
+  if (allDone && !reviewMode) {
+    return (
+      <div className="main-page">
+        <div className="page-header">
+          <h1>{ACTIVE_WEEK_LABEL}</h1>
+        </div>
+        <div className="all-done all-done--full" ref={doneRef}>
+          <div className="all-done-icon">&#9989;</div>
+          <div className="all-done-title">Your bets are saved!</div>
+          <div className="all-done-text">You can change any prediction until that match kicks off.</div>
+          <div className="all-done-hint">Check your results on <strong>{resultsAvailableDate()}</strong>.</div>
+          <button
+            className="all-done-review-btn"
+            onClick={() => setReviewMode(true)}
+          >
+            Review or change my bets
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="main-page">
       <div className="page-header">
-        <h1>Week 1</h1>
+        <h1>{ACTIVE_WEEK_LABEL}</h1>
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${(completedCount / WEEK1_MATCHES.length) * 100}%` }}
+            style={{ width: `${(completedCount / ACTIVE_MATCHES.length) * 100}%` }}
           />
         </div>
         <p className="progress-text">
-          Match {currentIndex + 1} of {WEEK1_MATCHES.length}
+          Match {currentIndex + 1} of {ACTIVE_MATCHES.length}
           {completedCount > 0 && ` · ${completedCount} predicted`}
         </p>
       </div>
@@ -114,7 +150,7 @@ export const MainPage: React.FC = () => {
           &#8592; Prev
         </button>
         <span className="card-nav-dots">
-          {WEEK1_MATCHES.map((m, i) => (
+          {ACTIVE_MATCHES.map((m, i) => (
             <span
               key={m.id}
               className={`dot ${i === currentIndex ? 'dot--current' : ''} ${predictions[m.id] ? 'dot--done' : ''}`}
@@ -124,20 +160,20 @@ export const MainPage: React.FC = () => {
         </span>
         <button
           className="card-nav-btn"
-          onClick={() => setCurrentIndex(Math.min(WEEK1_MATCHES.length - 1, currentIndex + 1))}
-          disabled={currentIndex === WEEK1_MATCHES.length - 1}
+          onClick={() => setCurrentIndex(Math.min(ACTIVE_MATCHES.length - 1, currentIndex + 1))}
+          disabled={currentIndex === ACTIVE_MATCHES.length - 1}
         >
           Next &#8594;
         </button>
       </div>
 
-      {allDone && (
-        <div className="all-done" ref={doneRef}>
-          <div className="all-done-icon">&#9989;</div>
-          <div className="all-done-title">Bets placed!</div>
-          <div className="all-done-text">You can change your predictions until each match begins.</div>
-          <div className="all-done-hint">Results will be available on June 18 — the day after the last Week 1 match.</div>
-        </div>
+      {allDone && reviewMode && (
+        <button
+          className="all-done-review-btn all-done-review-btn--inline"
+          onClick={() => setReviewMode(false)}
+        >
+          Back to confirmation
+        </button>
       )}
 
       {showToast && (

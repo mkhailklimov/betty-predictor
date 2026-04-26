@@ -1,7 +1,17 @@
 import axios from 'axios'
 import { User, Match, Prediction, LeaderboardEntry } from '../types'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Host-based API routing: prod domain → prod Worker, everything else → dev Worker.
+// Lets the `dev` branch's preview URL hit the dev API without a separate env var.
+function resolveApiBase(): string {
+  if (typeof window === 'undefined') return 'http://localhost:8000'
+  const host = window.location.hostname
+  if (host === 'app.bettyscores.com') return 'https://api.bettyscores.com'
+  if (host.endsWith('.pages.dev')) return 'https://betty-api-dev.mihel-klimm.workers.dev'
+  return import.meta.env.VITE_API_URL || 'http://localhost:8000'
+}
+
+const API_BASE = resolveApiBase()
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -25,6 +35,8 @@ export const userApi = {
     api.post<User>('/api/user/register', userData),
   getMe: () => api.get<User>('/api/user/me'),
   getProfile: (userId: string) => api.get<User>(`/api/user/${userId}`),
+  saveWallet: (ton_address: string) =>
+    api.post<{ ok: boolean }>('/api/user/wallet', { ton_address }),
 }
 
 // Matches API

@@ -49,6 +49,12 @@
   font-size: 3rem;
 }
 
+.mc__card-flag-img {
+  width: 64%;
+  height: auto;
+  object-fit: contain;
+}
+
 .mc__card-name {
   font-size: 0.8rem;
   font-weight: 700;
