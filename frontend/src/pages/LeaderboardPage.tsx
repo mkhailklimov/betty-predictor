@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { TonConnectButton, useTonAddress, useTonConnectUI } from '@tonconnect/ui-react'
+import { TonConnectButton, useTonAddress } from '@tonconnect/ui-react'
 import { leaderboardApi, userApi } from '../services/api'
 import { LeaderboardEntry, User } from '../types'
 import '../styles/LeaderboardPage.css'
@@ -10,7 +10,6 @@ export const LeaderboardPage: React.FC = () => {
   const [me, setMe] = useState<User | null>(null)
   const [savedAddress, setSavedAddress] = useState<string | null>(null)
   const tonAddress = useTonAddress()
-  const [tonConnectUI] = useTonConnectUI()
 
   useEffect(() => {
     const loadLeaderboard = async () => {
@@ -40,14 +39,8 @@ export const LeaderboardPage: React.FC = () => {
   }, [tonAddress, savedAddress])
 
   const myEntry = me ? leaderboard.find((e) => e.user_id === me.id) : null
-  const isEligible = !!myEntry && myEntry.rank <= 3
-
-  // Disconnect if a non-eligible user somehow has a wallet connected.
-  useEffect(() => {
-    if (!isEligible && tonConnectUI.connected) {
-      // Don't auto-disconnect — let them see their connected state but the button is hidden.
-    }
-  }, [isEligible, tonConnectUI])
+  const hasEarned = !!myEntry && myEntry.points > 0
+  const isConnected = !!tonAddress
 
   if (isLoading) {
     return (
@@ -95,16 +88,18 @@ export const LeaderboardPage: React.FC = () => {
         </div>
       )}
 
-      <div className="ton-connect-zone">
-        {isEligible ? (
-          <>
-            <p className="ton-connect-hint">You're in the top 3 — connect a TON wallet to receive your prize.</p>
-            <TonConnectButton />
-          </>
-        ) : (
-          <p className="ton-connect-hint disabled">Reach top 3 this matchweek to connect your TON wallet.</p>
-        )}
-      </div>
+      {hasEarned && !isConnected && (
+        <div className="ton-connect-zone">
+          <p className="ton-connect-hint">You've earned TON — connect a wallet to receive your prize.</p>
+          <TonConnectButton />
+        </div>
+      )}
+      {hasEarned && isConnected && (
+        <div className="ton-connect-zone">
+          <p className="ton-connect-hint">Wallet connected — prizes will be sent here.</p>
+          <TonConnectButton />
+        </div>
+      )}
     </div>
   )
 }
