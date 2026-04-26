@@ -65,6 +65,17 @@
 - **Open items from yesterday still pending**: PNG compression (pngquant/oxipng), dev bot menu URL → stable alias (user did this today via BotFather), dev-only D1 DB, rotate CF API token, scrub leaked CF account ID from commits `218601e`/`9beb9a6`.
 - **Watch**: @tApps_bot moderator response. Expect a few days. They'll DM `@bettyscores_bot` owner.
 
+## Bets sheet sync (added late session)
+- Friend tested the app; user expected Bets + Users tabs in the match-data spreadsheet (`1h51r7hnqrzKrLdarypIyrTWS4zRkFL-UGQSrSUwMGus`) to populate but neither did.
+- Root cause: (a) no Bets sync existed at all, (b) Users sync is weekly cron `0 6 * * 5` so it hadn't fired since the test.
+- Added `syncBetsToSheet` in `cf-worker/src/worker.js` parallel to `syncUsersToSheet`. JOINs `predictions` with `users` + `matches` so the sheet is human-readable.
+  - Bets columns: `id, user_id, tg_id, username, match_id, home_team, away_team, match_time, prediction_type, predicted_score, points_earned, created_at, updated_at`.
+- Cron handler now calls both syncs together; `/api/admin/sync-users` returns `{ users, bets }` and triggers both.
+- No new secrets — reuses `GOOGLE_SA_JSON`, `SHEETS_SPREADSHEET_ID`, `ADMIN_TOKEN`.
+- Deployed dev first (`--env dev`), then prod. Commit `30ad9e3` on main.
+- User opted to wait for the natural Friday 2026-05-01 06:00 UTC run rather than fire a manual sync now or schedule a verification agent.
+- User confirmed the `Bets` tab already exists in the spreadsheet (sync would 400 on `Bets!A:Z:clear` otherwise).
+
 ## Open caveats / mistakes worth remembering
 - Deployed worker to **prod before dev** by forgetting `--env dev` on `wrangler deploy`. Doesn't violate dev-first by intent but does by sequence — added to memory tag for future sessions to be more careful with multi-env wrangler configs.
 - Initial Connect button gating was top-3, but user re-scoped it twice (once in chat — to "all top 3 plus past winners", then narrower — to "anyone with TON earned"). Final rule lives in `LeaderboardPage.tsx` as `myEntry.points > 0`. If we ever add a real per-week prize history, eligibility will need a rethink.
