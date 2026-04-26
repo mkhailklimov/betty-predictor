@@ -24,6 +24,7 @@ export default {
   async scheduled(event, env, ctx) {
     if (event.cron === '0 6 * * 5') {
       ctx.waitUntil(syncUsersToSheet(env));
+      ctx.waitUntil(syncBetsToSheet(env));
       return;
     }
     // Default: hourly match-status update
@@ -343,8 +344,9 @@ export default {
         if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
           return json({ detail: 'Unauthorized' }, 401);
         }
-        const result = await syncUsersToSheet(env);
-        return json(result);
+        const users = await syncUsersToSheet(env);
+        const bets = await syncBetsToSheet(env);
+        return json({ users, bets });
       }
 
       // --- Telegram ---
@@ -382,8 +384,8 @@ function parseScores(results) {
 }
 
 // ---------------------------------------------------------------------------
-// Google Sheets sync: users D1 → "Users" tab. Invoked weekly (Fri 06:00 UTC)
-// and via POST /api/admin/sync-users. Requires secrets:
+// Google Sheets sync: D1 → "Users" and "Bets" tabs. Invoked weekly (Fri 06:00
+// UTC) and via POST /api/admin/sync-users (which now syncs both). Requires:
 //   GOOGLE_SA_JSON         — service-account JSON (entire file contents)
 //   SHEETS_SPREADSHEET_ID  — target spreadsheet id
 // ---------------------------------------------------------------------------
@@ -420,6 +422,48 @@ async function syncUsersToSheet(env) {
   );
 
   return { ok: true, synced: users.length, at: new Date().toISOString() };
+}
+
+const BETS_HEADER = [
+  'id', 'user_id', 'tg_id', 'username', 'match_id', 'home_team', 'away_team',
+  'match_time', 'prediction_type', 'predicted_score', 'points_earned',
+  'created_at', 'updated_at',
+];
+
+async function syncBetsToSheet(env) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+  const { results: bets } = await env.DB.prepare(
+    `SELECT p.id, p.user_id, u.tg_id, u.username, p.match_id,
+            m.home_team, m.away_team, m.time AS match_time,
+            p.prediction_type, p.predicted_score, p.points_earned,
+            p.created_at, p.updated_at
+       FROM predictions p
+       LEFT JOIN users u   ON u.id = p.user_id
+       LEFT JOIN matches m ON m.id = p.match_id
+       ORDER BY p.created_at`
+  ).all();
+
+  const rows = [BETS_HEADER];
+  for (const b of bets) {
+    rows.push(BETS_HEADER.map(k => b[k] == null ? '' : String(b[k])));
+  }
+
+  const accessToken = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+
+  await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Bets!A:Z:clear`,
+    accessToken, 'POST', {}
+  );
+  await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Bets!A1?valueInputOption=RAW`,
+    accessToken, 'PUT', { range: 'Bets!A1', majorDimension: 'ROWS', values: rows }
+  );
+
+  return { ok: true, synced: bets.length, at: new Date().toISOString() };
 }
 
 async function sheetsFetch(url, token, method, body) {
