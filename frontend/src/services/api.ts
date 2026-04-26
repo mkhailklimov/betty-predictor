@@ -35,6 +35,8 @@ export const userApi = {
     api.post<User>('/api/user/register', userData),
   getMe: () => api.get<User>('/api/user/me'),
   getProfile: (userId: string) => api.get<User>(`/api/user/${userId}`),
+  saveWallet: (ton_address: string) =>
+    api.post<{ ok: boolean }>('/api/user/wallet', { ton_address }),
 }
 
 // Matches API

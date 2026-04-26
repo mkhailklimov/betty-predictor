@@ -10,6 +10,8 @@
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
+    "@telegram-apps/analytics": "^1.6.4",
+    "@tonconnect/ui-react": "^2.4.4",
     "@twa-dev/sdk": "^6.9.0",
     "axios": "^1.6.0",
     "react": "^18.2.0",
