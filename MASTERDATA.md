@@ -265,3 +265,41 @@ CREATE TABLE users (
 ### Future Stages
 
 Prize pool and distribution rules will expand as audience grows. The schema supports any distribution model — just update `ton_earned` in Champions.
+
+---
+
+## Forensic note — 2026-05-01: friend's test session
+
+User reported a friend tested the app this week. Asked: find their transactions and record them here.
+
+**Scope of search:**
+- D1 database `betty-db` (`a064b461-a310-484e-80de-66a684e71c7c`) — verified via `wrangler d1 list` to be the only D1 on this Cloudflare account.
+- Tables checked: `users`, `predictions`, `bets`, wallet/TON columns on `users`.
+
+**Queries run (all on remote prod D1, 2026-05-01 ~12:35 UTC):**
+
+| Query | Result |
+|---|---|
+| `SELECT COUNT(*), MAX(created_at) FROM users` | 4 rows, latest `2026-04-10 15:13:38` |
+| `SELECT COUNT(*) FROM users WHERE created_at > '2026-04-20' OR updated_at > '2026-04-20'` | **0** |
+| `SELECT COUNT(*) FROM predictions WHERE created_at > '2026-04-20'` | **0** |
+| `SELECT COUNT(*) FROM bets WHERE created_at > '2026-04-20'` | **0** |
+| `SELECT ... FROM users WHERE ton_wallet IS NOT NULL OR ton_consent = 1` | **0 rows** |
+
+**All 4 users currently in D1 (none are the friend):**
+
+| tg_id | username | created_at |
+|---|---|---|
+| 500886298 | islavutin | 2026-04-10 |
+| 1056798742 | MikeKlimov | 2026-04-05 |
+| 8513208258 | bettyscores | 2026-04-05 |
+| test_123 | TestUser | 2026-04-05 |
+
+**Conclusion: the friend left no trace in any system.** There are no transactions to record because none were created.
+
+**Why (most likely cause):** friend opened `https://app.bettyscores.com` directly in a browser instead of inside Telegram. A Telegram Mini App only writes to D1 when launched via `t.me/bettyscores_bot` — that path injects the signed `WebAppInitData` payload `/api/auth/init` requires. A browser-direct visit fails auth silently and creates nothing.
+
+**Action items (deferred to next session):**
+1. Add a guard on `app.bettyscores.com`: if `Telegram.WebApp.initData` is empty, render "Open in Telegram" CTA → `tg://resolve?domain=bettyscores_bot`.
+2. Audit landing site / share surfaces — never link `app.bettyscores.com` directly; always `t.me/bettyscores_bot`.
+3. Re-test with friend via the bot link, then re-run the queries above to confirm a new user row appears.
