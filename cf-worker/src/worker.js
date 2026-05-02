@@ -253,6 +253,7 @@ export default {
             points: 0,
             correct_predictions: 0,
             correct_scores: 0,
+            is_premium: u.is_premium === 1,
           };
         }
 
@@ -291,6 +292,7 @@ export default {
             points: data.points,
             correct_predictions: data.correct_predictions,
             correct_scores: data.correct_scores,
+            is_premium: data.is_premium,
           }));
 
         return json(leaderboard);
@@ -356,6 +358,74 @@ export default {
 
       if (method === 'GET' && path === '/api/telegram/bot-info') {
         return json({ mini_app_url: 'https://betty-tg-app.netlify.app', status: 'active' });
+      }
+
+      // --- Payments (Telegram Stars) ---
+      // POST /api/payments/create-stars-invoice → returns { invoice_url }
+      // Auth: same tg_id Bearer token as other user endpoints.
+      if (method === 'POST' && path === '/api/payments/create-stars-invoice') {
+        const token = getToken(request);
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
+        if (!user) return json({ detail: 'User not found' }, 401);
+        if (user.is_premium === 1) return json({ detail: 'Already premium' }, 409);
+        if (!env.BOT_TOKEN) return json({ detail: 'Payments not configured' }, 503);
+
+        const payload = `premium_${user.tg_id}_${Date.now()}`;
+        const tgRes = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/createInvoiceLink`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: 'Betty Premium',
+            description: 'PRO badge on the leaderboard. One-time purchase, supports the studio.',
+            payload,
+            currency: 'XTR',
+            prices: [{ label: 'Betty Premium', amount: 50 }],
+          }),
+        });
+        const tgJson = await tgRes.json();
+        if (!tgJson.ok) return json({ detail: 'Failed to create invoice', tg: tgJson.description }, 502);
+        return json({ invoice_url: tgJson.result, payload });
+      }
+
+      // POST /tg/webhook → Telegram bot update handler.
+      // Validates X-Telegram-Bot-Api-Secret-Token header matches env.WEBHOOK_SECRET.
+      // Handles: pre_checkout_query (auto-approve), successful_payment (mark premium).
+      if (method === 'POST' && path === '/tg/webhook') {
+        const secret = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
+        if (!env.WEBHOOK_SECRET || secret !== env.WEBHOOK_SECRET) {
+          return json({ detail: 'Forbidden' }, 403);
+        }
+        const update = await request.json();
+
+        if (update.pre_checkout_query) {
+          const q = update.pre_checkout_query;
+          await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/answerPreCheckoutQuery`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pre_checkout_query_id: q.id, ok: true }),
+          });
+          return json({ ok: true });
+        }
+
+        const sp = update.message && update.message.successful_payment;
+        if (sp && sp.currency === 'XTR') {
+          const tgId = String(update.message.from.id);
+          const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(tgId).first();
+          if (user) {
+            await env.DB.prepare(
+              'UPDATE users SET is_premium = 1, updated_at = datetime("now") WHERE id = ?'
+            ).bind(user.id).run();
+            await env.DB.prepare(
+              `INSERT OR IGNORE INTO premium_purchases
+                 (user_id, tg_id, stars_amount, telegram_payment_charge_id, invoice_payload)
+               VALUES (?, ?, ?, ?, ?)`
+            ).bind(user.id, tgId, sp.total_amount, sp.telegram_payment_charge_id, sp.invoice_payload).run();
+          }
+          return json({ ok: true });
+        }
+
+        return json({ ok: true });
       }
 
       return json({ detail: 'Not found' }, 404);

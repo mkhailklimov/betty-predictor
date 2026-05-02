@@ -40,6 +40,7 @@ export interface LeaderboardEntry {
   points: number
   correct_predictions: number
   correct_scores: number
+  is_premium?: boolean
 }
 
 export interface WeeklyReward {

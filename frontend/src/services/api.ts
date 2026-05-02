@@ -65,6 +65,12 @@ export const leaderboardApi = {
   getOverall: () => api.get<LeaderboardEntry[]>('/api/leaderboard/overall'),
 }
 
+// Payments API
+export const paymentsApi = {
+  createStarsInvoice: () =>
+    api.post<{ invoice_url: string; payload: string }>('/api/payments/create-stars-invoice'),
+}
+
 // Rewards API
 export const rewardsApi = {
   getEarned: (userId: string) => api.get(`/api/rewards/${userId}`),

@@ -97,3 +97,49 @@
   font-style: italic;
   margin-bottom: 0;
 }
+
+.premium-zone {
+  margin: 16px 16px 32px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 194, 13, 0.08);
+  border: 1px solid rgba(255, 194, 13, 0.25);
+  text-align: center;
+}
+.premium-zone .premium-hint {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: #333;
+}
+.premium-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f1c09;
+  background: #ffc20d;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.premium-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.premium-error {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #b00;
+}
+.pro-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #1f1c09;
+  background: #ffc20d;
+  border-radius: 4px;
+  vertical-align: middle;
+}

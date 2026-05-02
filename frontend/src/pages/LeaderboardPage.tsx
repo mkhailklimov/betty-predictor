@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import WebApp from '@twa-dev/sdk'
 import { TonConnectButton, useTonAddress } from '@tonconnect/ui-react'
-import { leaderboardApi, userApi } from '../services/api'
+import { leaderboardApi, userApi, paymentsApi } from '../services/api'
 import { LeaderboardEntry, User } from '../types'
 import '../styles/LeaderboardPage.css'
 
@@ -9,6 +10,7 @@ export const LeaderboardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [me, setMe] = useState<User | null>(null)
   const [savedAddress, setSavedAddress] = useState<string | null>(null)
+  const [premiumStatus, setPremiumStatus] = useState<'idle' | 'loading' | 'paid' | 'failed'>('idle')
   const tonAddress = useTonAddress()
 
   useEffect(() => {
@@ -41,6 +43,30 @@ export const LeaderboardPage: React.FC = () => {
   const myEntry = me ? leaderboard.find((e) => e.user_id === me.id) : null
   const hasEarned = !!myEntry && myEntry.points > 0
   const isConnected = !!tonAddress
+  const isPremium = !!me?.is_premium
+
+  const handleBuyPremium = async () => {
+    setPremiumStatus('loading')
+    try {
+      const { data } = await paymentsApi.createStarsInvoice()
+      WebApp.openInvoice(data.invoice_url, async (status) => {
+        if (status === 'paid') {
+          setPremiumStatus('paid')
+          try {
+            const { data: meData } = await userApi.getMe()
+            setMe(meData)
+          } catch {}
+        } else if (status === 'cancelled') {
+          setPremiumStatus('idle')
+        } else {
+          setPremiumStatus('failed')
+        }
+      })
+    } catch (e) {
+      console.error('createStarsInvoice failed:', e)
+      setPremiumStatus('failed')
+    }
+  }
 
   if (isLoading) {
     return (
@@ -79,7 +105,10 @@ export const LeaderboardPage: React.FC = () => {
                   {entry.rank === 3 && <span className="medal">&#129353;</span>}
                   {entry.rank > 3 && <span className="rank-num">{entry.rank}</span>}
                 </div>
-                <div className="col player">{entry.username}</div>
+                <div className="col player">
+                  {entry.username}
+                  {entry.is_premium && <span className="pro-badge">PRO</span>}
+                </div>
                 <div className="col rounds">{entry.correct_predictions + entry.correct_scores}</div>
                 <div className="col ton">{entry.points > 0 ? (entry.points * 0.1).toFixed(1) : '0'} TON</div>
               </div>
@@ -100,6 +129,30 @@ export const LeaderboardPage: React.FC = () => {
           <TonConnectButton />
         </div>
       )}
+
+      <div className="premium-zone">
+        {isPremium || premiumStatus === 'paid' ? (
+          <p className="premium-hint">
+            <span className="pro-badge">PRO</span> Thanks for supporting the studio.
+          </p>
+        ) : (
+          <>
+            <p className="premium-hint">
+              Get the <strong>PRO</strong> badge on the leaderboard. One-time, supports the studio.
+            </p>
+            <button
+              className="premium-btn"
+              onClick={handleBuyPremium}
+              disabled={premiumStatus === 'loading'}
+            >
+              {premiumStatus === 'loading' ? 'Opening…' : 'Get Premium  ⭐ 50'}
+            </button>
+            {premiumStatus === 'failed' && (
+              <p className="premium-error">Couldn't start payment. Try again later.</p>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
