@@ -65,6 +65,14 @@ export const leaderboardApi = {
   getOverall: () => api.get<LeaderboardEntry[]>('/api/leaderboard/overall'),
 }
 
+// Payments API
+export const paymentsApi = {
+  createStarsInvoice: () =>
+    api.post<{ invoice_url: string; payload: string }>('/api/payments/create-stars-invoice'),
+  setFavTeam: (team_code: string) =>
+    api.post<{ ok: boolean; fav_team: string }>('/api/user/fav-team', { team_code }),
+}
+
 // Rewards API
 export const rewardsApi = {
   getEarned: (userId: string) => api.get(`/api/rewards/${userId}`),
