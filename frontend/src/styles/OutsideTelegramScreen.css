@@ -42,7 +42,7 @@
 }
 
 .outside-tg__button {
-  display: inline-block;
+  display: block;
   width: 100%;
   padding: 14px 20px;
   font-size: 16px;
@@ -52,6 +52,9 @@
   border: none;
   border-radius: 12px;
   cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
   transition: background 0.15s ease;
 }
 
