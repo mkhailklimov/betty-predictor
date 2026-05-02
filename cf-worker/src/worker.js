@@ -17,6 +17,14 @@ function uuid() {
   return crypto.randomUUID();
 }
 
+// 31 confirmed WC 2026 participants (matches public/teams/Cards/*.png).
+const ALLOWED_TEAMS = new Set([
+  'ALG', 'ARG', 'AUS', 'BIH', 'BRA', 'CAN', 'CRO', 'CUR', 'CVE', 'CZE',
+  'ENG', 'ESP', 'FRA', 'GER', 'JAP', 'KOR', 'MEX', 'MOR', 'NED', 'NOR',
+  'PAR', 'POR', 'QAT', 'SAF', 'SCO', 'SEN', 'SWE', 'SWZ', 'TUR', 'USA',
+  'UZB',
+]);
+
 export default {
   // Cron triggers — dispatch by schedule string:
   //   "0 * * * *"  → hourly match-status update
@@ -254,6 +262,7 @@ export default {
             correct_predictions: 0,
             correct_scores: 0,
             is_premium: u.is_premium === 1,
+            fav_team: u.fav_team || null,
           };
         }
 
@@ -293,6 +302,7 @@ export default {
             correct_predictions: data.correct_predictions,
             correct_scores: data.correct_scores,
             is_premium: data.is_premium,
+            fav_team: data.fav_team,
           }));
 
         return json(leaderboard);
@@ -358,6 +368,23 @@ export default {
 
       if (method === 'GET' && path === '/api/telegram/bot-info') {
         return json({ mini_app_url: 'https://betty-tg-app.netlify.app', status: 'active' });
+      }
+
+      // POST /api/user/fav-team — Premium-only. Sets users.fav_team to a valid
+      // 3-letter team code. The team code must be in the allowed WC participants list.
+      if (method === 'POST' && path === '/api/user/fav-team') {
+        const token = getToken(request);
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
+        if (!user) return json({ detail: 'User not found' }, 401);
+        if (user.is_premium !== 1) return json({ detail: 'Premium required' }, 403);
+        const body = await request.json();
+        const code = (body && body.team_code) ? String(body.team_code).toUpperCase() : '';
+        if (!ALLOWED_TEAMS.has(code)) return json({ detail: 'Invalid team_code' }, 400);
+        await env.DB.prepare(
+          'UPDATE users SET fav_team = ?, updated_at = datetime("now") WHERE id = ?'
+        ).bind(code, user.id).run();
+        return json({ ok: true, fav_team: code });
       }
 
       // --- Payments (Telegram Stars) ---

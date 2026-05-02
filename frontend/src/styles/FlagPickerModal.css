@@ -1,0 +1,98 @@
+.flag-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.flag-modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 88vh;
+  background: #1f1c09;
+  color: #ffffff;
+  border-radius: 16px 16px 0 0;
+  padding: 18px 16px 24px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.flag-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.flag-modal__header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffc20d;
+}
+.flag-modal__close {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 6px;
+}
+.flag-modal__hint {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.flag-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.flag-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.1s ease, background 0.1s ease;
+}
+.flag-tile:hover:not(:disabled) {
+  background: rgba(255, 194, 13, 0.12);
+}
+.flag-tile--current {
+  border-color: #ffc20d;
+  background: rgba(255, 194, 13, 0.18);
+}
+.flag-tile:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.flag-tile img {
+  width: 100%;
+  max-width: 64px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.flag-tile__code {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.flag-modal__error {
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+  color: #ff8888;
+  text-align: center;
+}

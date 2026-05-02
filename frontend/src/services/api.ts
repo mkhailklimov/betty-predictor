@@ -69,6 +69,8 @@ export const leaderboardApi = {
 export const paymentsApi = {
   createStarsInvoice: () =>
     api.post<{ invoice_url: string; payload: string }>('/api/payments/create-stars-invoice'),
+  setFavTeam: (team_code: string) =>
+    api.post<{ ok: boolean; fav_team: string }>('/api/user/fav-team', { team_code }),
 }
 
 // Rewards API

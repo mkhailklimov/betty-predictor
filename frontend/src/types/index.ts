@@ -2,7 +2,8 @@ export interface User {
   id: string
   tg_id: string
   username?: string
-  is_premium?: boolean
+  is_premium?: boolean | number
+  fav_team?: string | null
   points: number
   predictions_count: number
 }
@@ -41,6 +42,7 @@ export interface LeaderboardEntry {
   correct_predictions: number
   correct_scores: number
   is_premium?: boolean
+  fav_team?: string | null
 }
 
 export interface WeeklyReward {

@@ -145,3 +145,11 @@
   border-radius: 4px;
   vertical-align: middle;
 }
+.row-flag {
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+  border-radius: 4px;
+  object-fit: cover;
+  vertical-align: middle;
+}

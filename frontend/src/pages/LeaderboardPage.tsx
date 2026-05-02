@@ -3,6 +3,7 @@ import WebApp from '@twa-dev/sdk'
 import { TonConnectButton, useTonAddress } from '@tonconnect/ui-react'
 import { leaderboardApi, userApi, paymentsApi } from '../services/api'
 import { LeaderboardEntry, User } from '../types'
+import { FlagPickerModal } from '../components/FlagPickerModal'
 import '../styles/LeaderboardPage.css'
 
 export const LeaderboardPage: React.FC = () => {
@@ -11,6 +12,7 @@ export const LeaderboardPage: React.FC = () => {
   const [me, setMe] = useState<User | null>(null)
   const [savedAddress, setSavedAddress] = useState<string | null>(null)
   const [premiumStatus, setPremiumStatus] = useState<'idle' | 'loading' | 'paid' | 'failed'>('idle')
+  const [showFlagPicker, setShowFlagPicker] = useState(false)
   const tonAddress = useTonAddress()
 
   useEffect(() => {
@@ -55,6 +57,7 @@ export const LeaderboardPage: React.FC = () => {
           try {
             const { data: meData } = await userApi.getMe()
             setMe(meData)
+            setShowFlagPicker(true)
           } catch {}
         } else if (status === 'cancelled') {
           setPremiumStatus('idle')
@@ -106,6 +109,13 @@ export const LeaderboardPage: React.FC = () => {
                   {entry.rank > 3 && <span className="rank-num">{entry.rank}</span>}
                 </div>
                 <div className="col player">
+                  {entry.fav_team && (
+                    <img
+                      className="row-flag"
+                      src={`/teams/Cards/${entry.fav_team}.png`}
+                      alt={entry.fav_team}
+                    />
+                  )}
                   {entry.username}
                   {entry.is_premium && <span className="pro-badge">PRO</span>}
                 </div>
@@ -132,9 +142,17 @@ export const LeaderboardPage: React.FC = () => {
 
       <div className="premium-zone">
         {isPremium || premiumStatus === 'paid' ? (
-          <p className="premium-hint">
-            <span className="pro-badge">PRO</span> Thanks for supporting the studio.
-          </p>
+          <>
+            <p className="premium-hint">
+              <span className="pro-badge">PRO</span>
+              {me?.fav_team
+                ? ` You're flying the ${me.fav_team} flag.`
+                : ' Pick your team to fly its flag.'}
+            </p>
+            <button className="premium-btn" onClick={() => setShowFlagPicker(true)}>
+              {me?.fav_team ? 'Change my flag' : 'Pick my flag'}
+            </button>
+          </>
         ) : (
           <>
             <p className="premium-hint">
@@ -153,6 +171,20 @@ export const LeaderboardPage: React.FC = () => {
           </>
         )}
       </div>
+
+      {showFlagPicker && (
+        <FlagPickerModal
+          current={me?.fav_team ?? null}
+          onPicked={(code) => {
+            setMe((prev) => (prev ? { ...prev, fav_team: code } : prev))
+            setLeaderboard((prev) =>
+              prev.map((row) => (me && row.user_id === me.id ? { ...row, fav_team: code } : row))
+            )
+            setShowFlagPicker(false)
+          }}
+          onClose={() => setShowFlagPicker(false)}
+        />
+      )}
     </div>
   )
 }
