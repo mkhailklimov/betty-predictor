@@ -138,14 +138,14 @@ export const LeaderboardPage: React.FC = () => {
         ) : (
           <>
             <p className="premium-hint">
-              Get the <strong>PRO</strong> badge on the leaderboard. One-time, supports the studio.
+              Pick your favourite team and fly its flag next to your name on the leaderboard.
             </p>
             <button
               className="premium-btn"
               onClick={handleBuyPremium}
               disabled={premiumStatus === 'loading'}
             >
-              {premiumStatus === 'loading' ? 'Opening…' : 'Get Premium  ⭐ 50'}
+              {premiumStatus === 'loading' ? 'Opening…' : 'Get fave team avatar  ⭐ 50'}
             </button>
             {premiumStatus === 'failed' && (
               <p className="premium-error">Couldn't start payment. Try again later.</p>

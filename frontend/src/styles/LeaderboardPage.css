@@ -100,16 +100,18 @@
 
 .premium-zone {
   margin: 16px 16px 32px;
-  padding: 16px;
+  padding: 18px 16px;
   border-radius: 12px;
-  background: rgba(255, 194, 13, 0.08);
-  border: 1px solid rgba(255, 194, 13, 0.25);
+  background: #1f1c09;
+  border: 1px solid rgba(255, 194, 13, 0.45);
   text-align: center;
 }
 .premium-zone .premium-hint {
-  margin: 0 0 12px;
-  font-size: 0.9rem;
-  color: #333;
+  margin: 0 0 14px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #ffffff;
 }
 .premium-btn {
   display: inline-block;
