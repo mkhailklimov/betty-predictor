@@ -6,15 +6,25 @@ import { MainPage } from './pages/MainPage'
 import { Navigation } from './components/Navigation'
 import { ChampionsPage } from './pages/ChampionsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
+import { OutsideTelegramScreen } from './components/OutsideTelegramScreen'
 import { User } from './types'
 
 type Page = 'champions' | 'matches' | 'leaderboard'
+
+const isLocalDev = (): boolean => {
+  const h = window.location.hostname
+  return h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local')
+}
 
 function App() {
   const [currentPage, setCurrentPage] = React.useState<Page>('matches')
   const [user, setUser] = React.useState<User | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
-  const { tg, user: tgUser, userId } = useTelegram()
+  const { tg, user: tgUser, userId, initData } = useTelegram()
+
+  if (!initData && !isLocalDev()) {
+    return <OutsideTelegramScreen />
+  }
 
   React.useEffect(() => {
     if (tg) {
