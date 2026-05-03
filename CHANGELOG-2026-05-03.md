@@ -56,3 +56,14 @@ Drafted resubmission message explicitly addressing moderator's May 1 feedback: n
 - Premium ideas parked: custom display_name with profanity filter, Telegram avatar in rows for everyone, favorite footballer avatar.
 
 User then asked to switch focus to Avocado Farm — see that repo's changelog for next moves.
+
+## Addendum — Disaster Recovery folder
+
+User asked for a disaster-recovery snapshot in case of Cloudflare account loss / global disaster. Created `dr/` directory at repo root:
+
+- `dr/snapshot-2026-05-03.sql` — full D1 export via `wrangler d1 export betty-db --remote` (24KB; 4 users + 10 matches + 11 predictions + premium_purchases audit)
+- `dr/RUNBOOK.md` — 11-step procedure for rebuilding Betty Scores on a fresh CF account
+- `dr/secrets-inventory.md` — catalog of secret names + re-issue source for each (no secret values stored in git)
+- `dr/README.md` — orientation
+
+Committed as `a880c83`. Snapshot refresh cadence: weekly (suggested before Friday cron). Same pattern to be replicated for Avocado later. Note: repo is currently on GitHub at `MihelKlimm/betty-predictor` — flagged to user that they may want to verify it's set to **private** since the snapshot contains tg_ids and usernames.
