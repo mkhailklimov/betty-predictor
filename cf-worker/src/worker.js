@@ -28,9 +28,9 @@ const ALLOWED_TEAMS = new Set([
 export default {
   // Cron triggers — dispatch by schedule string:
   //   "0 * * * *"  → hourly match-status update
-  //   "0 6 * * 5"  → weekly users D1→Sheets sync
+  //   "0 6 * * FRI"  → weekly users D1→Sheets sync
   async scheduled(event, env, ctx) {
-    if (event.cron === '0 6 * * 5') {
+    if (event.cron === '0 6 * * FRI') {
       ctx.waitUntil(syncUsersToSheet(env));
       ctx.waitUntil(syncBetsToSheet(env));
       return;
