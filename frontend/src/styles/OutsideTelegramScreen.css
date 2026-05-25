@@ -41,6 +41,22 @@
   opacity: 0.85;
 }
 
+.outside-tg__spinner {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 24px;
+  border: 3px solid rgba(31, 28, 9, 0.18);
+  border-top-color: #229ED9;
+  border-radius: 50%;
+  animation: outside-tg-spin 0.8s linear infinite;
+}
+
+@keyframes outside-tg-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .outside-tg__button {
   display: block;
   width: 100%;
