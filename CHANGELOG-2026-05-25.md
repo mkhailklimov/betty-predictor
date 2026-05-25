@@ -61,7 +61,7 @@ via PIL: `favicon.ico` (16/32/48), `favicon-16.png`, `favicon-32.png`,
 | Property | Source | Commits | Status |
 |---|---|---|---|
 | `app.bettyscores.com` | `frontend/public/` + `frontend/index.html` | dev `5e6717c` → main `7d7f502` | ✅ verified live (real PNG/ICO bytes, correct content-types) |
-| `bettyscores.com` | `deploy/` + `deploy/index.html` | dev `59a6d27` → main `64e07e7` | dev verified; **prod propagating at time of writing** |
+| `bettyscores.com` | `deploy/` + `deploy/index.html` | dev `59a6d27` → main `64e07e7` | ✅ verified live (favicon.ico `image/vnd.microsoft.icon`, PNGs `image/png`) |
 
 Caching note: Chrome's favicon cache (and especially its separate
 bookmark/folder favicon store) is sticky — needs hard-refresh or an Incognito
