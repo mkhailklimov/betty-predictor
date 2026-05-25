@@ -68,6 +68,49 @@ bookmark/folder favicon store) is sticky — needs hard-refresh or an Incognito
 window to show the new icon past the cached grey globe. User confirmed
 `app.bettyscores.com` shows Betty after the cache cleared.
 
+## Item 3 — Flag-for-Stars feature audit ("never tested it")
+
+User flagged that the premium "set favourite-team flag" perk had never been
+tested. Audited the whole chain instead of trusting the 2026-05-03 smoke note.
+
+**Data model / endpoint:** `POST /api/user/fav-team` (`worker.js`), auth =
+`Authorization: Bearer <tg_id>`, body `{team_code}`. Requires `is_premium=1`;
+validates `team_code` against `ALLOWED_TEAMS` (31 WC codes); writes
+`users.fav_team`. Surfaced by the leaderboard API and rendered by the frontend
+as `/teams/Cards/<code>.png`.
+
+**Verified (dev worker + prod D1/assets):**
+
+| Layer | Check | Result |
+|---|---|---|
+| Auth | no token → 401 | ✅ |
+| Validation | invalid code → 400 "Invalid team_code" | ✅ |
+| Premium gate | non-premium (`test_123`) → 403 "Premium required" | ✅ |
+| Write path | `MikeKlimov` already persisted `fav_team='SWE'` | ✅ |
+| Leaderboard API | returns `fav_team` (MikeKlimov=SWE) | ✅ |
+| Assets | all 31 allowed codes ↔ card PNG, 1:1, none missing | ✅ |
+| Card serving | `/teams/Cards/*.png` → 200 image/png on prod | ✅ |
+| Frontend | Leaderboard renders flag + `FlagPickerModal`; non-premium sees upsell only | ✅ (code) |
+
+**Account clarification:** the user's *own* TG account is **MikeKlimov**
+(1056798742), not islavutin — and it already flies SWE, so the first-set path
+was effectively proven during the May 3 real purchase. `islavutin` (500886298)
+is a secondary test account. (Both still force-premium; revisit before launch —
+note MikeKlimov is a real account, see open items.)
+
+**New-user gating (the real-world path) — confirmed correct:** a non-premium
+user never sees a flag picker. The premium zone shows
+"Get fave team avatar ⭐ 50" → `handleBuyPremium` → `createStarsInvoice` →
+`WebApp.openInvoice` → on `paid`, refresh user + **auto-open** the picker. The
+direct "Pick/Change my flag" button only renders when `is_premium`. UI *and*
+API both gate the perk behind payment.
+
+**Still open (agreed test plan):** the only path not exercised with a *fresh*
+account is a brand-new user's real 50⭐ purchase → register → pay → picker. The
+two test accounts can't cover it (already premium). Plan: have a friend on a new
+account buy + pick via `t.me/bettyscores_bot`; watch D1 confirm `is_premium`
+flips and `fav_team` lands.
+
 ## Process notes
 
 - **Dev-first** honored for all three changes (dev preview verified before
