@@ -2,7 +2,7 @@ import React from 'react'
 import './styles/App.css'
 import { useTelegram } from './hooks/useTelegram'
 import { userApi } from './services/api'
-import { MainPage } from './pages/MainPage'
+import { MainPage, syncPendingPredictions } from './pages/MainPage'
 import { Navigation } from './components/Navigation'
 import { ChampionsPage } from './pages/ChampionsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
@@ -48,16 +48,29 @@ function App() {
         // Store tg_id as auth token
         localStorage.setItem('tg_token', tgId)
 
-        // Register (returns existing user if already registered)
-        const { data } = await userApi.register({
-          tg_id: tgId,
-          username: tgUser?.username,
-        })
-        setUser(data)
+        // Register (returns existing user if already registered). Retry a few
+        // times: a failed registration used to let the user in with no D1 row,
+        // so their predictions hit "User not found" and were silently lost.
+        let registered = false
+        for (let attempt = 0; attempt < 3 && !registered; attempt++) {
+          try {
+            const { data } = await userApi.register({
+              tg_id: tgId,
+              username: tgUser?.username,
+            })
+            setUser(data)
+            registered = true
+          } catch (error) {
+            console.error(`User registration attempt ${attempt + 1} failed:`, error)
+            await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
+          }
+        }
       } catch (error) {
-        console.error('User registration error:', error)
+        console.error('User init error:', error)
       } finally {
         setIsLoading(false)
+        // Flush any predictions stored locally from a prior session/blip.
+        void syncPendingPredictions()
       }
     }
 
