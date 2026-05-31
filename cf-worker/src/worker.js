@@ -159,8 +159,17 @@ export default {
         const { match_id, prediction_type, predicted_score } = body;
 
         const token = getToken(request);
-        let user;
-        if (token) {
+        if (!token) return json({ detail: 'Auth required' }, 401);
+
+        let user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
+        // Self-heal: if the Bearer is a valid Telegram id but registration never
+        // landed (cold start / network blip during init), create the row here so
+        // the prediction is never silently lost. Mirrors /api/user/register.
+        if (!user && /^\d+$/.test(token)) {
+          const id = uuid();
+          await env.DB.prepare(
+            'INSERT OR IGNORE INTO users (id, tg_id, username) VALUES (?, ?, ?)'
+          ).bind(id, token, `User_${token}`).run();
           user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         }
         if (!user) return json({ detail: 'User not found' }, 401);
@@ -169,10 +178,14 @@ export default {
         if (!match) return json({ detail: 'Match not found' }, 404);
         if (match.status === 'finished') return json({ detail: 'Cannot predict on finished match' }, 400);
 
-        // Kickoff lockout: reject if match has started (using UTC time field)
+        // Kickoff lockout: reject if match has started (using UTC time field).
+        // match.time may be ISO ("2026-06-12T01:00:00Z") or "YYYY-MM-DD HH:MM:SS";
+        // normalize to a valid UTC instant before comparing.
         if (match.time) {
-          const kickoff = new Date(match.time.replace(' ', 'T') + 'Z');
-          if (new Date() >= kickoff) {
+          let t = match.time.includes('T') ? match.time : match.time.replace(' ', 'T');
+          if (!/[Zz]|[+-]\d{2}:?\d{2}$/.test(t)) t += 'Z';
+          const kickoff = new Date(t);
+          if (!isNaN(kickoff.getTime()) && new Date() >= kickoff) {
             return json({ detail: 'Betting closed — match has started' }, 403);
           }
         }

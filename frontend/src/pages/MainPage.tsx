@@ -23,6 +23,37 @@ function toBackendMatchId(id: number): string {
   return `match-${id}`
 }
 
+// Replay every locally-stored prediction to the backend. The /api/predictions
+// endpoint is an idempotent upsert, so re-sending is safe. This is the real
+// "sync later" the old code only pretended to do: any prediction whose live
+// POST failed (auth race, cold start, network blip) is recovered on next load.
+let syncInFlight = false
+export async function syncPendingPredictions(): Promise<void> {
+  if (syncInFlight) return
+  syncInFlight = true
+  try {
+    const preds = loadPredictions()
+    for (const key of Object.keys(preds)) {
+      const matchId = Number(key)
+      const p = preds[matchId]
+      if (!p || !p.score) continue
+      const [h, a] = p.score.split(':').map(Number)
+      if (Number.isNaN(h) || Number.isNaN(a)) continue
+      try {
+        await predictionsApi.create({
+          match_id: toBackendMatchId(matchId),
+          prediction_type: p.outcome as '1' | 'X' | '2',
+          predicted_score: { home: h, away: a },
+        })
+      } catch {
+        // Leave it in localStorage; the next load (or submit) retries.
+      }
+    }
+  } finally {
+    syncInFlight = false
+  }
+}
+
 // Date of the day AFTER the last match of the active week — for the "check results on …" line.
 function resultsAvailableDate(): string {
   const last = ACTIVE_MATCHES[ACTIVE_MATCHES.length - 1]
@@ -39,6 +70,12 @@ export const MainPage: React.FC = () => {
   const [toastMessage, setToastMessage] = React.useState('')
   const [reviewMode, setReviewMode] = React.useState(false)
   const doneRef = React.useRef<HTMLDivElement>(null)
+
+  // Recover any predictions that never reached the backend (e.g. placed before
+  // registration landed). Safe to run on every mount — the endpoint upserts.
+  React.useEffect(() => {
+    void syncPendingPredictions()
+  }, [])
 
   const handlePredict = async (matchId: number, outcome: string, score: string) => {
     // Save to localStorage immediately (optimistic)
@@ -67,8 +104,10 @@ export const MainPage: React.FC = () => {
         savePredictionsLocal(reverted)
         return
       }
-      // Other errors — prediction saved locally, will sync later
-      console.error('Backend save failed:', detail || error)
+      // Other errors (auth race, cold start, network blip) — the prediction is
+      // safe in localStorage; replay it to the backend instead of dropping it.
+      console.error('Backend save failed, will retry:', detail || error)
+      setTimeout(() => { void syncPendingPredictions() }, 1500)
     }
 
     const newCount = Object.keys(updated).length
