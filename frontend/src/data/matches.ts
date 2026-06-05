@@ -322,7 +322,7 @@ export const WEEK3_MATCHES: MatchData[] = [
     group: 'H',
     venue: 'Guadalajara',
     home: { name: 'Uruguay', code: 'URU', flag: '\u{1F1FA}\u{1F1FE}', keyPlayer: 'Federico Valverde' },
-    away: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Lamine Yamal' },
+    away: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Nico Williams' },
   },
   {
     id: 28,
@@ -340,7 +340,7 @@ export const WEEK3_MATCHES: MatchData[] = [
     group: 'L',
     venue: 'New Jersey',
     home: { name: 'Panama', code: 'PAN', flag: '\u{1F1F5}\u{1F1E6}', keyPlayer: 'Adalberto Carrasquilla' },
-    away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' },
+    away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Harry Kane' },
   },
   {
     id: 30,
