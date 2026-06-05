@@ -131,7 +131,7 @@ export const WEEK1_MATCHES: MatchData[] = [
     kickoff: '2026-06-15T22:00:00Z', // 18:00 ET
     group: 'H',
     venue: 'Atlanta',
-    home: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Lamine Yamal' },
+    home: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Nico Williams' },
     away: { name: 'Cape Verde', code: 'CVE', flag: '\u{1F1E8}\u{1F1FB}', keyPlayer: 'Ryan Mendes' },
   },
   {
