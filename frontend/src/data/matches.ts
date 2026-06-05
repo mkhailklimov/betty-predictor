@@ -38,7 +38,7 @@ export const TEAM_CARDS: Record<string, boolean> = {
   CVE: true, CZE: true, ENG: true, ESP: true, FRA: true, GER: true, JAP: true, KOR: true,
   MEX: true, MOR: true, NED: true, NOR: true, PAR: true, POR: true, QAT: true, SAF: true,
   SCO: true, SEN: true, SWE: true, SWZ: true, TUR: true, USA: true, UZB: true,
-  NZL: true, BEL: true,
+  NZL: true, BEL: true, URU: true, PAN: true, COL: true,
 }
 
 // Bump when any card PNG is updated — appended as ?v= to bust WebView caches.
@@ -258,18 +258,98 @@ export const WEEK25_MATCHES: MatchData[] = [
   },
 ]
 
-// Week 3 (final group-stage round). Currently a single match for the dev/promo
-// preview (Belgium vs New Zealand card for the YouTube/Telegram reel). More
-// matches get added once the full Week-3 selection is finalised.
+// Week 3 (final group-stage round) — the 10 matches selected in the master sheet
+// (Matches tab, week_id 2026_26, IDs 21-30). ET = UTC-4; kickoff is the UTC instant.
 export const WEEK3_MATCHES: MatchData[] = [
   {
-    id: 37,
+    id: 21,
+    date: 'Wed, June 24 · 9:00 PM ET',
+    kickoff: '2026-06-25T01:00:00Z',
+    group: 'A',
+    venue: 'Mexico City',
+    home: { name: 'Czechia', code: 'CZE', flag: '\u{1F1E8}\u{1F1FF}', keyPlayer: 'Patrik Schick' },
+    away: { name: 'Mexico', code: 'MEX', flag: '\u{1F1F2}\u{1F1FD}', keyPlayer: 'Edson Alvarez' },
+  },
+  {
+    id: 22,
+    date: 'Wed, June 24 · 9:00 PM ET',
+    kickoff: '2026-06-25T01:00:00Z',
+    group: 'A',
+    venue: 'Monterrey',
+    home: { name: 'South Africa', code: 'SAF', flag: '\u{1F1FF}\u{1F1E6}', keyPlayer: 'Percy Tau' },
+    away: { name: 'South Korea', code: 'KOR', flag: '\u{1F1F0}\u{1F1F7}', keyPlayer: 'Son Heung-min' },
+  },
+  {
+    id: 23,
+    date: 'Thu, June 25 · 7:00 PM ET',
+    kickoff: '2026-06-25T23:00:00Z',
+    group: 'F',
+    venue: 'Dallas',
+    home: { name: 'Japan', code: 'JAP', flag: '\u{1F1EF}\u{1F1F5}', keyPlayer: 'Takefusa Kubo' },
+    away: { name: 'Sweden', code: 'SWE', flag: '\u{1F1F8}\u{1F1EA}', keyPlayer: 'Alexander Isak' },
+  },
+  {
+    id: 24,
+    date: 'Thu, June 25 · 10:00 PM ET',
+    kickoff: '2026-06-26T02:00:00Z',
+    group: 'D',
+    venue: 'Los Angeles',
+    home: { name: 'Turkiye', code: 'TUR', flag: '\u{1F1F9}\u{1F1F7}', keyPlayer: 'Arda Guler' },
+    away: { name: 'USA', code: 'USA', flag: '\u{1F1FA}\u{1F1F8}', keyPlayer: 'Christian Pulisic' },
+  },
+  {
+    id: 25,
+    date: 'Thu, June 25 · 10:00 PM ET',
+    kickoff: '2026-06-26T02:00:00Z',
+    group: 'D',
+    venue: 'San Francisco',
+    home: { name: 'Paraguay', code: 'PAR', flag: '\u{1F1F5}\u{1F1FE}', keyPlayer: 'Miguel Almiron' },
+    away: { name: 'Australia', code: 'AUS', flag: '\u{1F1E6}\u{1F1FA}', keyPlayer: 'Mat Ryan' },
+  },
+  {
+    id: 26,
+    date: 'Fri, June 26 · 3:00 PM ET',
+    kickoff: '2026-06-26T19:00:00Z',
+    group: 'I',
+    venue: 'Boston',
+    home: { name: 'Norway', code: 'NOR', flag: '\u{1F1F3}\u{1F1F4}', keyPlayer: 'Erling Haaland' },
+    away: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' },
+  },
+  {
+    id: 27,
+    date: 'Fri, June 26 · 8:00 PM ET',
+    kickoff: '2026-06-27T00:00:00Z',
+    group: 'H',
+    venue: 'Guadalajara',
+    home: { name: 'Uruguay', code: 'URU', flag: '\u{1F1FA}\u{1F1FE}', keyPlayer: 'Federico Valverde' },
+    away: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Lamine Yamal' },
+  },
+  {
+    id: 28,
     date: 'Fri, June 26 · 11:00 PM ET',
-    kickoff: '2026-06-27T03:00:00Z', // 23:00 ET (UTC-4)
+    kickoff: '2026-06-27T03:00:00Z',
     group: 'G',
     venue: 'Vancouver',
     home: { name: 'New Zealand', code: 'NZL', flag: '\u{1F1F3}\u{1F1FF}', keyPlayer: 'Chris Wood' },
     away: { name: 'Belgium', code: 'BEL', flag: '\u{1F1E7}\u{1F1EA}', keyPlayer: 'Kevin De Bruyne' },
+  },
+  {
+    id: 29,
+    date: 'Sat, June 27 · 5:00 PM ET',
+    kickoff: '2026-06-27T21:00:00Z',
+    group: 'L',
+    venue: 'New Jersey',
+    home: { name: 'Panama', code: 'PAN', flag: '\u{1F1F5}\u{1F1E6}', keyPlayer: 'Adalberto Carrasquilla' },
+    away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' },
+  },
+  {
+    id: 30,
+    date: 'Sat, June 27 · 7:30 PM ET',
+    kickoff: '2026-06-27T23:30:00Z',
+    group: 'K',
+    venue: 'Miami',
+    home: { name: 'Colombia', code: 'COL', flag: '\u{1F1E8}\u{1F1F4}', keyPlayer: 'Luis Diaz' },
+    away: { name: 'Portugal', code: 'POR', flag: '\u{1F1F5}\u{1F1F9}', keyPlayer: 'Cristiano Ronaldo' },
   },
 ]
 
