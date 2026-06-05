@@ -38,6 +38,7 @@ export const TEAM_CARDS: Record<string, boolean> = {
   CVE: true, CZE: true, ENG: true, ESP: true, FRA: true, GER: true, JAP: true, KOR: true,
   MEX: true, MOR: true, NED: true, NOR: true, PAR: true, POR: true, QAT: true, SAF: true,
   SCO: true, SEN: true, SWE: true, SWZ: true, TUR: true, USA: true, UZB: true,
+  NZL: true, BEL: true,
 }
 
 // Bump when any card PNG is updated — appended as ?v= to bust WebView caches.
@@ -257,16 +258,31 @@ export const WEEK25_MATCHES: MatchData[] = [
   },
 ]
 
+// Week 3 (final group-stage round). Currently a single match for the dev/promo
+// preview (Belgium vs New Zealand card for the YouTube/Telegram reel). More
+// matches get added once the full Week-3 selection is finalised.
+export const WEEK3_MATCHES: MatchData[] = [
+  {
+    id: 37,
+    date: 'Fri, June 26 · 11:00 PM ET',
+    kickoff: '2026-06-27T03:00:00Z', // 23:00 ET (UTC-4)
+    group: 'G',
+    venue: 'Vancouver',
+    home: { name: 'New Zealand', code: 'NZL', flag: '\u{1F1F3}\u{1F1FF}', keyPlayer: 'Chris Wood' },
+    away: { name: 'Belgium', code: 'BEL', flag: '\u{1F1E7}\u{1F1EA}', keyPlayer: 'Kevin De Bruyne' },
+  },
+]
+
 // Which week the current deploy should show.
 // Prod (app.bettyscores.com) always shows Week 1. Any other host (pages.dev previews,
-// localhost) shows Week 2. This runtime switch lives on the `dev` branch so prod builds
-// from `main` continue to show Week 1 even if this code is merged back later.
+// localhost) shows the dev preview week. This runtime switch lives on the `dev` branch so
+// prod builds from `main` continue to show Week 1 even if this code is merged back later.
 const PROD_HOST = 'app.bettyscores.com'
 const isProdHost =
   typeof window !== 'undefined' && window.location.hostname === PROD_HOST
 
-export const ACTIVE_MATCHES: MatchData[] = isProdHost ? WEEK1_MATCHES : WEEK25_MATCHES
-export const ACTIVE_WEEK_LABEL = isProdHost ? 'Week 1' : 'Week 2'
+export const ACTIVE_MATCHES: MatchData[] = isProdHost ? WEEK1_MATCHES : WEEK3_MATCHES
+export const ACTIVE_WEEK_LABEL = isProdHost ? 'Week 1' : 'Week 3'
 
 // All scores where total goals <= 9 (e.g. 9:0 yes, 6:9 no)
 export const ALL_SCORES: string[] = (() => {
