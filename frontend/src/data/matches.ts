@@ -353,16 +353,51 @@ export const WEEK3_MATCHES: MatchData[] = [
   },
 ]
 
-// Which week the current deploy should show.
-// Prod (app.bettyscores.com) always shows Week 1. Any other host (pages.dev previews,
-// localhost) shows the dev preview week. This runtime switch lives on the `dev` branch so
-// prod builds from `main` continue to show Week 1 even if this code is merged back later.
-const PROD_HOST = 'app.bettyscores.com'
-const isProdHost =
-  typeof window !== 'undefined' && window.location.hostname === PROD_HOST
+// ---------------------------------------------------------------------------
+// Weekly cadence (UTC). Each "week" is a pool of matches players predict.
+//   - becomesCurrent: Friday 06:00 UTC — this week becomes the default "current"
+//     week (the previous week's results are collected / Grams prize awarded).
+//   - opensAsNext:   Monday 00:00 UTC — this week appears as the optional
+//     "Next week" tab so newcomers / early birds can predict ahead.
+//     null = the first week, which is never shown as a "next" tab.
+// => Mon→Fri both current + next are selectable; Fri→Mon only the current week.
+// Per-match locking is still at kickoff (isMatchLocked), so opening a week early
+// carries no integrity risk: a started match can never be predicted.
+// ---------------------------------------------------------------------------
+export interface WeekDef {
+  id: string                  // week_id, e.g. '2026_24'
+  label: string               // 'Week 1'
+  matches: MatchData[]
+  becomesCurrent: string      // ISO, Friday 06:00 UTC
+  opensAsNext: string | null  // ISO, Monday 00:00 UTC (null for the first week)
+}
 
-export const ACTIVE_MATCHES: MatchData[] = isProdHost ? WEEK1_MATCHES : WEEK3_MATCHES
-export const ACTIVE_WEEK_LABEL = isProdHost ? 'Week 1' : 'Week 3'
+export const WEEKS: WeekDef[] = [
+  { id: '2026_24', label: 'Week 1', matches: WEEK1_MATCHES,  becomesCurrent: '2026-06-12T06:00:00Z', opensAsNext: null },
+  { id: '2026_25', label: 'Week 2', matches: WEEK25_MATCHES, becomesCurrent: '2026-06-19T06:00:00Z', opensAsNext: '2026-06-15T00:00:00Z' },
+  { id: '2026_26', label: 'Week 3', matches: WEEK3_MATCHES,  becomesCurrent: '2026-06-26T06:00:00Z', opensAsNext: '2026-06-22T00:00:00Z' },
+]
+
+// Resolve which week is "current" and whether a "next" week is open, from now.
+//   current = the latest week whose becomesCurrent has passed (fallback: first).
+//   next    = the week after current, but only once its opensAsNext has passed.
+export function resolveWeeks(now: Date = getNow()): { current: WeekDef; next: WeekDef | null } {
+  let current = WEEKS[0]
+  for (const w of WEEKS) {
+    if (now >= new Date(w.becomesCurrent)) current = w
+  }
+  const idx = WEEKS.indexOf(current)
+  const candidate = WEEKS[idx + 1] ?? null
+  const next =
+    candidate && candidate.opensAsNext && now >= new Date(candidate.opensAsNext)
+      ? candidate
+      : null
+  return { current, next }
+}
+
+// Back-compat: the current week's matches/label. Prefer resolveWeeks() in new code.
+export const ACTIVE_MATCHES: MatchData[] = resolveWeeks().current.matches
+export const ACTIVE_WEEK_LABEL: string = resolveWeeks().current.label
 
 // All scores where total goals <= 9 (e.g. 9:0 yes, 6:9 no)
 export const ALL_SCORES: string[] = (() => {
