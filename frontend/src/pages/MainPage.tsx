@@ -1,6 +1,6 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
-import { resolveWeeks, isMatchLocked, MatchData } from '../data/matches'
+import { resolveWeeks, MatchData } from '../data/matches'
 import { predictionsApi } from '../services/api'
 import '../styles/MainPage.css'
 
@@ -73,12 +73,8 @@ export const MainPage: React.FC = () => {
 
   // Resolve the current week and, Mon→Fri, the optional "next week" (UTC cadence).
   const { current, next } = React.useMemo(() => resolveWeeks(), [])
-  // If the current week is already fully locked (e.g. a late-week arrival), open
-  // straight on the next week — that's the whole point of the toggle.
-  const currentAllLocked = React.useMemo(() => current.matches.every(isMatchLocked), [current])
-  const [selectedKey, setSelectedKey] = React.useState<'current' | 'next'>(
-    next && currentAllLocked ? 'next' : 'current'
-  )
+  // Default to Current; the user toggles to Next to predict ahead.
+  const [selectedKey, setSelectedKey] = React.useState<'current' | 'next'>('current')
   const week = selectedKey === 'next' && next ? next : current
   const matches = week.matches
 

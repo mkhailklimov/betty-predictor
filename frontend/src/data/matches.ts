@@ -18,12 +18,8 @@ export interface MatchData {
   }
 }
 
-// Debug: set to an ISO date string to simulate a specific time, or null for real time
-// Example: '2026-06-13T09:00:00Z' to simulate June 13, 9 AM UTC
-// TEMP (dev preview): simulate early Thu June 25 (before the first Week 3 kickoff
-// at 01:00Z) so the toggle shows Week 2 fully locked (Current) + Week 3 fully open
-// (Next). Revert to null before promoting to prod.
-export const DEBUG_TIME: string | null = '2026-06-25T00:30:00Z'
+// Debug: set to an ISO date string to simulate a specific time, or null for real time.
+export const DEBUG_TIME: string | null = null
 
 export function getNow(): Date {
   return DEBUG_TIME ? new Date(DEBUG_TIME) : new Date()
@@ -166,65 +162,12 @@ export const WEEK1_MATCHES: MatchData[] = [
   },
 ]
 
-// Week 2 (ISO week 2026_25) — June 18–23, 2026. Match IDs 11-20 (distinct from Week 1's 1-10
-// so predictions don't collide in the shared D1 predictions table).
+// Week 2 — Weekstart 2026-06-19 (sheet betty_master_data). Match IDs 11-20.
+// Re-cut from the sheet 2026-06-18: weeks are grouped by the Weekstart column.
+// ET = UTC-4; kickoff is the authoritative UTC instant.
 export const WEEK25_MATCHES: MatchData[] = [
   {
     id: 11,
-    date: 'Thu, June 18 · 12:00 PM ET',
-    kickoff: '2026-06-18T16:00:00Z',
-    group: 'A',
-    venue: 'Atlanta',
-    home: { name: 'South Africa', code: 'SAF', flag: '\u{1F1FF}\u{1F1E6}', keyPlayer: 'Percy Tau' },
-    away: { name: 'Czechia', code: 'CZE', flag: '\u{1F1E8}\u{1F1FF}', keyPlayer: 'Patrik Schick' },
-  },
-  {
-    id: 12,
-    date: 'Thu, June 18 · 3:00 PM ET',
-    kickoff: '2026-06-18T19:00:00Z',
-    group: 'B',
-    venue: 'Los Angeles',
-    home: { name: 'Switzerland', code: 'SWZ', flag: '\u{1F1E8}\u{1F1ED}', keyPlayer: 'Granit Xhaka' },
-    away: { name: 'Bosnia & Herzegovina', code: 'BIH', flag: '\u{1F1E7}\u{1F1E6}', keyPlayer: 'Edin Dzeko' },
-  },
-  {
-    id: 13,
-    date: 'Thu, June 18 · 6:00 PM ET',
-    kickoff: '2026-06-18T22:00:00Z',
-    group: 'B',
-    venue: 'Vancouver',
-    home: { name: 'Canada', code: 'CAN', flag: '\u{1F1E8}\u{1F1E6}', keyPlayer: 'Alphonso Davies' },
-    away: { name: 'Qatar', code: 'QAT', flag: '\u{1F1F6}\u{1F1E6}', keyPlayer: 'Akram Afif' },
-  },
-  {
-    id: 14,
-    date: 'Thu, June 18 · 9:00 PM ET',
-    kickoff: '2026-06-19T01:00:00Z',
-    group: 'A',
-    venue: 'Guadalajara',
-    home: { name: 'Mexico', code: 'MEX', flag: '\u{1F1F2}\u{1F1FD}', keyPlayer: 'Edson Alvarez' },
-    away: { name: 'South Korea', code: 'KOR', flag: '\u{1F1F0}\u{1F1F7}', keyPlayer: 'Son Heung-min' },
-  },
-  {
-    id: 15,
-    date: 'Fri, June 19 · 3:00 PM ET',
-    kickoff: '2026-06-19T19:00:00Z',
-    group: 'D',
-    venue: 'Seattle',
-    home: { name: 'USA', code: 'USA', flag: '\u{1F1FA}\u{1F1F8}', keyPlayer: 'Christian Pulisic' },
-    away: { name: 'Australia', code: 'AUS', flag: '\u{1F1E6}\u{1F1FA}', keyPlayer: 'Mathew Leckie' },
-  },
-  {
-    id: 16,
-    date: 'Fri, June 19 · 6:00 PM ET',
-    kickoff: '2026-06-19T22:00:00Z',
-    group: 'C',
-    venue: 'Boston',
-    home: { name: 'Scotland', code: 'SCO', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}', keyPlayer: 'Scott McTominay' },
-    away: { name: 'Morocco', code: 'MOR', flag: '\u{1F1F2}\u{1F1E6}', keyPlayer: 'Achraf Hakimi' },
-  },
-  {
-    id: 17,
     date: 'Fri, June 19 · 11:00 PM ET',
     kickoff: '2026-06-20T03:00:00Z',
     group: 'D',
@@ -233,7 +176,7 @@ export const WEEK25_MATCHES: MatchData[] = [
     away: { name: 'Türkiye', code: 'TUR', flag: '\u{1F1F9}\u{1F1F7}', keyPlayer: 'Arda Guler' },
   },
   {
-    id: 18,
+    id: 12,
     date: 'Sat, June 20 · 1:00 PM ET',
     kickoff: '2026-06-20T17:00:00Z',
     group: 'F',
@@ -242,7 +185,7 @@ export const WEEK25_MATCHES: MatchData[] = [
     away: { name: 'Sweden', code: 'SWE', flag: '\u{1F1F8}\u{1F1EA}', keyPlayer: 'Alexander Isak' },
   },
   {
-    id: 19,
+    id: 13,
     date: 'Mon, June 22 · 8:00 PM ET',
     kickoff: '2026-06-23T00:00:00Z',
     group: 'I',
@@ -251,7 +194,7 @@ export const WEEK25_MATCHES: MatchData[] = [
     away: { name: 'Senegal', code: 'SEN', flag: '\u{1F1F8}\u{1F1F3}', keyPlayer: 'Sadio Mane' },
   },
   {
-    id: 20,
+    id: 14,
     date: 'Tue, June 23 · 1:00 PM ET',
     kickoff: '2026-06-23T17:00:00Z',
     group: 'K',
@@ -259,13 +202,8 @@ export const WEEK25_MATCHES: MatchData[] = [
     home: { name: 'Portugal', code: 'POR', flag: '\u{1F1F5}\u{1F1F9}', keyPlayer: 'Cristiano Ronaldo' },
     away: { name: 'Uzbekistan', code: 'UZB', flag: '\u{1F1FA}\u{1F1FF}', keyPlayer: 'Eldor Shomurodov' },
   },
-]
-
-// Week 3 (final group-stage round) — the 10 matches selected in the master sheet
-// (Matches tab, week_id 2026_26, IDs 21-30). ET = UTC-4; kickoff is the UTC instant.
-export const WEEK3_MATCHES: MatchData[] = [
   {
-    id: 21,
+    id: 15,
     date: 'Wed, June 24 · 9:00 PM ET',
     kickoff: '2026-06-25T01:00:00Z',
     group: 'A',
@@ -274,7 +212,7 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'Mexico', code: 'MEX', flag: '\u{1F1F2}\u{1F1FD}', keyPlayer: 'Edson Alvarez' },
   },
   {
-    id: 22,
+    id: 16,
     date: 'Wed, June 24 · 9:00 PM ET',
     kickoff: '2026-06-25T01:00:00Z',
     group: 'A',
@@ -283,7 +221,7 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'South Korea', code: 'KOR', flag: '\u{1F1F0}\u{1F1F7}', keyPlayer: 'Son Heung-min' },
   },
   {
-    id: 23,
+    id: 17,
     date: 'Thu, June 25 · 7:00 PM ET',
     kickoff: '2026-06-25T23:00:00Z',
     group: 'F',
@@ -292,16 +230,16 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'Sweden', code: 'SWE', flag: '\u{1F1F8}\u{1F1EA}', keyPlayer: 'Alexander Isak' },
   },
   {
-    id: 24,
+    id: 18,
     date: 'Thu, June 25 · 10:00 PM ET',
     kickoff: '2026-06-26T02:00:00Z',
     group: 'D',
     venue: 'Los Angeles',
-    home: { name: 'Turkiye', code: 'TUR', flag: '\u{1F1F9}\u{1F1F7}', keyPlayer: 'Arda Guler' },
+    home: { name: 'Türkiye', code: 'TUR', flag: '\u{1F1F9}\u{1F1F7}', keyPlayer: 'Arda Guler' },
     away: { name: 'USA', code: 'USA', flag: '\u{1F1FA}\u{1F1F8}', keyPlayer: 'Christian Pulisic' },
   },
   {
-    id: 25,
+    id: 19,
     date: 'Thu, June 25 · 10:00 PM ET',
     kickoff: '2026-06-26T02:00:00Z',
     group: 'D',
@@ -310,7 +248,7 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'Australia', code: 'AUS', flag: '\u{1F1E6}\u{1F1FA}', keyPlayer: 'Mat Ryan' },
   },
   {
-    id: 26,
+    id: 20,
     date: 'Fri, June 26 · 3:00 PM ET',
     kickoff: '2026-06-26T19:00:00Z',
     group: 'I',
@@ -318,8 +256,12 @@ export const WEEK3_MATCHES: MatchData[] = [
     home: { name: 'Norway', code: 'NOR', flag: '\u{1F1F3}\u{1F1F4}', keyPlayer: 'Erling Haaland' },
     away: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' },
   },
+]
+
+// Week 3 — Weekstart 2026-06-26 (sheet betty_master_data). Match IDs 21-24.
+export const WEEK3_MATCHES: MatchData[] = [
   {
-    id: 27,
+    id: 21,
     date: 'Fri, June 26 · 8:00 PM ET',
     kickoff: '2026-06-27T00:00:00Z',
     group: 'H',
@@ -328,7 +270,7 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Nico Williams' },
   },
   {
-    id: 28,
+    id: 22,
     date: 'Fri, June 26 · 11:00 PM ET',
     kickoff: '2026-06-27T03:00:00Z',
     group: 'G',
@@ -337,7 +279,7 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'Belgium', code: 'BEL', flag: '\u{1F1E7}\u{1F1EA}', keyPlayer: 'Kevin De Bruyne' },
   },
   {
-    id: 29,
+    id: 23,
     date: 'Sat, June 27 · 5:00 PM ET',
     kickoff: '2026-06-27T21:00:00Z',
     group: 'L',
@@ -346,7 +288,7 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Harry Kane' },
   },
   {
-    id: 30,
+    id: 24,
     date: 'Sat, June 27 · 7:30 PM ET',
     kickoff: '2026-06-27T23:30:00Z',
     group: 'K',
@@ -378,7 +320,8 @@ export interface WeekDef {
 export const WEEKS: WeekDef[] = [
   { id: '2026_24', label: 'Week 1', matches: WEEK1_MATCHES,  becomesCurrent: '2026-06-12T06:00:00Z', opensAsNext: null },
   { id: '2026_25', label: 'Week 2', matches: WEEK25_MATCHES, becomesCurrent: '2026-06-19T06:00:00Z', opensAsNext: '2026-06-15T00:00:00Z' },
-  { id: '2026_26', label: 'Week 3', matches: WEEK3_MATCHES,  becomesCurrent: '2026-06-26T06:00:00Z', opensAsNext: '2026-06-22T00:00:00Z' },
+  // Week 3 (WEEK3_MATCHES) is defined above but not in the active rotation yet —
+  // add it here when it's ready so it auto-opens as "Next" on its Monday.
 ]
 
 // Resolve which week is "current" and whether a "next" week is open, from now.
