@@ -16,6 +16,21 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
     prediction?.score || null
   )
 
+  // Re-render exactly at kickoff (and when the tab regains focus) so an
+  // already-open session locks itself live — without needing a reload.
+  const [, tick] = React.useState(0)
+  React.useEffect(() => {
+    const rerender = () => tick(n => n + 1)
+    const ms = new Date(match.kickoff).getTime() - Date.now()
+    const timer = ms > 0 ? window.setTimeout(rerender, ms) : undefined
+    const onVisible = () => { if (document.visibilityState === 'visible') rerender() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      if (timer) window.clearTimeout(timer)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [match.kickoff])
+
   const locked = isMatchLocked(match)
   const homeCard = getCardImage(match.home.code)
   const awayCard = getCardImage(match.away.code)
