@@ -1,6 +1,6 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
-import { ACTIVE_MATCHES, ACTIVE_WEEK_LABEL } from '../data/matches'
+import { resolveWeeks, MatchData } from '../data/matches'
 import { predictionsApi } from '../services/api'
 import '../styles/MainPage.css'
 
@@ -54,9 +54,9 @@ export async function syncPendingPredictions(): Promise<void> {
   }
 }
 
-// Date of the day AFTER the last match of the active week — for the "check results on …" line.
-function resultsAvailableDate(): string {
-  const last = ACTIVE_MATCHES[ACTIVE_MATCHES.length - 1]
+// Date of the day AFTER the last match of a week — for the "check results on …" line.
+function resultsAvailableDate(weekMatches: MatchData[]): string {
+  const last = weekMatches[weekMatches.length - 1]
   if (!last) return ''
   const d = new Date(last.kickoff)
   d.setUTCDate(d.getUTCDate() + 1)
@@ -70,6 +70,41 @@ export const MainPage: React.FC = () => {
   const [toastMessage, setToastMessage] = React.useState('')
   const [reviewMode, setReviewMode] = React.useState(false)
   const doneRef = React.useRef<HTMLDivElement>(null)
+
+  // Resolve the current week and, Mon→Fri, the optional "next week" (UTC cadence).
+  const { current, next } = React.useMemo(() => resolveWeeks(), [])
+  // Default to Current; the user toggles to Next to predict ahead.
+  const [selectedKey, setSelectedKey] = React.useState<'current' | 'next'>('current')
+  const week = selectedKey === 'next' && next ? next : current
+  const matches = week.matches
+
+  const switchWeek = (key: 'current' | 'next') => {
+    setSelectedKey(key)
+    setReviewMode(false)
+    const wk = key === 'next' && next ? next : current
+    const firstUnpredicted = wk.matches.findIndex(m => !predictions[m.id])
+    setCurrentIndex(firstUnpredicted === -1 ? 0 : firstUnpredicted)
+  }
+
+  // Single header row: "Current" (default) + "Next" (only when a next week is open).
+  const weekHeader = (
+    <div className="week-tabs">
+      <button
+        className={`week-tab ${selectedKey === 'current' ? 'week-tab--active' : ''}`}
+        onClick={() => switchWeek('current')}
+      >
+        Current
+      </button>
+      {next && (
+        <button
+          className={`week-tab ${selectedKey === 'next' ? 'week-tab--active' : ''}`}
+          onClick={() => switchWeek('next')}
+        >
+          Next
+        </button>
+      )}
+    </div>
+  )
 
   // Recover any predictions that never reached the backend (e.g. placed before
   // registration landed). Safe to run on every mount — the endpoint upserts.
@@ -110,8 +145,7 @@ export const MainPage: React.FC = () => {
       setTimeout(() => { void syncPendingPredictions() }, 1500)
     }
 
-    const newCount = Object.keys(updated).length
-    const isAllDone = newCount === ACTIVE_MATCHES.length
+    const isAllDone = matches.every(m => updated[m.id])
 
     if (isAllDone) {
       setToastMessage('&#9989; Bets placed!')
@@ -120,14 +154,15 @@ export const MainPage: React.FC = () => {
         doneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 300)
       setTimeout(() => setShowToast(false), 4000)
-    } else if (currentIndex < ACTIVE_MATCHES.length - 1) {
+    } else if (currentIndex < matches.length - 1) {
       setTimeout(() => setCurrentIndex(currentIndex + 1), 600)
     }
   }
 
-  const completedCount = Object.keys(predictions).length
-  const currentMatch = ACTIVE_MATCHES[currentIndex]
-  const allDone = completedCount === ACTIVE_MATCHES.length
+  // Progress is scoped to the selected week only.
+  const completedCount = matches.filter(m => predictions[m.id]).length
+  const currentMatch = matches[currentIndex]
+  const allDone = completedCount === matches.length
 
   // When all predictions are in and the user hasn't opted into review mode,
   // show a full confirmation screen instead of the card stack. This guarantees
@@ -137,15 +172,23 @@ export const MainPage: React.FC = () => {
     return (
       <div className="main-page">
         <div className="page-header">
-          <h1>{ACTIVE_WEEK_LABEL}</h1>
+          {weekHeader}
         </div>
         <div className="all-done all-done--full" ref={doneRef}>
           <div className="all-done-icon">&#9989;</div>
           <div className="all-done-title">Your bets are saved!</div>
           <div className="all-done-text">You can change any prediction until that match kicks off.</div>
-          <div className="all-done-hint">Check your results on <strong>{resultsAvailableDate()}</strong>.</div>
+          <div className="all-done-hint">Check your results on <strong>{resultsAvailableDate(matches)}</strong>.</div>
+          {next && selectedKey === 'current' && (
+            <button
+              className="all-done-review-btn"
+              onClick={() => switchWeek('next')}
+            >
+              Predict {next.label} &#8594;
+            </button>
+          )}
           <button
-            className="all-done-review-btn"
+            className={`all-done-review-btn ${next && selectedKey === 'current' ? 'all-done-review-btn--inline' : ''}`}
             onClick={() => setReviewMode(true)}
           >
             Review or change my bets
@@ -158,15 +201,15 @@ export const MainPage: React.FC = () => {
   return (
     <div className="main-page">
       <div className="page-header">
-        <h1>{ACTIVE_WEEK_LABEL}</h1>
+        {weekHeader}
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${(completedCount / ACTIVE_MATCHES.length) * 100}%` }}
+            style={{ width: `${(completedCount / matches.length) * 100}%` }}
           />
         </div>
         <p className="progress-text">
-          Match {currentIndex + 1} of {ACTIVE_MATCHES.length}
+          Match {currentIndex + 1} of {matches.length}
           {completedCount > 0 && ` · ${completedCount} predicted`}
         </p>
       </div>
@@ -189,7 +232,7 @@ export const MainPage: React.FC = () => {
           &#8592; Prev
         </button>
         <span className="card-nav-dots">
-          {ACTIVE_MATCHES.map((m, i) => (
+          {matches.map((m, i) => (
             <span
               key={m.id}
               className={`dot ${i === currentIndex ? 'dot--current' : ''} ${predictions[m.id] ? 'dot--done' : ''}`}
@@ -199,8 +242,8 @@ export const MainPage: React.FC = () => {
         </span>
         <button
           className="card-nav-btn"
-          onClick={() => setCurrentIndex(Math.min(ACTIVE_MATCHES.length - 1, currentIndex + 1))}
-          disabled={currentIndex === ACTIVE_MATCHES.length - 1}
+          onClick={() => setCurrentIndex(Math.min(matches.length - 1, currentIndex + 1))}
+          disabled={currentIndex === matches.length - 1}
         >
           Next &#8594;
         </button>
