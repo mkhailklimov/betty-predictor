@@ -33,6 +33,35 @@ re-evaluates and the buttons disable themselves live — no reload needed.
 **Caveat:** clients with the app already open from before the deploy won't get the
 fix until they reload (it's a client bundle). New opens get it immediately.
 
+## Feature: optional "This week / Next week" toggle (date-driven cadence)
+
+Late-week arrivals used to land on a near-empty, fully-locked week. Now they can
+switch to next week and predict ahead.
+
+- `matches.ts` — replaced the static host-based week pin with a `WEEKS` registry +
+  `resolveWeeks(now)` → `{ current, next }`. Cadence (UTC): **Fri 06:00** a week
+  becomes current (previous week collected); **Mon 00:00** the following week opens
+  as the optional "Next week" tab. So Mon→Fri both are selectable; Fri→Mon only one.
+  Boundary logic unit-checked at 8 dates.
+- `MainPage.tsx` — This week / Next week toggle; progress, "bets saved" screen and
+  dot-nav now scoped to the **selected** week (previously counted all weeks). When
+  the current week is fully locked, the app opens straight on next week, and the
+  confirmation screen offers "Predict next week →".
+- `MainPage.css` — `.week-tabs` styling.
+- Per-match kickoff lock unchanged, so opening a week early carries no risk.
+
+**Week 2 synced to D1.** `match-11..20` (week_id `2026_25`, June 18–23) were defined
+in the frontend but never in D1; inserted the 10 rows so Week 2 predictions persist.
+D1 now holds 30 matches across 2026_24 / 2026_25 / 2026_26 (10 each).
+
+**Leaderboard:** left as overall/cumulative by decision — weekly scores and the
+1-gram prize are calculated/awarded **manually** each week, not via a per-week endpoint.
+
+**Dev preview:** `DEBUG_TIME` temporarily set to `2026-06-25T12:00:00Z` (Thu Jun 25)
+so dev shows Week 2 (locked) + Week 3 (playable). **Revert to `null` before prod.**
+
+Commits on `dev`: `2bab824` (toggle), `c776449` (DEBUG_TIME preview).
+
 ## Still pending (unchanged from 2026-06-09)
 
 - Week 3 dev→prod promotion (cherry-pick `dev`→`main`) — flips prod `ACTIVE_MATCHES`
