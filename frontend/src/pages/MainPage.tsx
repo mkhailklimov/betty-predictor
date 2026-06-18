@@ -90,22 +90,25 @@ export const MainPage: React.FC = () => {
     setCurrentIndex(firstUnpredicted === -1 ? 0 : firstUnpredicted)
   }
 
-  const weekTabs = next ? (
+  // Single header row: "Current" (default) + "Next" (only when a next week is open).
+  const weekHeader = (
     <div className="week-tabs">
       <button
         className={`week-tab ${selectedKey === 'current' ? 'week-tab--active' : ''}`}
         onClick={() => switchWeek('current')}
       >
-        {current.label}
+        Current
       </button>
-      <button
-        className={`week-tab ${selectedKey === 'next' ? 'week-tab--active' : ''}`}
-        onClick={() => switchWeek('next')}
-      >
-        {next.label}
-      </button>
+      {next && (
+        <button
+          className={`week-tab ${selectedKey === 'next' ? 'week-tab--active' : ''}`}
+          onClick={() => switchWeek('next')}
+        >
+          Next
+        </button>
+      )}
     </div>
-  ) : null
+  )
 
   // Recover any predictions that never reached the backend (e.g. placed before
   // registration landed). Safe to run on every mount — the endpoint upserts.
@@ -173,8 +176,7 @@ export const MainPage: React.FC = () => {
     return (
       <div className="main-page">
         <div className="page-header">
-          <h1>{week.label}</h1>
-          {weekTabs}
+          {weekHeader}
         </div>
         <div className="all-done all-done--full" ref={doneRef}>
           <div className="all-done-icon">&#9989;</div>
@@ -203,8 +205,7 @@ export const MainPage: React.FC = () => {
   return (
     <div className="main-page">
       <div className="page-header">
-        <h1>{week.label}</h1>
-        {weekTabs}
+        {weekHeader}
         <div className="progress-bar">
           <div
             className="progress-fill"
