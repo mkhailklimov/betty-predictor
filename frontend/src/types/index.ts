@@ -29,7 +29,6 @@ export interface Prediction {
     home: number
     away: number
   }
-  points_earned?: number
   created_at: string
   match?: Match
 }
