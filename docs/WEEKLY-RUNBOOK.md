@@ -22,7 +22,10 @@ as **Next** the **Monday before that**. Every Monday performs **both** transitio
 5. **Deploy** dev → prod (file-sync, **not** a merge — the TON manifest is
    branch-specific). Verify the toggle shows **Current + Next** on prod.
 
-## 🟡 Friday — close out the finishing week (data / admin only)
+## 🟡 Friday 06:00 UTC — close out the finishing week (data / admin only)
+
+_Anchored to **Friday 06:00 UTC** — same clock as the existing worker cron
+`"0 6 * * 5"`. Must run after the finishing week's last match has ended._
 
 6. **Finalize results** in the sheet (rolling-filled during the week, see below):
    confirm `Result` (1/X/2), `Score_1`/`Score_2`, set `Is active = 3` (ended).
@@ -34,8 +37,12 @@ as **Next** the **Monday before that**. Every Monday performs **both** transitio
 
 ## 🔵 Rolling (during the week)
 
-- Fill each match's `Result` / `Score` in the sheet **as it finishes** so results
-  show sooner; leaders + prize still wait for the **Friday** batch.
+- Fill each match's `Result` / `Score` in the **sheet** as it finishes. This is
+  **our bookkeeping only** — it spreads the manual data entry across the week so
+  Friday isn't one big error-prone batch.
+- **Players do not see results until the weekly D1 sync** (Friday 06:00 UTC) —
+  the sheet is not player-facing, D1 is. There is exactly **one** D1 results sync
+  per week. Leaders + prize follow the same Friday batch.
 - The two-week toggle (**Current + Next**) is live the whole Mon→Mon span — just
   monitor.
 
