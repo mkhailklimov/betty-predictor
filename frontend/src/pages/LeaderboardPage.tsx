@@ -43,7 +43,7 @@ export const LeaderboardPage: React.FC = () => {
   }, [tonAddress, savedAddress])
 
   const myEntry = me ? leaderboard.find((e) => e.user_id === me.id) : null
-  const hasEarned = !!myEntry && myEntry.points > 0
+  const hasEarned = !!myEntry && (myEntry.grams ?? 0) > 0
   const isConnected = !!tonAddress
   const isPremium = !!me?.is_premium
 
@@ -82,14 +82,14 @@ export const LeaderboardPage: React.FC = () => {
   return (
     <div className="leaderboard-page">
       <div className="page-header">
-        <h1>TON Leaderboard</h1>
+        <h1>GRAM Leaderboard</h1>
       </div>
 
       {leaderboard.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">&#128142;</div>
           <p className="empty-title">No rewards yet</p>
-          <p className="empty-text">TON rewards will be distributed after Week 1 results are finalized.</p>
+          <p className="empty-text">GRAM rewards are awarded to each week's winner once results are finalized.</p>
         </div>
       ) : (
         <div className="leaderboard-table">
@@ -97,7 +97,7 @@ export const LeaderboardPage: React.FC = () => {
             <div className="col rank">#</div>
             <div className="col player">Player</div>
             <div className="col rounds">Rounds</div>
-            <div className="col ton">TON Won</div>
+            <div className="col ton">GRAMs &#128142;</div>
           </div>
           <div className="table-body">
             {leaderboard.map((entry) => (
@@ -120,7 +120,7 @@ export const LeaderboardPage: React.FC = () => {
                   {entry.is_premium && <span className="pro-badge">PRO</span>}
                 </div>
                 <div className="col rounds">{entry.correct_predictions + entry.correct_scores}</div>
-                <div className="col ton">{entry.points > 0 ? (entry.points * 0.1).toFixed(1) : '0'} TON</div>
+                <div className="col ton">{(entry.grams ?? 0) > 0 ? <>{entry.grams} &#128142;</> : '0'}</div>
               </div>
             ))}
           </div>
@@ -129,7 +129,7 @@ export const LeaderboardPage: React.FC = () => {
 
       {hasEarned && !isConnected && (
         <div className="ton-connect-zone">
-          <p className="ton-connect-hint">You've earned TON — connect a wallet to receive your prize.</p>
+          <p className="ton-connect-hint">You've earned a GRAM &#128142; — connect a wallet to receive your prize.</p>
           <TonConnectButton />
         </div>
       )}

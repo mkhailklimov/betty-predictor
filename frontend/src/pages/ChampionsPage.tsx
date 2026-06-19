@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react'
-import { leaderboardApi } from '../services/api'
-import { LeaderboardEntry } from '../types'
+import { championsApi } from '../services/api'
+import { ChampionEntry } from '../types'
 import '../styles/ChampionsPage.css'
 
 export const ChampionsPage: React.FC = () => {
-  const [results, setResults] = useState<LeaderboardEntry[]>([])
+  const [results, setResults] = useState<ChampionEntry[]>([])
+  const [weekId, setWeekId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const loadResults = async () => {
       try {
         setIsLoading(true)
-        const { data } = await leaderboardApi.getOverall()
-        setResults(data)
+        const { data } = await championsApi.getLastRound()
+        setResults(data.results)
+        setWeekId(data.week_id)
       } catch (error) {
         console.error('Error loading results:', error)
       } finally {
@@ -34,13 +36,14 @@ export const ChampionsPage: React.FC = () => {
     <div className="champions-page">
       <div className="page-header">
         <h1>Last Round Results</h1>
+        {weekId && <p className="page-subtitle">Week {weekId.replace('_', ' · ')}</p>}
       </div>
 
       {results.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">&#127942;</div>
           <p className="empty-title">No results yet</p>
-          <p className="empty-text">Tournament starts June 11. Results will appear here after Week 1 matches are played.</p>
+          <p className="empty-text">Weekly results appear here once the round&apos;s matches are played and scored.</p>
         </div>
       ) : (
         <div className="results-table">

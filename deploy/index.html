@@ -484,8 +484,10 @@
     <!-- 2. CHAMPIONS — past week results -->
     <div id="champions" class="section">
         <h2>Champions</h2>
-        <p class="section-desc">Match results from the past week</p>
-        <p class="placeholder-msg">Results will appear here once matches are played.</p>
+        <p class="section-desc" id="champions-desc">Last round results</p>
+        <div id="champions-container">
+            <p class="loading-msg">Loading results...</p>
+        </div>
     </div>
 
     <!-- 3. MATCHES -->
@@ -499,20 +501,18 @@
     <!-- 4. LEADERBOARD — ranking -->
     <div id="leaderboard" class="section">
         <h2>Leaderboard</h2>
-        <p class="section-desc">Ranking of participants &mdash; points won &amp; TON earned</p>
+        <p class="section-desc">Ranking of participants &mdash; points won &amp; GRAMs earned</p>
         <table class="leaderboard-table">
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Player</th>
                     <th>Points</th>
-                    <th>TON</th>
+                    <th>GRAMs &#128142;</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr><td class="rank-1">1</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td class="rank-2">2</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td class="rank-3">3</td><td>—</td><td>—</td><td>—</td></tr>
+            <tbody id="leaderboard-body">
+                <tr><td colspan="4" class="loading-msg">Loading leaderboard...</td></tr>
             </tbody>
         </table>
         <p class="placeholder-msg">Leaderboard updates after each match round.</p>
@@ -617,26 +617,48 @@
         let allMatches = [];
         let activeWeek = null;
 
-        function renderWeek(weekstart) {
-            activeWeek = weekstart;
-            const container = document.getElementById('matches-container');
+        // Same Current/Next cadence as the app (resolveWeeks):
+        //   weeks are grouped by Weekstart (a Friday).
+        //   becomesCurrent = Weekstart 06:00 UTC; opensAsNext = Weekstart - 4 days (Mon) 00:00 UTC.
+        //   current = latest week whose becomesCurrent has passed; next = the following
+        //   week, shown only once its opensAsNext has passed (null for the first week).
+        let cadence = { current: null, next: null };
+
+        function resolveCadence(weekstarts, now) {
+            const weeks = [...new Set(weekstarts)].filter(Boolean).sort();
+            let current = weeks[0] || null;
+            for (const w of weeks) {
+                if (now >= new Date(w + 'T06:00:00Z')) current = w;
+            }
+            const idx = weeks.indexOf(current);
+            const cand = weeks[idx + 1] || null;
+            let next = null;
+            if (cand) {
+                const opensAt = new Date(new Date(cand + 'T00:00:00Z').getTime() - 4 * 86400000);
+                if (now >= opensAt) next = cand;
+            }
+            return { current, next };
+        }
+
+        function renderTabs(selectedKey) {
             const tabs = document.getElementById('week-tabs');
-            const weeks = [...new Set(allMatches.map(m => m.Weekstart))];
-
-            // Week labels
-            const weekLabels = {};
-            weeks.forEach((w, i) => { weekLabels[w] = 'Week ' + (i + 1); });
-
-            tabs.innerHTML = weeks.map(w =>
-                `<button onclick="renderWeek('${w}')" style="
+            const btn = (key, label) => {
+                const active = key === selectedKey;
+                return `<button onclick="selectWeek('${key}')" style="
                     padding:0.5rem 1rem;border-radius:8px;font-weight:700;font-size:0.8rem;
-                    border:1px solid rgba(255,194,13,${w === weekstart ? '0.8' : '0.2'});
-                    background:${w === weekstart ? '#ffc20d' : 'rgba(255,194,13,0.08)'};
-                    color:${w === weekstart ? '#0d0d0d' : '#ffc20d'};
+                    border:1px solid rgba(255,194,13,${active ? '0.8' : '0.2'});
+                    background:${active ? '#ffc20d' : 'rgba(255,194,13,0.08)'};
+                    color:${active ? '#0d0d0d' : '#ffc20d'};
                     cursor:pointer;font-family:inherit;
-                ">${weekLabels[w]}</button>`
-            ).join('');
+                ">${label}</button>`;
+            };
+            let html = btn('current', 'Current');
+            if (cadence.next) html += btn('next', 'Next');
+            tabs.innerHTML = html;
+        }
 
+        function renderMatches(weekstart) {
+            const container = document.getElementById('matches-container');
             const weekMatches = allMatches.filter(m => m.Weekstart === weekstart);
             container.innerHTML = '';
             weekMatches.forEach(m => {
@@ -657,20 +679,91 @@
             });
         }
 
+        function selectWeek(key) {
+            const ws = key === 'next' && cadence.next ? cadence.next : cadence.current;
+            activeWeek = ws;
+            renderTabs(key);
+            renderMatches(ws);
+        }
+
         async function loadMatches() {
             const container = document.getElementById('matches-container');
             try {
                 const resp = await fetch(SHEET_URL);
                 const csv = await resp.text();
                 allMatches = parseCSV(csv);
-                const weeks = [...new Set(allMatches.map(m => m.Weekstart))];
-                renderWeek(weeks[0] || '');
+                cadence = resolveCadence(allMatches.map(m => m.Weekstart), new Date());
+                if (!cadence.current) {
+                    container.innerHTML = '<p class="placeholder-msg">No matches scheduled yet.</p>';
+                    return;
+                }
+                selectWeek('current');
             } catch (err) {
                 container.innerHTML = '<p class="placeholder-msg">Could not load matches.</p>';
             }
         }
 
         loadMatches();
+
+        // Live standings from the Betty API (gold marts).
+        const API_BASE = 'https://api.bettyscores.com';
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => (
+            { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        async function loadChampions() {
+            const c = document.getElementById('champions-container');
+            try {
+                const resp = await fetch(`${API_BASE}/api/champions`);
+                const data = await resp.json();
+                const rows = data.results || [];
+                if (!rows.length) {
+                    c.innerHTML = '<p class="placeholder-msg">Results will appear here once matches are played.</p>';
+                    return;
+                }
+                if (data.week_id) {
+                    document.getElementById('champions-desc').textContent =
+                        'Last round results — Week ' + data.week_id.replace('_', ' · ');
+                }
+                c.innerHTML = `
+                    <table class="leaderboard-table">
+                        <thead><tr><th>#</th><th>Player</th><th>Results</th><th>Scores</th><th>Total</th></tr></thead>
+                        <tbody>
+                        ${rows.map(r => `<tr>
+                            <td class="rank-${r.rank}">${r.rank}</td>
+                            <td>${esc(r.username)}</td>
+                            <td>${r.correct_predictions}</td>
+                            <td>${r.correct_scores}</td>
+                            <td>${r.points}</td>
+                        </tr>`).join('')}
+                        </tbody>
+                    </table>`;
+            } catch (err) {
+                c.innerHTML = '<p class="placeholder-msg">Could not load results.</p>';
+            }
+        }
+
+        async function loadLeaderboard() {
+            const body = document.getElementById('leaderboard-body');
+            try {
+                const resp = await fetch(`${API_BASE}/api/leaderboard`);
+                const rows = await resp.json();
+                if (!Array.isArray(rows) || !rows.length) {
+                    body.innerHTML = '<tr><td colspan="4" class="placeholder-msg">No players yet.</td></tr>';
+                    return;
+                }
+                body.innerHTML = rows.map(r => `<tr>
+                    <td class="rank-${r.rank}">${r.rank}</td>
+                    <td>${esc(r.username)}</td>
+                    <td>${r.points}</td>
+                    <td>${r.grams ? r.grams + ' &#128142;' : '0'}</td>
+                </tr>`).join('');
+            } catch (err) {
+                body.innerHTML = '<tr><td colspan="4" class="placeholder-msg">Could not load leaderboard.</td></tr>';
+            }
+        }
+
+        loadChampions();
+        loadLeaderboard();
     </script>
 </body>
 </html>

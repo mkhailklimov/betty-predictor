@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { User, Match, Prediction, LeaderboardEntry } from '../types'
+import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse } from '../types'
 
 // Host-based API routing: prod domain → prod Worker, everything else → dev Worker.
 // Lets the `dev` branch's preview URL hit the dev API without a separate env var.
@@ -63,6 +63,12 @@ export const leaderboardApi = {
   getWeekly: (week?: number) =>
     api.get<LeaderboardEntry[]>(week ? `/api/leaderboard?week=${week}` : '/api/leaderboard'),
   getOverall: () => api.get<LeaderboardEntry[]>('/api/leaderboard/overall'),
+}
+
+// Champions API — official weekly results from the Betty_Master_Data "Champions" tab.
+export const championsApi = {
+  getLastRound: (week?: string) =>
+    api.get<ChampionsResponse>(week ? `/api/champions?week=${week}` : '/api/champions'),
 }
 
 // Payments API

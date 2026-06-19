@@ -40,8 +40,27 @@ export interface LeaderboardEntry {
   points: number
   correct_predictions: number
   correct_scores: number
+  weeks_won?: number
+  grams?: number
   is_premium?: boolean
   fav_team?: string | null
+}
+
+export interface ChampionEntry {
+  rank: number
+  user_id: string
+  username: string
+  points: number
+  correct_predictions: number
+  correct_scores: number
+  matches_predicted: number
+  week_id: string
+  ton_earned: number
+}
+
+export interface ChampionsResponse {
+  week_id: string | null
+  results: ChampionEntry[]
 }
 
 export interface WeeklyReward {
