@@ -48,6 +48,22 @@ _Anchored to **Friday 06:00 UTC** — same clock as the existing worker cron
 
 ---
 
+## Scoring
+
+Points are computed **live** by the worker from match results (the `points_earned`
+column is unused — do not fill it):
+
+- **+1** for a correct outcome (1 / X / 2)
+- **+3 bonus** for an exact score (so an exact score = 4 total)
+- only matches with `status = 'finished'` count
+
+**Eligibility:** internal/test accounts are excluded from the weekly champion /
+prize — `MikeKlimov` (owner), the `bettyscores` bot, `bet_monitoring`, `TestUser`.
+`islavutin` is a **real** player and counts.
+
+**Tiebreak (equal points):** earlier **Last Bet At** ranks higher — *whoever
+entered first ranks first.* (Correct/exact counts are informational, not tiebreakers.)
+
 ## Reference
 
 | Item | Value |
