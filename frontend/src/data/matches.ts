@@ -357,6 +357,30 @@ export const WEEK3_MATCHES: MatchData[] = [
   },
 ]
 
+// Week 4 — Weekstart 2026-06-29 (sheet betty_master_data). Knockout week: opens
+// with the two Round-of-32 ties on 07-03; the eight Round-of-16 ties (IDs 33-40)
+// are appended once the R32 bracket resolves (~07-03/04). Match IDs 31+.
+export const WEEK4_MATCHES: MatchData[] = [
+  {
+    id: 31,
+    date: 'Fri, July 3 · 2:00 PM ET',
+    kickoff: '2026-07-03T18:00:00Z', // 14:00 ET (UTC-4)
+    group: 'R32',
+    venue: 'Dallas',
+    home: { name: 'Australia', code: 'AUS', flag: '\u{1F1E6}\u{1F1FA}', keyPlayer: 'Mat Ryan' },
+    away: { name: 'Egypt', code: 'EGY', flag: '\u{1F1EA}\u{1F1EC}', keyPlayer: 'Mohamed Salah' },
+  },
+  {
+    id: 32,
+    date: 'Fri, July 3 · 6:00 PM ET',
+    kickoff: '2026-07-03T22:00:00Z', // 18:00 ET
+    group: 'R32',
+    venue: 'Miami',
+    home: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' },
+    away: { name: 'Cape Verde', code: 'CVE', flag: '\u{1F1E8}\u{1F1FB}', keyPlayer: 'Ryan Mendes' },
+  },
+]
+
 // ---------------------------------------------------------------------------
 // Weekly cadence (UTC). Each "week" is a pool of matches players predict.
 //   - becomesCurrent: Friday 06:00 UTC — this week becomes the default "current"
@@ -380,6 +404,7 @@ export const WEEKS: WeekDef[] = [
   { id: '2026_24', label: 'Week 1', matches: WEEK1_MATCHES,  becomesCurrent: '2026-06-12T06:00:00Z', opensAsNext: null },
   { id: '2026_25', label: 'Week 2', matches: WEEK25_MATCHES, becomesCurrent: '2026-06-19T06:00:00Z', opensAsNext: '2026-06-15T00:00:00Z' },
   { id: '2026_26', label: 'Week 3', matches: WEEK3_MATCHES,  becomesCurrent: '2026-06-26T06:00:00Z', opensAsNext: '2026-06-22T00:00:00Z' },
+  { id: '2026_27', label: 'Week 4', matches: WEEK4_MATCHES,  becomesCurrent: '2026-07-03T06:00:00Z', opensAsNext: '2026-06-29T00:00:00Z' },
 ]
 
 // Resolve which week is "current" and whether a "next" week is open, from now.
