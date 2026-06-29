@@ -21,6 +21,15 @@ as **Next** the **Monday before that**. Every Monday performs **both** transitio
 4. **Sync new week → D1** — insert `match-*` rows (`week_id`, `is_active = 1`).
 5. **Deploy** dev → prod (file-sync, **not** a merge — the TON manifest is
    branch-specific). Verify the toggle shows **Current + Next** on prod.
+   - **Landing site** (`www.bettyscores.com`) is **separate** from the app and
+     needs **no redeploy** — it reads matches **live from the sheet gviz CSV**
+     and groups by the **`Weekstart`** column. But the sheet data must be right:
+     (a) write `Weekstart` as a real **date** via `USER_ENTERED`, **never**
+     RAW/pasted text — gviz infers one type per column and **nulls text cells**,
+     making the week vanish from the landing; (b) `Weekstart` is the **Friday**
+     anchor even for knockout weeks whose matches fall later. Verify the live
+     gviz exports the new week and the landing shows **Current + Next**.
+     (See `CHANGELOG-2026-06-29.md` for the gotcha.)
 
 ## 🟡 Friday 06:00 UTC — close out the finishing week (data / admin only)
 
