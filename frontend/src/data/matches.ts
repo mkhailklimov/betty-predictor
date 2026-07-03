@@ -379,6 +379,63 @@ export const WEEK4_MATCHES: MatchData[] = [
     home: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' },
     away: { name: 'Cape Verde', code: 'CVE', flag: '\u{1F1E8}\u{1F1FB}', keyPlayer: 'Ryan Mendes' },
   },
+  // Round of 16 — 6 ties whose pairings are set (FIFA feed, comp 17 / season 285023).
+  // The remaining 2 R16 ties (Atlanta, Vancouver) depend on the Jul 3 R32 winners
+  // (AUS/EGY, ARG/CVE) and are appended once those resolve (~Jul 4).
+  {
+    id: 33,
+    date: 'Sat, July 4 · 1:00 PM ET',
+    kickoff: '2026-07-04T17:00:00Z', // 13:00 ET (UTC-4)
+    group: 'R16',
+    venue: 'Houston',
+    home: { name: 'Canada', code: 'CAN', flag: '\u{1F1E8}\u{1F1E6}', keyPlayer: 'Alphonso Davies' },
+    away: { name: 'Morocco', code: 'MOR', flag: '\u{1F1F2}\u{1F1E6}', keyPlayer: 'Achraf Hakimi' },
+  },
+  {
+    id: 34,
+    date: 'Sat, July 4 · 5:00 PM ET',
+    kickoff: '2026-07-04T21:00:00Z', // 17:00 ET
+    group: 'R16',
+    venue: 'Philadelphia',
+    home: { name: 'Paraguay', code: 'PAR', flag: '\u{1F1F5}\u{1F1FE}', keyPlayer: 'Miguel Almiron' },
+    away: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' },
+  },
+  {
+    id: 35,
+    date: 'Sun, July 5 · 4:00 PM ET',
+    kickoff: '2026-07-05T20:00:00Z', // 16:00 ET
+    group: 'R16',
+    venue: 'New Jersey',
+    home: { name: 'Brazil', code: 'BRA', flag: '\u{1F1E7}\u{1F1F7}', keyPlayer: 'Vinicius Jr' },
+    away: { name: 'Norway', code: 'NOR', flag: '\u{1F1F3}\u{1F1F4}', keyPlayer: 'Erling Haaland' },
+  },
+  {
+    id: 36,
+    date: 'Sun, July 5 · 8:00 PM ET',
+    kickoff: '2026-07-06T00:00:00Z', // 20:00 ET (Jul 5)
+    group: 'R16',
+    venue: 'Mexico City',
+    home: { name: 'Mexico', code: 'MEX', flag: '\u{1F1F2}\u{1F1FD}', keyPlayer: 'Edson Alvarez' },
+    away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' },
+  },
+  {
+    id: 37,
+    date: 'Mon, July 6 · 3:00 PM ET',
+    kickoff: '2026-07-06T19:00:00Z', // 15:00 ET
+    group: 'R16',
+    venue: 'Dallas',
+    home: { name: 'Portugal', code: 'POR', flag: '\u{1F1F5}\u{1F1F9}', keyPlayer: 'Cristiano Ronaldo' },
+    away: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Nico Williams' },
+  },
+  {
+    id: 38,
+    date: 'Mon, July 6 · 8:00 PM ET',
+    kickoff: '2026-07-07T00:00:00Z', // 20:00 ET (Jul 6)
+    group: 'R16',
+    venue: 'Seattle',
+    home: { name: 'USA', code: 'USA', flag: '\u{1F1FA}\u{1F1F8}', keyPlayer: 'Christian Pulisic' },
+    away: { name: 'Belgium', code: 'BEL', flag: '\u{1F1E7}\u{1F1EA}', keyPlayer: 'Kevin De Bruyne' },
+  },
 ]
 
 // ---------------------------------------------------------------------------
