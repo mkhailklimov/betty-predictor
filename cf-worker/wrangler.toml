@@ -9,9 +9,9 @@ database_id = "a064b461-a310-484e-80de-66a684e71c7c"
 
 # Cron triggers (prod):
 #   "0 * * * *"  — hourly: auto-update match is_active status (live/finished).
-#   "0 6 * * 5"  — Fridays 06:00 UTC: push users D1 → Google Sheets "Users" tab.
+#   "0 6 * * FRI"  — Fridays 06:00 UTC: push users D1 → Google Sheets "Users" tab.
 [triggers]
-crons = ["0 * * * *", "0 6 * * 5"]
+crons = ["0 * * * *", "0 6 * * FRI"]
 
 # Dev environment — deploy with `wrangler deploy --env dev`.
 # Uses the same D1 database for now (we can point to a dev D1 later if needed).
