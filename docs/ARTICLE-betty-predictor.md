@@ -1,233 +1,268 @@
-# How I Built a World Cup 2026 Prediction Game as a Telegram Mini App — With AI as My Co-Pilot
+# Marrying the Bettor to the Ball: On Joining a CRM of Predictions to a Fact Stream of Reality
 
-## TL;DR
+### A short, mildly rigorous, occasionally funny note on dimensional modeling
 
-I built **Betty Predictor** — a Telegram Mini App where users predict World Cup 2026 match scores and compete for TON cryptocurrency rewards. The entire stack runs serverless on Cloudflare (Pages + Workers + D1), with a React frontend, illustrated team cards, and a Google Sheets-based admin panel. Oh, and my co-developer? Claude AI.
-
----
-
-## The Idea
-
-World Cup 2026 is the biggest one yet — 48 teams, 104 matches, hosted across USA, Canada, and Mexico. I wanted to build something fun for my friends: predict scores, compete on leaderboards, and win real crypto.
-
-The concept is simple:
-- **Pick the winner** (Win 1 / Draw / Win 2) for each match
-- **Predict the exact score** (from 0:0 to 9:0)
-- **Earn points** — correct outcome = 1 point, exact score = 3 points (total, not added)
-- **Win TON** — top scorer each week takes home 1 TON
-
-The twist? If two players tie on points, the one who placed their bets **earlier** wins. First come, first served. No procrastinating.
-
-Meet **Betty** — our mascot, a Miniature Schnauzer with a football. Because every good project needs a good dog.
+> **Abstract.** We revisit a problem as old as the data warehouse itself: two
+> populations of facts that stubbornly refuse to be the same shape. On one side,
+> a *CRM-like* stream of intentions — customers (here, players) declaring what
+> they *think* will happen. On the other, a *transactional* stream of events —
+> the world reporting what *actually* happened. Management wants a single number
+> ("who was right, and by how much?") and wants it to be reproducible on a
+> Tuesday. We compare the two dominant schools of warehouse design — Inmon's
+> Corporate Information Factory and Kimball's dimensional modeling — and argue,
+> with a flow chart and a straight face, that for this class of problem Kimball
+> wins. We illustrate with a small live system so we can claim the work is
+> "empirical."¹
 
 ---
 
-## Architecture: Serverless Everything
+## 1. The problem, stated without mercy
 
-No servers were harmed in the making of this app. The entire stack runs on free-tier cloud services:
+Every analytics team eventually meets the same monster wearing different hats:
 
+- **The CRM side** knows *who wants what.* Leads, opportunities, forecasts,
+  pledges, predictions. It is full of humans and their optimism.
+- **The transactional side** knows *what the universe actually did.* Orders
+  shipped, trades cleared, goals scored. It is full of timestamps and regret.
+
+The business question that pays your salary always sits *across the join*:
+
+> *Of the things people predicted, which came true — ranked, per period,
+> reproducibly, and cheaply enough to recompute whenever someone finds a bug?*
+
+This is not a soccer problem. It is the **forecast-versus-actual** problem, and
+it recurs everywhere: sales pipeline vs. closed revenue, weather models vs.
+rainfall, analyst price targets vs. the tape, your New Year's resolutions vs.
+February. Predictions are a fact. Outcomes are a fact. The value is the
+*difference between two facts* — which, as we'll see, is precisely the thing
+naïve schemas make expensive.
+
+We will borrow one concrete instance for illustration — a World Cup prediction
+game² — but the game is a fruit fly: cheap to breed, fast to kill, and
+genetically honest about the phenomenon we actually care about.
+
+---
+
+## 2. Two churches, one congregation
+
+Data warehousing has spent thirty years in a mostly-polite schism.
+
+### Inmon: build the cathedral, then hold services
+
+Bill Inmon's **Corporate Information Factory** is *top-down*. First you construct
+a single, enterprise-wide, **fully normalized (3NF)** integrated repository — the
+capital-T Truth — subject-oriented, non-volatile, time-variant, and allergic to
+redundancy. *Then* you carve **departmental data marts** out of it for the people
+who actually run queries.
+
+It is architecturally magnificent. It is also the software equivalent of
+insisting on a wedding cathedral before you're sure the couple has met. You
+normalize `prediction`, `player`, `match`, `team`, `venue`, `competition`,
+`season` into a spiderweb of foreign keys, all beautiful, all correct, and all
+requiring an eight-table join before anyone learns who won last week.
+
+### Kimball: model the *business process*, ship the star
+
+Ralph Kimball's **dimensional modeling** is *bottom-up*. You pick a **business
+process** ("a player predicts a match"; "a match produces a result"), you declare
+its **grain** in one plain sentence, and you build a **star schema**: a central
+**fact table** of measurements surrounded by **denormalized dimension tables**
+of context (who / what / when). Marts are the deliverable, not an afterthought.
+
+The star is deliberately, unapologetically **denormalized**. Redundant? Yes.
+Inmon would clutch his pearls. But redundancy bought at design time is *query
+speed and comprehensibility* bought at 2 a.m. when the number is wrong and the
+tournament is live.
+
+| | **Inmon (CIF)** | **Kimball (dimensional)** |
+|---|---|---|
+| Direction | Top-down | Bottom-up |
+| Center of gravity | The enterprise model | The business process |
+| Core structure | 3NF normalized EDW | Denormalized star schema |
+| Marts | Derived, later | The point, now |
+| First useful answer | After the cathedral | After the first star |
+| Optimizes for | Integration & governance | Query speed & clarity |
+| Failure mode | Analysis paralysis | Mart sprawl if dims aren't *conformed* |
+
+Neither is *wrong*. They optimize different loss functions. The engineering
+question is never "which is correct?" but "which pain do I want?"
+
+---
+
+## 3. The subtle bit everyone gets wrong: you can't just join two facts
+
+Here is the trap, and it is a good one.
+
+Predictions are a fact table at grain **player × match**. Results are a fact table
+at grain **match**. The obvious move — *"just join fact to fact"* — is a classic
+Kimball **anti-pattern.** Fact-to-fact joins fan out, double-count, and produce
+numbers that are wrong in ways that survive code review because they *look*
+plausible. (The canonical war story: someone joins an orders fact to a shipments
+fact and reports revenue that never existed. Here, the equivalent bug is scoring
+an exact-score hit as `1 + 3 = 4` points instead of `3`. Ask us how we know.³)
+
+The dimensional cure is a two-parter:
+
+1. **Conform the dimensions.** `dim_user`, `dim_week`, `dim_team` are *shared* —
+   identical keys and meaning across every fact. Conformed dimensions are the
+   entire trick: they are what lets independently-built stars talk to each other
+   without a summit meeting.
+2. **Materialize a derived fact at the common grain.** Instead of joining the two
+   facts at query time and praying, you *precompute* a new fact —
+   `fact_score`, grain **player × match** — as `fact_bet ⨝ fact_result` pushed
+   through **one** canonical scoring function. The messy join happens **once**, in
+   one place, deterministically. Every downstream number is then a boring
+   `GROUP BY` over a clean table.
+
+That's the whole thesis. The "marriage" of the CRM stream and the transaction
+stream is not a query — it's a **modeled artifact**: a consolidated fact,
+computed and never hand-edited, sitting at the grain where the question lives.
+
+---
+
+## 4. The flow chart that earns its keep
+
+Both schools can *answer* "who won week 27?" The difference is how far the data
+has to travel — and how many places a wrong number can hide en route.
+
+```mermaid
+flowchart LR
+    subgraph SRC[Source facts]
+        P["Predictions<br/>(who forecast what)<br/><i>CRM-like</i>"]
+        R["Match results<br/>(what happened)<br/><i>transactional</i>"]
+    end
+
+    Q(["Q: Who won<br/>week 27?"])
+
+    subgraph INMON["🏛️ Inmon — normalize first, answer later"]
+        direction TB
+        I1[Staging] --> I2["3NF Enterprise DW<br/>player · match · team · venue<br/>season · competition …<br/><b>8-table spiderweb</b>"]
+        I2 --> I3[Derive departmental mart]
+    end
+
+    subgraph KIMBALL["⭐ Kimball — model the process, ship the star"]
+        direction TB
+        K2["fact_bet<br/>grain: user × match"]
+        K3["fact_result<br/>grain: match"]
+        DIM["conformed dims<br/>user · week · team"]
+        K2 --> K4
+        K3 --> K4
+        DIM -. conform .-> K4["<b>fact_score</b><br/>grain: user × match<br/>= bet ⨝ result, scored once"]
+    end
+
+    P --> I1
+    R --> I1
+    I3 -- "many joins,<br/>months of modeling,<br/>numbers not reproducible" --> Q
+
+    P --> K2
+    R --> K3
+    K4 == "one GROUP BY,<br/>rebuildable any time" ==> Q
+
+    classDef win fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef slow fill:#fff3e0,stroke:#ef6c00,stroke-width:1px;
+    class K2,K3,K4,DIM win;
+    class I2,I3 slow;
 ```
-                    +-------------------+
-                    |   Telegram Bot    |
-                    | @bettyscores_bot  |
-                    +--------+----------+
-                             |
-                    +--------v----------+
-                    |  Cloudflare Pages |
-                    |  React Mini App   |
-                    | app.bettyscores.com|
-                    +--------+----------+
-                             |
-                    +--------v----------+
-                    | Cloudflare Workers|
-                    |    REST API       |
-                    | api.bettyscores.com|
-                    +--------+----------+
-                             |
-                    +--------v----------+
-                    |   Cloudflare D1   |
-                    |    SQLite DB      |
-                    |  5 tables, <1MB   |
-                    +--------+----------+
-                             |
-                    +--------v----------+
-                    |   Google Sheets   |
-                    |  Admin + Monitor  |
-                    +-------------------+
-```
 
-### Why This Stack?
+Read the two paths to the same box `Q`:
 
-| Component | Choice | Why |
-|-----------|--------|-----|
-| Frontend | React + Vite | Fast builds, Telegram WebApp SDK integration |
-| Hosting | Cloudflare Pages | Free, auto-deploy from GitHub, custom domain |
-| Backend | Cloudflare Workers | Serverless, zero cold starts, free tier |
-| Database | Cloudflare D1 | SQLite at the edge, 5GB free, SQL familiar |
-| Admin | Google Sheets | Non-technical admin can edit match schedules |
-| Domain | bettyscores.com | $9/year on Namecheap, DNS on Cloudflare |
-| Rewards | TON blockchain | Crypto-native, Telegram ecosystem fit |
+- **Inmon** routes through a normalized cathedral. Correct, integrated,
+  governable — and *long*. The answer is many joins and one reorg away, and
+  because the scoring logic lives wherever the analyst last wrote it, two people
+  can compute "who won" two different ways.
+- **Kimball** routes through a single derived fact at the question's own grain.
+  The gnarly forecast-⨝-actual join is resolved **once**, canonically, upstream;
+  the report is a `GROUP BY`. When someone finds a scoring bug, you fix the one
+  function and **rebuild the whole thing from source** — deterministically,
+  before lunch.
 
-**Total monthly cost: $0.76** (just the domain, prorated).
+The advantage the chart is meant to make obvious: *the distance from raw fact to
+trustworthy answer, and the number of places a wrong number can hide, are both
+smaller on the Kimball path.* That's not aesthetics. That's mean-time-to-correct.
 
 ---
 
-## Data Flow: From Google Sheet to TON Wallet
+## 5. In fairness to the cathedral
 
-The data flows through 5 tables, from match scheduling to prize distribution:
+Kimball is not a universal solvent, and pretending otherwise is how you get
+burned in year three.
 
-### 1. Matches (Google Sheet → D1)
+**Inmon earns its keep when:**
 
-Admin fills in the match schedule in Google Sheets — teams, kickoff times, groups, venues. A sync command pushes this to D1. Each match has a lifecycle:
+- You integrate **dozens of source systems** with conflicting definitions of
+  "customer," and someone with a compliance badge needs *one* reconciled,
+  auditable, normalized system of record.
+- Your horizon is decades and your regulators have subpoena power. Normalization's
+  update-anomaly guarantees are worth their weight then.
+- The enterprise model itself is the deliverable — the marts are secondary.
 
-```
-Hidden → Open (betting allowed) → Locked (kickoff) → Ended (results in)
-```
+For a forecast-vs-actual scoreboard with a handful of clean sources and a
+business question that fits in one sentence, that machinery is a cathedral built
+to shelter a hot-dog stand. Kimball's bottom-up star gets you a correct,
+reproducible answer this week and *conforms its way* toward the enterprise later
+— the famous **bus architecture**: ship stars, share dimensions, and the
+warehouse assembles itself from parts that were useful the day they were built.
 
-### 2. Bets (D1, from Telegram App)
-
-When a user opens the bot and taps "Play", they see match cards one at a time. Each card shows:
-- Illustrated player cards with national flags
-- Three outcome buttons: WIN 1 / DRAW / WIN 2
-- Score grid: all valid scores where total goals ≤ 9
-
-Selecting outcome + score auto-saves the bet. Users can change predictions until the exact kickoff moment — the backend checks UTC time and rejects late bets with a 403.
-
-### 3. Champions (D1, computed)
-
-After the last match of the week ends, we compute weekly standings:
-
-```sql
-SELECT user_id, 
-       SUM(points_earned) as total_points,
-       MAX(updated_at) as last_bet_at
-FROM bets 
-WHERE week_id = '2026_24'
-GROUP BY user_id
-ORDER BY total_points DESC, last_bet_at ASC
-```
-
-Rank 1 gets 1 TON. Simple.
-
-### 4. Leaderboard (D1, aggregated)
-
-All-time rankings across all weeks. Who's the ultimate predictor?
-
-### 5. Users (D1, auto-registered)
-
-Created automatically when someone opens the Mini App. Telegram provides the user ID, username, and profile — zero friction registration.
+(The modern **medallion** layout — bronze *raw* → silver *conformed star* → gold
+*marts* — is really just Kimball wearing a hi-vis vest. Bronze is your staging,
+silver is the star, gold is the mart. Same theology, newer hymn book.)
 
 ---
 
-## The Telegram Mini App Experience
+## 6. A fruit fly, dissected (the practical example, in passing)
 
-### Start Screen
-The app opens with Betty (our schnauzer mascot), the tagline "Sniff the score — get TONn of emotions!", and a big **Start Game** button. Clean, no clutter.
+The live instance we borrowed⁴ implements exactly the above and nothing fancier:
 
-### Prediction Cards
-Each match is a full-screen card showing:
-- **Illustrated team cards** — custom artwork with players in national jerseys on flag backgrounds
-- **WIN 1 / DRAW / WIN 2** — tap to select outcome
-- **Score grid** — filtered to show only scores matching your outcome pick
-- **Auto-advance** — after confirming, the next card slides in
+- **Bronze** — raw, single-owner: `predictions` (the CRM-ish intent stream),
+  `matches` (schedule + result), plus a `bronze_adjustments` table so that
+  *manual* corrections are an **input** to the model, never an edit of its output.
+- **Silver (the star)** — conformed `dim_user / dim_week / dim_team`, the two
+  base facts `fact_bet` and `fact_result`, and the derived `fact_score =
+  fact_bet ⨝ fact_result` through one scoring function of about four lines.
+- **Gold (marts)** — `champions` (user × week) and `leaderboard` (user), each a
+  plain aggregate the API reads directly.
 
-We designed the cards to feel like a card game, not a spreadsheet. Swipe through 10 matches, make your calls, done in 2 minutes.
+The whole thing is rebuilt from bronze on a schedule and on demand — *idempotent,
+deterministic, drop-and-rebuild.* The governing principle fits on a sticky note:
 
-### Kickoff Lockout
-The moment a match kicks off, the card shows a red "Betting closed" badge. No grace period — if the kickoff is at 9:00 PM ET, your 9:00:01 PM bet gets rejected. We enforce this server-side, not just in the UI.
+> **One owner per fact. Unidirectional flow. Derived data is computed, never
+> authored.**
 
----
-
-## Team Card Art
-
-Every team gets a custom illustrated card — a key player in the national jersey, with the country flag as background. The art style is consistent across all 20 teams: bold, energetic, like they're celebrating a goal.
-
-Currently we have cards for: Mexico, South Africa, Canada, Bosnia & Herzegovina, USA, Paraguay, Brazil, Morocco, Germany, and Curaçao. More coming as the tournament approaches.
-
-The cards are stored as PNGs in the repo and served via Cloudflare's CDN. Teams without custom art fall back to emoji flags.
+That sentence is the entire moral of dimensional modeling, and it is why, when a
+scoring rule changes at 11 p.m. mid-tournament, the fix is a four-line function
+and a rebuild rather than an archaeology dig through a normalized enterprise
+schema. We are not selling you the game.⁵ We are selling you the sticky note.
 
 ---
 
-## The Fun Part: Week 1 Predictions
+## 7. Conclusion
 
-Week 1 kicks off June 11 with 10 matches:
+The forecast-versus-actual join — CRM intent on one side, transactional reality
+on the other — is a solved problem, and it was solved by *refusing to solve it at
+query time.* You conform your dimensions, you materialize a consolidated fact at
+the grain of the question, and you let every report downstream be boring. Inmon
+would have you build the truth first and query it forever after; Kimball has you
+model the business process, ship the star, and conform your way to the enterprise.
+For a scoreboard — and for most things shaped like a scoreboard — the star wins on
+the metric that actually matters at 2 a.m.: *how fast can you make a wrong number
+right?*
 
-| Match | Group | Venue | The Story |
-|-------|-------|-------|-----------|
-| Mexico vs South Africa | A | Mexico City | Opening match! 80,000 fans at Azteca |
-| Canada vs Bosnia | B | Toronto | Davies vs Dzeko — speed vs experience |
-| USA vs Paraguay | D | Los Angeles | Host nation pressure is real |
-| Brazil vs Morocco | C | New Jersey | 2022 semifinalist Morocco wants more |
-| Germany vs Curaçao | E | Houston | Curaçao's World Cup debut! |
-| Netherlands vs Japan | F | Dallas | Gakpo vs Kubo — flair vs precision |
-| Spain vs Cape Verde | H | Atlanta | Yamal, 18, vs Cape Verde's tournament debut |
-| France vs Senegal | I | New Jersey | Mbappé chasing his second star |
-| England vs Croatia | L | Dallas | Bellingham vs Modrić — generational clash |
-| Argentina vs Algeria | J | Kansas City | Can Messi do it one more time? |
-
-The beauty of predictions is that everyone becomes an expert. "Obviously Germany beats Curaçao 4-0" — but what if? That's the fun.
+Kimball, R. *The Data Warehouse Toolkit* remains, thirty years on, one of the few
+technical books whose central advice ("declare the grain") would also improve
+most people's dating lives. Declare the grain. Conform your dimensions. Compute,
+don't author. Go in peace.
 
 ---
 
-## Scoring: Simple but Strategic
+### Footnotes
 
-| What you got right | Points |
-|--------------------|--------|
-| Nothing | 0 |
-| Correct outcome only (1/X/2) | 1 |
-| Correct exact score (implies outcome) | 3 |
-
-Maximum per week: **30 points** (3 × 10 matches). Just like soccer — 1 or 3, no in-between.
-
-The tiebreaker rule adds strategy: if you're confident in your picks, submit early. Waiting until the last minute is risky — someone with the same score who bet earlier takes the TON.
-
----
-
-## Tech Learnings
-
-### What Worked
-- **Cloudflare's free tier is absurdly generous** — Pages, Workers, D1, DNS, SSL, CDN — all free for our scale
-- **Google Sheets as admin panel** — non-technical team members can edit match schedules without touching code
-- **Telegram Mini Apps** — zero install, zero sign-up, the bot IS the app
-- **AI pair programming** — Claude handled infrastructure, deployments, API design, and even wrote this article
-
-### What Was Tricky
-- **Telegram caches aggressively** — users see old versions unless they clear Mini App cache
-- **Cloudflare Pages + same repo, two projects** — needed careful build config (root dir, build commands)
-- **Timezone handling** — UTC for logic, ET for display, stored separately
-
-### What's Next
-- Remaining 10 team card illustrations
-- Week 2 schedule (24 matches!)
-- TON wallet integration for automated payouts
-- Champions page with weekly results
-- Invite system with referral bonuses
-
----
-
-## Stack Summary
-
-| Layer | Tech | Cost |
-|-------|------|------|
-| Domain | bettyscores.com (Namecheap) | $9/year |
-| DNS + CDN | Cloudflare | Free |
-| Frontend | React + Vite on Cloudflare Pages | Free |
-| Backend | Cloudflare Workers | Free |
-| Database | Cloudflare D1 (SQLite) | Free |
-| Admin | Google Sheets | Free |
-| Bot | Telegram Bot API | Free |
-| Rewards | TON blockchain | 1 TON/week |
-| AI Dev | Claude (Anthropic) | Priceless |
-| Mascot | Betty the Schnauzer | 1 belly rub/day |
-
----
-
-## Try It
-
-- **Website:** [bettyscores.com](https://bettyscores.com)
-- **Telegram:** [@bettyscores_bot](https://t.me/bettyscores_bot/bettyscores)
-- **GitHub:** [MihelKlimm/betty-predictor](https://github.com/MihelKlimm/betty-predictor)
-
-World Cup 2026 starts June 11. Place your bets, sniff the score, get TONn of emotions.
-
-*Built with love, serverless magic, and an AI that never sleeps.*
+1. "Empirical" here means "we ran it and it did not catch fire." Reviewer 2
+   remains unsatisfied.
+2. World Cup 2026 — 48 teams, 104 matches, three host countries, one very
+   confident uncle in every group chat.
+3. `correct_outcome → +1`; `exact score → 3` *total*, not `+1 +3 = 4`. The `= 4`
+   version shipped first. This is why we compute scores in exactly one place now.
+4. A small serverless prediction game (`bettyscores.com`), cited purely as a
+   worked example. Its mascot is a schnauzer, which is not load-bearing to the
+   argument.
+5. Legally distinct from selling you the game.
