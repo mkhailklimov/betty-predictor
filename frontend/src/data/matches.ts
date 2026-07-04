@@ -37,11 +37,12 @@ export const TEAM_CARDS: Record<string, boolean> = {
   CVE: true, CZE: true, ENG: true, ESP: true, FRA: true, GER: true, JAP: true, KOR: true,
   MEX: true, MOR: true, NED: true, NOR: true, PAR: true, POR: true, QAT: true, SAF: true,
   SCO: true, SEN: true, SWE: true, SWZ: true, TUR: true, USA: true, UZB: true,
-  NZL: true, BEL: true, URU: true, PAN: true, COL: true,
+  NZL: true, BEL: true, URU: true, PAN: true, COL: true, EGY: true,
+  KSA: true, IRN: true, GHA: true, COD: true, AUT: true, JOR: true,
 }
 
 // Bump when any card PNG is updated — appended as ?v= to bust WebView caches.
-const CARD_ASSETS_VERSION = '5'
+const CARD_ASSETS_VERSION = '6'
 
 export function getCardImage(code: string): string | null {
   return TEAM_CARDS[code] ? `/teams/Cards/${code}.png?v=${CARD_ASSETS_VERSION}` : null
@@ -258,7 +259,11 @@ export const WEEK25_MATCHES: MatchData[] = [
   },
 ]
 
-// Week 3 — Weekstart 2026-06-26 (sheet betty_master_data). Match IDs 21-24.
+// Week 3 — Weekstart 2026-06-26 (sheet betty_master_data). Match IDs 21-30.
+// The real group-stage final round, verified against the FIFA WC2026 calendar
+// (api.fifa.com competition 17 / season 285023): Groups H, G, L, K (Jun 27) +
+// Group J (Jun 28 02:00 UTC). ET = UTC-4; kickoff is the authoritative UTC instant.
+// All 10 active — every team card is now present.
 export const WEEK3_MATCHES: MatchData[] = [
   {
     id: 21,
@@ -271,6 +276,15 @@ export const WEEK3_MATCHES: MatchData[] = [
   },
   {
     id: 22,
+    date: 'Fri, June 26 · 8:00 PM ET',
+    kickoff: '2026-06-27T00:00:00Z',
+    group: 'H',
+    venue: 'Houston',
+    home: { name: 'Cape Verde', code: 'CVE', flag: '\u{1F1E8}\u{1F1FB}', keyPlayer: 'Ryan Mendes' },
+    away: { name: 'Saudi Arabia', code: 'KSA', flag: '\u{1F1F8}\u{1F1E6}', keyPlayer: 'Salem Al-Dawsari' },
+  },
+  {
+    id: 23,
     date: 'Fri, June 26 · 11:00 PM ET',
     kickoff: '2026-06-27T03:00:00Z',
     group: 'G',
@@ -279,7 +293,16 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'Belgium', code: 'BEL', flag: '\u{1F1E7}\u{1F1EA}', keyPlayer: 'Kevin De Bruyne' },
   },
   {
-    id: 23,
+    id: 24,
+    date: 'Fri, June 26 · 11:00 PM ET',
+    kickoff: '2026-06-27T03:00:00Z',
+    group: 'G',
+    venue: 'Seattle',
+    home: { name: 'Egypt', code: 'EGY', flag: '\u{1F1EA}\u{1F1EC}', keyPlayer: 'Mohamed Salah' },
+    away: { name: 'Iran', code: 'IRN', flag: '\u{1F1EE}\u{1F1F7}', keyPlayer: 'Mehdi Taremi' },
+  },
+  {
+    id: 25,
     date: 'Sat, June 27 · 5:00 PM ET',
     kickoff: '2026-06-27T21:00:00Z',
     group: 'L',
@@ -288,13 +311,149 @@ export const WEEK3_MATCHES: MatchData[] = [
     away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Harry Kane' },
   },
   {
-    id: 24,
+    id: 26,
+    date: 'Sat, June 27 · 5:00 PM ET',
+    kickoff: '2026-06-27T21:00:00Z',
+    group: 'L',
+    venue: 'Philadelphia',
+    home: { name: 'Croatia', code: 'CRO', flag: '\u{1F1ED}\u{1F1F7}', keyPlayer: 'Luka Modric' },
+    away: { name: 'Ghana', code: 'GHA', flag: '\u{1F1EC}\u{1F1ED}', keyPlayer: 'Mohammed Kudus' },
+  },
+  {
+    id: 27,
     date: 'Sat, June 27 · 7:30 PM ET',
     kickoff: '2026-06-27T23:30:00Z',
     group: 'K',
     venue: 'Miami',
     home: { name: 'Colombia', code: 'COL', flag: '\u{1F1E8}\u{1F1F4}', keyPlayer: 'Luis Diaz' },
     away: { name: 'Portugal', code: 'POR', flag: '\u{1F1F5}\u{1F1F9}', keyPlayer: 'Cristiano Ronaldo' },
+  },
+  {
+    id: 28,
+    date: 'Sat, June 27 · 7:30 PM ET',
+    kickoff: '2026-06-27T23:30:00Z',
+    group: 'K',
+    venue: 'Atlanta',
+    home: { name: 'Congo DR', code: 'COD', flag: '\u{1F1E8}\u{1F1E9}', keyPlayer: 'Cedric Bakambu' },
+    away: { name: 'Uzbekistan', code: 'UZB', flag: '\u{1F1FA}\u{1F1FF}', keyPlayer: 'Eldor Shomurodov' },
+  },
+  {
+    id: 29,
+    date: 'Sat, June 27 · 10:00 PM ET',
+    kickoff: '2026-06-28T02:00:00Z',
+    group: 'J',
+    venue: 'Kansas City',
+    home: { name: 'Algeria', code: 'ALG', flag: '\u{1F1E9}\u{1F1FF}', keyPlayer: 'Riyad Mahrez' },
+    away: { name: 'Austria', code: 'AUT', flag: '\u{1F1E6}\u{1F1F9}', keyPlayer: 'David Alaba' },
+  },
+  {
+    id: 30,
+    date: 'Sat, June 27 · 10:00 PM ET',
+    kickoff: '2026-06-28T02:00:00Z',
+    group: 'J',
+    venue: 'Dallas',
+    home: { name: 'Jordan', code: 'JOR', flag: '\u{1F1EF}\u{1F1F4}', keyPlayer: 'Mousa Al-Tamari' },
+    away: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' },
+  },
+]
+
+// Week 4 — Weekstart 2026-06-29 (sheet betty_master_data). Knockout week: opens
+// with the two Round-of-32 ties on 07-03; the eight Round-of-16 ties (IDs 33-40)
+// are appended once the R32 bracket resolves (~07-03/04). Match IDs 31+.
+export const WEEK4_MATCHES: MatchData[] = [
+  {
+    id: 31,
+    date: 'Fri, July 3 · 2:00 PM ET',
+    kickoff: '2026-07-03T18:00:00Z', // 14:00 ET (UTC-4)
+    group: 'R32',
+    venue: 'Dallas',
+    home: { name: 'Australia', code: 'AUS', flag: '\u{1F1E6}\u{1F1FA}', keyPlayer: 'Mat Ryan' },
+    away: { name: 'Egypt', code: 'EGY', flag: '\u{1F1EA}\u{1F1EC}', keyPlayer: 'Mohamed Salah' },
+  },
+  {
+    id: 32,
+    date: 'Fri, July 3 · 6:00 PM ET',
+    kickoff: '2026-07-03T22:00:00Z', // 18:00 ET
+    group: 'R32',
+    venue: 'Miami',
+    home: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' },
+    away: { name: 'Cape Verde', code: 'CVE', flag: '\u{1F1E8}\u{1F1FB}', keyPlayer: 'Ryan Mendes' },
+  },
+  // Round of 16 — 6 ties whose pairings are set (FIFA feed, comp 17 / season 285023).
+  // The remaining 2 R16 ties (Atlanta, Vancouver) depend on the Jul 3 R32 winners
+  // (AUS/EGY, ARG/CVE) and are appended once those resolve (~Jul 4).
+  {
+    id: 33,
+    date: 'Sat, July 4 · 1:00 PM ET',
+    kickoff: '2026-07-04T17:00:00Z', // 13:00 ET (UTC-4)
+    group: 'R16',
+    venue: 'Houston',
+    home: { name: 'Canada', code: 'CAN', flag: '\u{1F1E8}\u{1F1E6}', keyPlayer: 'Alphonso Davies' },
+    away: { name: 'Morocco', code: 'MOR', flag: '\u{1F1F2}\u{1F1E6}', keyPlayer: 'Achraf Hakimi' },
+  },
+  {
+    id: 34,
+    date: 'Sat, July 4 · 5:00 PM ET',
+    kickoff: '2026-07-04T21:00:00Z', // 17:00 ET
+    group: 'R16',
+    venue: 'Philadelphia',
+    home: { name: 'Paraguay', code: 'PAR', flag: '\u{1F1F5}\u{1F1FE}', keyPlayer: 'Miguel Almiron' },
+    away: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' },
+  },
+  {
+    id: 35,
+    date: 'Sun, July 5 · 4:00 PM ET',
+    kickoff: '2026-07-05T20:00:00Z', // 16:00 ET
+    group: 'R16',
+    venue: 'New Jersey',
+    home: { name: 'Brazil', code: 'BRA', flag: '\u{1F1E7}\u{1F1F7}', keyPlayer: 'Vinicius Jr' },
+    away: { name: 'Norway', code: 'NOR', flag: '\u{1F1F3}\u{1F1F4}', keyPlayer: 'Erling Haaland' },
+  },
+  {
+    id: 36,
+    date: 'Sun, July 5 · 8:00 PM ET',
+    kickoff: '2026-07-06T00:00:00Z', // 20:00 ET (Jul 5)
+    group: 'R16',
+    venue: 'Mexico City',
+    home: { name: 'Mexico', code: 'MEX', flag: '\u{1F1F2}\u{1F1FD}', keyPlayer: 'Edson Alvarez' },
+    away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' },
+  },
+  {
+    id: 37,
+    date: 'Mon, July 6 · 3:00 PM ET',
+    kickoff: '2026-07-06T19:00:00Z', // 15:00 ET
+    group: 'R16',
+    venue: 'Dallas',
+    home: { name: 'Portugal', code: 'POR', flag: '\u{1F1F5}\u{1F1F9}', keyPlayer: 'Cristiano Ronaldo' },
+    away: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Nico Williams' },
+  },
+  {
+    id: 38,
+    date: 'Mon, July 6 · 8:00 PM ET',
+    kickoff: '2026-07-07T00:00:00Z', // 20:00 ET (Jul 6)
+    group: 'R16',
+    venue: 'Seattle',
+    home: { name: 'USA', code: 'USA', flag: '\u{1F1FA}\u{1F1F8}', keyPlayer: 'Christian Pulisic' },
+    away: { name: 'Belgium', code: 'BEL', flag: '\u{1F1E7}\u{1F1EA}', keyPlayer: 'Kevin De Bruyne' },
+  },
+  // Final 2 R16 ties, appended Jul 4 once the last R32 winners resolved.
+  {
+    id: 39,
+    date: 'Tue, July 7 · 12:00 PM ET',
+    kickoff: '2026-07-07T16:00:00Z', // 12:00 ET (UTC-4)
+    group: 'R16',
+    venue: 'Atlanta',
+    home: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' },
+    away: { name: 'Egypt', code: 'EGY', flag: '\u{1F1EA}\u{1F1EC}', keyPlayer: 'Mohamed Salah' },
+  },
+  {
+    id: 40,
+    date: 'Tue, July 7 · 4:00 PM ET',
+    kickoff: '2026-07-07T20:00:00Z', // 16:00 ET (UTC-4)
+    group: 'R16',
+    venue: 'Vancouver',
+    home: { name: 'Switzerland', code: 'SWZ', flag: '\u{1F1E8}\u{1F1ED}', keyPlayer: 'Granit Xhaka' },
+    away: { name: 'Colombia', code: 'COL', flag: '\u{1F1E8}\u{1F1F4}', keyPlayer: 'Luis Diaz' },
   },
 ]
 
@@ -320,8 +479,8 @@ export interface WeekDef {
 export const WEEKS: WeekDef[] = [
   { id: '2026_24', label: 'Week 1', matches: WEEK1_MATCHES,  becomesCurrent: '2026-06-12T06:00:00Z', opensAsNext: null },
   { id: '2026_25', label: 'Week 2', matches: WEEK25_MATCHES, becomesCurrent: '2026-06-19T06:00:00Z', opensAsNext: '2026-06-15T00:00:00Z' },
-  // Week 3 (WEEK3_MATCHES) is defined above but not in the active rotation yet —
-  // add it here when it's ready so it auto-opens as "Next" on its Monday.
+  { id: '2026_26', label: 'Week 3', matches: WEEK3_MATCHES,  becomesCurrent: '2026-06-26T06:00:00Z', opensAsNext: '2026-06-22T00:00:00Z' },
+  { id: '2026_27', label: 'Week 4', matches: WEEK4_MATCHES,  becomesCurrent: '2026-07-03T06:00:00Z', opensAsNext: '2026-06-29T00:00:00Z' },
 ]
 
 // Resolve which week is "current" and whether a "next" week is open, from now.

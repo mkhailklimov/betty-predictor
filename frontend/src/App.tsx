@@ -57,6 +57,8 @@ function App() {
             const { data } = await userApi.register({
               tg_id: tgId,
               username: tgUser?.username,
+              first_name: tgUser?.first_name,
+              last_name: tgUser?.last_name,
             })
             setUser(data)
             registered = true
