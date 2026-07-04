@@ -436,6 +436,25 @@ export const WEEK4_MATCHES: MatchData[] = [
     home: { name: 'USA', code: 'USA', flag: '\u{1F1FA}\u{1F1F8}', keyPlayer: 'Christian Pulisic' },
     away: { name: 'Belgium', code: 'BEL', flag: '\u{1F1E7}\u{1F1EA}', keyPlayer: 'Kevin De Bruyne' },
   },
+  // Final 2 R16 ties, appended Jul 4 once the last R32 winners resolved.
+  {
+    id: 39,
+    date: 'Tue, July 7 · 12:00 PM ET',
+    kickoff: '2026-07-07T16:00:00Z', // 12:00 ET (UTC-4)
+    group: 'R16',
+    venue: 'Atlanta',
+    home: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' },
+    away: { name: 'Egypt', code: 'EGY', flag: '\u{1F1EA}\u{1F1EC}', keyPlayer: 'Mohamed Salah' },
+  },
+  {
+    id: 40,
+    date: 'Tue, July 7 · 4:00 PM ET',
+    kickoff: '2026-07-07T20:00:00Z', // 16:00 ET (UTC-4)
+    group: 'R16',
+    venue: 'Vancouver',
+    home: { name: 'Switzerland', code: 'SWZ', flag: '\u{1F1E8}\u{1F1ED}', keyPlayer: 'Granit Xhaka' },
+    away: { name: 'Colombia', code: 'COL', flag: '\u{1F1E8}\u{1F1F4}', keyPlayer: 'Luis Diaz' },
+  },
 ]
 
 // ---------------------------------------------------------------------------
