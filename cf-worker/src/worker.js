@@ -25,14 +25,34 @@ const ALLOWED_TEAMS = new Set([
   'UZB',
 ]);
 
+// Internal/test accounts — excluded from gold marts (Champions/Leaderboard).
+// MikeKlimov, bettyscores bot, bet_monitoring, TestUser. See project_betty_user_account.
+const INTERNAL_TG_IDS = new Set(['1056798742', '8513208258', '7653593987', 'test_123']);
+
+// Canonical scoring — the ONE place scoring is defined.
+//   correct outcome (1/X/2)            → 1 point
+//   exact score (implies outcome)      → 3 points TOTAL (not 1+3)
+//   otherwise                          → 0
+function scoreBet(predOutcome, predHome, predAway, resOutcome, resHome, resAway) {
+  const correctOutcome = predOutcome === resOutcome ? 1 : 0;
+  const correctScore = correctOutcome && predHome === resHome && predAway === resAway ? 1 : 0;
+  const points = correctScore ? 3 : correctOutcome ? 1 : 0;
+  return { points, correctOutcome, correctScore };
+}
+
 export default {
   // Cron triggers — dispatch by schedule string:
   //   "0 * * * *"  → hourly match-status update
-  //   "0 6 * * FRI"  → weekly users D1→Sheets sync
+  //   "0 6 * * 5"  → weekly users D1→Sheets sync
   async scheduled(event, env, ctx) {
-    if (event.cron === '0 6 * * FRI') {
-      ctx.waitUntil(syncUsersToSheet(env));
-      ctx.waitUntil(syncBetsToSheet(env));
+    if (event.cron === '0 6 * * 5') {
+      // Weekly: refresh marts from latest data, then mirror everything OUT to the sheet.
+      ctx.waitUntil((async () => {
+        try { await syncAdjustmentsFromSheet(env); } catch (e) { console.error('adj sync failed', e); }
+        await rebuildMarts(env);
+        await syncUsersToSheet(env);
+        await exportMartsToSheet(env);
+      })());
       return;
     }
     // Default: hourly match-status update
@@ -64,6 +84,13 @@ export default {
         ).run();
       }
     }
+
+    // Pull manual adjustments from the sheet, then refresh marts so
+    // Champions/Leaderboard reflect newly-finished matches + adjustments.
+    ctx.waitUntil((async () => {
+      try { await syncAdjustmentsFromSheet(env); } catch (e) { console.error('adj sync failed', e); }
+      await rebuildMarts(env);
+    })());
   },
 
   async fetch(request, env) {
@@ -84,14 +111,17 @@ export default {
       // --- Users ---
       if (method === 'POST' && path === '/api/user/register') {
         const body = await request.json();
-        const { tg_id, username } = body;
+        const { tg_id, username, first_name, last_name } = body;
         if (!tg_id) return json({ detail: 'tg_id required' }, 400);
 
         const existing = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(tg_id).first();
         if (existing) return json(existing, 200);
 
         const id = uuid();
-        const displayName = username || `User_${tg_id}`;
+        // Prefer the @handle; fall back to the Telegram first/last name (most
+        // users have no @username set), and only then to the User_<tg_id> stub.
+        const fullName = [first_name, last_name].map((s) => (s || '').trim()).filter(Boolean).join(' ');
+        const displayName = username || fullName || `User_${tg_id}`;
         await env.DB.prepare(
           'INSERT INTO users (id, tg_id, username) VALUES (?, ?, ?)'
         ).bind(id, tg_id, displayName).run();
@@ -259,67 +289,48 @@ export default {
         return json(parseScores(results));
       }
 
-      // --- Leaderboard ---
+      // --- Leaderboard (all-time, served from gold_leaderboard mart) ---
       if (method === 'GET' && (path === '/api/leaderboard' || path === '/api/leaderboard/overall')) {
-        const { results: users } = await env.DB.prepare('SELECT * FROM users').all();
-        const { results: predictions } = await env.DB.prepare('SELECT * FROM predictions').all();
-        const { results: matches } = await env.DB.prepare("SELECT * FROM matches WHERE status = 'finished'").all();
-
-        const matchMap = {};
-        for (const m of matches) matchMap[m.id] = m;
-
-        const userData = {};
-        for (const u of users) {
-          userData[u.id] = {
-            username: u.username || `User_${u.tg_id}`,
-            points: 0,
-            correct_predictions: 0,
-            correct_scores: 0,
-            is_premium: u.is_premium === 1,
-            fav_team: u.fav_team || null,
-          };
-        }
-
-        for (const p of predictions) {
-          const match = matchMap[p.match_id];
-          if (!match || !userData[p.user_id]) continue;
-
-          const isCorrect1X2 =
-            (p.prediction_type === '1' && match.home_score > match.away_score) ||
-            (p.prediction_type === '2' && match.away_score > match.home_score) ||
-            (p.prediction_type === 'X' && match.home_score === match.away_score);
-
-          if (isCorrect1X2) {
-            userData[p.user_id].correct_predictions += 1;
-            userData[p.user_id].points += 1;
-
-            if (p.predicted_score) {
-              let score = p.predicted_score;
-              if (typeof score === 'string') {
-                try { score = JSON.parse(score); } catch {}
-              }
-              if (score.home === match.home_score && score.away === match.away_score) {
-                userData[p.user_id].correct_scores += 1;
-                userData[p.user_id].points += 3;
-              }
-            }
-          }
-        }
-
-        const leaderboard = Object.entries(userData)
-          .sort((a, b) => b[1].points - a[1].points)
-          .map(([user_id, data], i) => ({
-            rank: i + 1,
-            user_id,
-            username: data.username,
-            points: data.points,
-            correct_predictions: data.correct_predictions,
-            correct_scores: data.correct_scores,
-            is_premium: data.is_premium,
-            fav_team: data.fav_team,
-          }));
-
+        const { results } = await env.DB.prepare(
+          'SELECT * FROM gold_leaderboard ORDER BY total_points DESC, username ASC'
+        ).all();
+        const leaderboard = results.map((l, i) => ({
+          rank: i + 1,
+          user_id: l.user_id,
+          username: l.username,
+          points: l.total_points,
+          correct_predictions: l.correct_outcomes,
+          correct_scores: l.correct_scores,
+          weeks_won: l.weeks_won,
+          grams: l.weeks_won, // 1 whole Gram prize per week won (integer, no decimals)
+          is_premium: l.is_premium === 1,
+          fav_team: l.fav_team || null,
+        }));
         return json(leaderboard);
+      }
+
+      // --- Champions (official weekly results, served from gold_champions mart) ---
+      // GET /api/champions          → latest week's results
+      // GET /api/champions?week=... → a specific week_id (e.g. 2026_24)
+      if (method === 'GET' && path === '/api/champions') {
+        const weekParam = url.searchParams.get('week');
+        let week = weekParam;
+        if (!week) {
+          const row = await env.DB.prepare('SELECT MAX(week_id) w FROM gold_champions').first();
+          week = row ? row.w : null;
+        }
+        if (!week) return json({ week_id: null, results: [] });
+        const { results } = await env.DB.prepare(
+          'SELECT * FROM gold_champions WHERE week_id = ? ORDER BY rank'
+        ).bind(week).all();
+        return json({
+          week_id: week,
+          results: results.map(c => ({
+            rank: c.rank, user_id: c.user_id, username: c.username, week_id: c.week_id,
+            points: c.total_points, correct_predictions: c.correct_outcomes,
+            correct_scores: c.correct_scores, matches_predicted: c.matches_predicted, ton_earned: 0,
+          })),
+        });
       }
 
       // --- Rewards ---
@@ -369,9 +380,55 @@ export default {
         if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
           return json({ detail: 'Unauthorized' }, 401);
         }
-        const users = await syncUsersToSheet(env);
-        const bets = await syncBetsToSheet(env);
-        return json({ users, bets });
+        const result = await syncUsersToSheet(env);
+        return json(result);
+      }
+
+      // --- Admin: rebuild silver + gold marts from bronze ---
+      // Call: curl -X POST https://<worker>/api/admin/rebuild -H "Authorization: Bearer $ADMIN_TOKEN"
+      if (method === 'POST' && path === '/api/admin/rebuild') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        return json(await rebuildMarts(env));
+      }
+
+      // --- Admin: results — ingest from FIFA to bronze, reconcile to matches ---
+      // ?apply=1 writes result changes (else dry). After apply, rebuild marts.
+      if (method === 'POST' && (path === '/api/admin/results' || path === '/api/admin/espn')) {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const apply = url.searchParams.get('apply') === '1';
+        const ingest = await ingestFifaResults(env);
+        const reconcile = await reconcileResults(env, { apply });
+        const rebuild = apply && reconcile.changed ? await rebuildMarts(env) : null;
+        return json({ ingest, reconcile, rebuild });
+      }
+
+      // --- Admin: mirror gold marts → sheet (Champions + Leaderboard tabs) ---
+      if (method === 'POST' && path === '/api/admin/export-marts') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        return json(await exportMartsToSheet(env));
+      }
+
+      // --- Admin: sync manual adjustments from sheet → bronze, then rebuild ---
+      // ?dry=1 parses + returns without writing. Bearer ADMIN_TOKEN.
+      if (method === 'POST' && path === '/api/admin/sync-adjustments') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const dryRun = url.searchParams.get('dry') === '1';
+        const sync = await syncAdjustmentsFromSheet(env, { dryRun });
+        if (dryRun) return json(sync);
+        const rebuild = await rebuildMarts(env);
+        return json({ sync, rebuild });
       }
 
       // --- Telegram ---
@@ -494,8 +551,8 @@ function parseScores(results) {
 }
 
 // ---------------------------------------------------------------------------
-// Google Sheets sync: D1 → "Users" and "Bets" tabs. Invoked weekly (Fri 06:00
-// UTC) and via POST /api/admin/sync-users (which now syncs both). Requires:
+// Google Sheets sync: users D1 → "Users" tab. Invoked weekly (Fri 06:00 UTC)
+// and via POST /api/admin/sync-users. Requires secrets:
 //   GOOGLE_SA_JSON         — service-account JSON (entire file contents)
 //   SHEETS_SPREADSHEET_ID  — target spreadsheet id
 // ---------------------------------------------------------------------------
@@ -505,6 +562,55 @@ const USERS_HEADER = [
   'tours_played', 'ton_wallet', 'ton_consent', 'ton_earned', 'ton_distributed',
   'created_at', 'updated_at',
 ];
+
+// Read manual score adjustments from the "Adjustments" tab and load them into
+// bronze_adjustments (full replace — the sheet tab is the source of truth).
+// Tab columns: Week ID | Username | Points Delta | Reason
+// Username is resolved to users.id (case-insensitive). Returns parsed + skipped.
+async function syncAdjustmentsFromSheet(env, { dryRun = false } = {}) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+  const token = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+
+  const res = await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Adjustments!A2:D`,
+    token, 'GET'
+  );
+  const rows = res.values || [];
+
+  const { results: users } = await env.DB.prepare('SELECT id, username FROM users').all();
+  const byName = {};
+  for (const u of users) if (u.username) byName[u.username.toLowerCase()] = u.id;
+
+  const parsed = [];
+  const skipped = [];
+  for (const r of rows) {
+    const week_id = (r[0] || '').trim();
+    const username = (r[1] || '').trim();
+    const delta = Number(r[2]);
+    const reason = (r[3] || '').trim() || null;
+    if (!week_id || !username || !Number.isFinite(delta) || delta === 0) {
+      if (week_id || username) skipped.push({ week_id, username, why: 'missing/zero fields' });
+      continue;
+    }
+    const user_id = byName[username.toLowerCase()];
+    if (!user_id) { skipped.push({ week_id, username, why: 'unknown username' }); continue; }
+    parsed.push({ week_id, user_id, username, points_delta: delta, reason });
+  }
+
+  if (dryRun) return { ok: true, dry: true, parsed, skipped };
+
+  const stmts = [env.DB.prepare('DELETE FROM bronze_adjustments')];
+  for (const a of parsed) stmts.push(env.DB.prepare(
+    'INSERT INTO bronze_adjustments (id, week_id, user_id, points_delta, reason) VALUES (?,?,?,?,?)'
+  ).bind(uuid(), a.week_id, a.user_id, a.points_delta, a.reason));
+  await env.DB.batch(stmts);
+
+  return { ok: true, written: parsed.length, skipped };
+}
 
 async function syncUsersToSheet(env) {
   if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
@@ -534,46 +640,304 @@ async function syncUsersToSheet(env) {
   return { ok: true, synced: users.length, at: new Date().toISOString() };
 }
 
-const BETS_HEADER = [
-  'id', 'user_id', 'tg_id', 'username', 'match_id', 'home_team', 'away_team',
-  'match_time', 'prediction_type', 'predicted_score', 'points_earned',
-  'created_at', 'updated_at',
-];
+// ---------------------------------------------------------------------------
+// Transform: rebuild silver star schema + gold marts from bronze.
+// Idempotent, deterministic, full rebuild. Bronze = users/predictions/matches
+// (operational tables) + bronze_adjustments.
+// ---------------------------------------------------------------------------
+async function rebuildMarts(env) {
+  const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
-async function syncBetsToSheet(env) {
+  const [{ results: users }, { results: predictions }, { results: matches }, { results: adjustments }] =
+    await Promise.all([
+      env.DB.prepare('SELECT * FROM users').all(),
+      env.DB.prepare('SELECT * FROM predictions').all(),
+      env.DB.prepare('SELECT * FROM matches').all(),
+      env.DB.prepare('SELECT * FROM bronze_adjustments').all(),
+    ]);
+
+  const matchById = {};
+  for (const m of matches) matchById[m.id] = m;
+
+  // ---- silver dimensions ----
+  const dimUser = users.map(u => ({
+    user_id: u.id, tg_id: u.tg_id, username: u.username || `User_${u.tg_id}`,
+    is_premium: u.is_premium ? 1 : 0, fav_team: u.fav_team || null,
+    is_internal: INTERNAL_TG_IDS.has(String(u.tg_id)) ? 1 : 0,
+  }));
+  const userById = {};
+  for (const d of dimUser) userById[d.user_id] = d;
+
+  const weekIds = [...new Set(matches.map(m => m.week_id).filter(Boolean))];
+  const dimWeek = weekIds.map(w => ({ week_id: w, label: 'Week ' + w.split('_')[1], weekstart: null }));
+
+  const teams = [...new Set(matches.flatMap(m => [m.home_team, m.away_team]).filter(Boolean))];
+  const dimTeam = teams.map(t => ({ team: t, code: null }));
+
+  // ---- silver facts ----
+  const factBet = predictions.map(p => {
+    let s = p.predicted_score;
+    if (typeof s === 'string') { try { s = JSON.parse(s); } catch { s = {}; } }
+    const m = matchById[p.match_id];
+    return {
+      user_id: p.user_id, match_id: p.match_id, week_id: m ? m.week_id : null,
+      pred_outcome: p.prediction_type,
+      pred_home: s && s.home != null ? Number(s.home) : null,
+      pred_away: s && s.away != null ? Number(s.away) : null,
+      updated_at: p.updated_at || p.created_at || null,
+    };
+  });
+
+  const factResult = matches
+    .filter(m => m.home_score != null && m.away_score != null)
+    .map(m => ({
+      match_id: m.id, week_id: m.week_id, home_team: m.home_team, away_team: m.away_team,
+      home_score: m.home_score, away_score: m.away_score,
+      outcome: m.result || (m.home_score > m.away_score ? '1' : m.home_score < m.away_score ? '2' : 'X'),
+      is_final: m.status === 'finished' || m.is_active === 3 ? 1 : 0,
+    }));
+  const resultByMatch = {};
+  for (const r of factResult) resultByMatch[r.match_id] = r;
+
+  const factScore = [];
+  for (const b of factBet) {
+    const r = resultByMatch[b.match_id];
+    if (!r || !r.is_final) continue;
+    const { points, correctOutcome, correctScore } =
+      scoreBet(b.pred_outcome, b.pred_home, b.pred_away, r.outcome, r.home_score, r.away_score);
+    factScore.push({
+      user_id: b.user_id, match_id: b.match_id, week_id: b.week_id,
+      points_base: points, is_correct_outcome: correctOutcome, is_correct_score: correctScore,
+    });
+  }
+
+  // ---- gold: champions (user × week), internal users excluded ----
+  const adjByKey = {}; // `${week}|${user}` → delta sum
+  for (const a of adjustments) {
+    const k = `${a.week_id}|${a.user_id}`;
+    adjByKey[k] = (adjByKey[k] || 0) + (Number(a.points_delta) || 0);
+  }
+
+  const champAgg = {}; // key week|user
+  for (const s of factScore) {
+    const u = userById[s.user_id];
+    if (!u || u.is_internal) continue;
+    const k = `${s.week_id}|${s.user_id}`;
+    if (!champAgg[k]) champAgg[k] = {
+      week_id: s.week_id, user_id: s.user_id, username: u.username,
+      total_points: 0, correct_outcomes: 0, correct_scores: 0, matches_predicted: 0,
+      last_bet_at: null,
+    };
+    const c = champAgg[k];
+    c.total_points += s.points_base;
+    c.correct_outcomes += s.is_correct_outcome;
+    c.correct_scores += s.is_correct_score;
+    c.matches_predicted += 1;
+  }
+  // last_bet_at = MAX(updated_at) per user/week (tiebreak: earliest wins)
+  for (const b of factBet) {
+    const k = `${b.week_id}|${b.user_id}`;
+    if (!champAgg[k] || !b.updated_at) continue;
+    if (!champAgg[k].last_bet_at || b.updated_at > champAgg[k].last_bet_at) champAgg[k].last_bet_at = b.updated_at;
+  }
+
+  const champions = Object.values(champAgg).map(c => {
+    const adj = adjByKey[`${c.week_id}|${c.user_id}`] || 0;
+    return { ...c, adjustment_points: adj, total_points: c.total_points + adj };
+  });
+  // rank within each week
+  const byWeek = {};
+  for (const c of champions) (byWeek[c.week_id] ||= []).push(c);
+  for (const w of Object.keys(byWeek)) {
+    byWeek[w].sort((a, b) =>
+      b.total_points - a.total_points ||
+      String(a.last_bet_at || '9999').localeCompare(String(b.last_bet_at || '9999')));
+    byWeek[w].forEach((c, i) => { c.rank = i + 1; });
+  }
+
+  // ---- gold: leaderboard (user, all-time) ----
+  const lbAgg = {};
+  for (const c of champions) {
+    const u = userById[c.user_id];
+    if (!lbAgg[c.user_id]) lbAgg[c.user_id] = {
+      user_id: c.user_id, username: c.username,
+      is_premium: u ? u.is_premium : 0, fav_team: u ? u.fav_team : null,
+      total_points: 0, correct_outcomes: 0, correct_scores: 0, weeks_played: 0, weeks_won: 0,
+    };
+    const l = lbAgg[c.user_id];
+    l.total_points += c.total_points;
+    l.correct_outcomes += c.correct_outcomes;
+    l.correct_scores += c.correct_scores;
+    l.weeks_played += 1;
+    if (c.rank === 1) l.weeks_won += 1;
+  }
+
+  // ---- write all layers atomically (delete + insert) ----
+  const stmts = [];
+  const wipe = t => stmts.push(env.DB.prepare(`DELETE FROM ${t}`));
+  ['silver_dim_user', 'silver_dim_week', 'silver_dim_team', 'silver_fact_bet',
+   'silver_fact_result', 'silver_fact_score', 'gold_champions', 'gold_leaderboard'].forEach(wipe);
+
+  for (const d of dimUser) stmts.push(env.DB.prepare(
+    'INSERT INTO silver_dim_user (user_id,tg_id,username,is_premium,fav_team,is_internal) VALUES (?,?,?,?,?,?)')
+    .bind(d.user_id, d.tg_id, d.username, d.is_premium, d.fav_team, d.is_internal));
+  for (const d of dimWeek) stmts.push(env.DB.prepare(
+    'INSERT INTO silver_dim_week (week_id,label,weekstart) VALUES (?,?,?)').bind(d.week_id, d.label, d.weekstart));
+  for (const d of dimTeam) stmts.push(env.DB.prepare(
+    'INSERT INTO silver_dim_team (team,code) VALUES (?,?)').bind(d.team, d.code));
+  for (const b of factBet) stmts.push(env.DB.prepare(
+    'INSERT INTO silver_fact_bet (user_id,match_id,week_id,pred_outcome,pred_home,pred_away,updated_at) VALUES (?,?,?,?,?,?,?)')
+    .bind(b.user_id, b.match_id, b.week_id, b.pred_outcome, b.pred_home, b.pred_away, b.updated_at));
+  for (const r of factResult) stmts.push(env.DB.prepare(
+    'INSERT INTO silver_fact_result (match_id,week_id,home_team,away_team,home_score,away_score,outcome,is_final) VALUES (?,?,?,?,?,?,?,?)')
+    .bind(r.match_id, r.week_id, r.home_team, r.away_team, r.home_score, r.away_score, r.outcome, r.is_final));
+  for (const s of factScore) stmts.push(env.DB.prepare(
+    'INSERT INTO silver_fact_score (user_id,match_id,week_id,points_base,is_correct_outcome,is_correct_score) VALUES (?,?,?,?,?,?)')
+    .bind(s.user_id, s.match_id, s.week_id, s.points_base, s.is_correct_outcome, s.is_correct_score));
+  for (const c of champions) stmts.push(env.DB.prepare(
+    'INSERT INTO gold_champions (week_id,user_id,username,total_points,correct_outcomes,correct_scores,matches_predicted,adjustment_points,last_bet_at,rank,computed_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
+    .bind(c.week_id, c.user_id, c.username, c.total_points, c.correct_outcomes, c.correct_scores, c.matches_predicted, c.adjustment_points, c.last_bet_at, c.rank, now));
+  for (const l of Object.values(lbAgg)) stmts.push(env.DB.prepare(
+    'INSERT INTO gold_leaderboard (user_id,username,is_premium,fav_team,total_points,correct_outcomes,correct_scores,weeks_played,weeks_won,computed_at) VALUES (?,?,?,?,?,?,?,?,?,?)')
+    .bind(l.user_id, l.username, l.is_premium, l.fav_team, l.total_points, l.correct_outcomes, l.correct_scores, l.weeks_played, l.weeks_won, now));
+
+  await env.DB.batch(stmts);
+  return { ok: true, at: now, champions: champions.length, leaderboard: Object.keys(lbAgg).length, scored_bets: factScore.length };
+}
+
+// Normalize a team name for cross-source matching: strip accents + punctuation,
+// lowercase, then alias known divergences (FIFA "Cabo Verde" → our "Cape Verde").
+function normTeam(name) {
+  const base = String(name || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]/g, '');
+  const alias = {
+    unitedstates: 'usa', korearepublic: 'southkorea', czechrepublic: 'czechia',
+    bosniaandherzegovina: 'bosniaherzegovina', caboverde: 'capeverde',
+  };
+  return alias[base] || base;
+}
+
+// FIFA World Cup 2026 (api.fifa.com): competition 17, season 285023.
+const FIFA_COMPETITION = '17';
+const FIFA_SEASON = '285023';
+
+// Ingest FIFA World Cup results into bronze_match_results (source='fifa').
+// One call returns the whole calendar; MatchStatus 0 = played/finished.
+async function ingestFifaResults(env) {
+  const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+  const url = `https://api.fifa.com/api/v3/calendar/matches?idCompetition=${FIFA_COMPETITION}&idSeason=${FIFA_SEASON}&count=500&language=en`;
+  const r = await fetch(url, { headers: { 'User-Agent': 'betty-predictor' } });
+  if (!r.ok) throw new Error(`FIFA API ${r.status}`);
+  const data = await r.json();
+  const games = data.Results || [];
+
+  let landed = 0;
+  const stmts = [];
+  for (const g of games) {
+    const home = ((g.Home || {}).TeamName || [{}])[0].Description;
+    const away = ((g.Away || {}).TeamName || [{}])[0].Description;
+    if (!home || !away) continue;
+    const finished = g.MatchStatus === 0;
+    stmts.push(env.DB.prepare(
+      'INSERT OR REPLACE INTO bronze_match_results (source,source_id,date_utc,home_team,away_team,home_score,away_score,status,fetched_at) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).bind('fifa', String(g.IdMatch), g.Date, home, away,
+      g.HomeTeamScore != null ? Number(g.HomeTeamScore) : null,
+      g.AwayTeamScore != null ? Number(g.AwayTeamScore) : null,
+      finished ? 'finished' : 'scheduled', now));
+    landed++;
+  }
+  if (stmts.length) await env.DB.batch(stmts);
+  return { ok: true, source: 'fifa', total: games.length, landed };
+}
+
+// Reconcile finished bronze_match_results against our matches by team identity +
+// date window. DRY by default: returns proposed changes. apply=true writes them.
+async function reconcileResults(env, { apply = false } = {}) {
+  const [{ results: feed }, { results: matches }] = await Promise.all([
+    env.DB.prepare("SELECT * FROM bronze_match_results WHERE status = 'finished'").all(),
+    env.DB.prepare('SELECT * FROM matches').all(),
+  ]);
+
+  // index feed games by unordered normalized team-pair
+  const feedByPair = {};
+  for (const g of feed) {
+    const a = normTeam(g.home_team), b = normTeam(g.away_team);
+    const key = [a, b].sort().join('|');
+    feedByPair[key] = {
+      date: g.date_utc, scores: { [a]: g.home_score, [b]: g.away_score },
+    };
+  }
+
+  const DAY = 86400000;
+  const proposals = [];
+  for (const m of matches) {
+    const h = normTeam(m.home_team), aw = normTeam(m.away_team);
+    const g = feedByPair[[h, aw].sort().join('|')];
+    if (!g) continue;
+    // date sanity: within ±1.5 days (timezone tolerance)
+    if (m.match_date_utc && g.date) {
+      const dt = Math.abs(new Date(m.match_date_utc).getTime() - new Date(g.date).getTime());
+      if (dt > 1.5 * DAY) continue;
+    }
+    const hs = g.scores[h], as = g.scores[aw];
+    if (hs == null || as == null) continue;
+    const result = hs > as ? '1' : hs < as ? '2' : 'X';
+    const changed = m.home_score !== hs || m.away_score !== as || m.result !== result;
+    proposals.push({
+      match_id: m.id, teams: `${m.home_team} v ${m.away_team}`,
+      current: { home: m.home_score, away: m.away_score, result: m.result },
+      proposed: { home: hs, away: as, result }, changed,
+    });
+  }
+
+  const toApply = proposals.filter(p => p.changed);
+  if (apply && toApply.length) {
+    const stmts = toApply.map(p => env.DB.prepare(
+      "UPDATE matches SET home_score=?, away_score=?, result=?, status='finished', is_active=3, updated_at=datetime('now') WHERE id=?"
+    ).bind(p.proposed.home, p.proposed.away, p.proposed.result, p.match_id));
+    await env.DB.batch(stmts);
+  }
+  return { ok: true, apply, matched: proposals.length, changed: toApply.length, proposals };
+}
+
+// Mirror gold marts → sheet (one-way, read-only export for monitoring).
+// Overwrites the Champions + Leaderboard tabs from gold_* on every run.
+// These tabs are SINKS — never read back as a source.
+const CHAMP_HEADER = ['Week ID', 'User ID', 'Username', 'Total Points', 'Correct Outcomes',
+  'Correct Scores', 'Matches Predicted', 'Adjustment Points', 'Last Bet At', 'Rank', 'Computed At'];
+const LB_HEADER = ['User ID', 'Username', 'Total Points', 'Correct Outcomes', 'Correct Scores',
+  'Weeks Played', 'Weeks Won', 'Computed At'];
+
+async function exportMartsToSheet(env) {
   if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
     throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
   }
   const sa = JSON.parse(env.GOOGLE_SA_JSON);
-  const { results: bets } = await env.DB.prepare(
-    `SELECT p.id, p.user_id, u.tg_id, u.username, p.match_id,
-            m.home_team, m.away_team, m.time AS match_time,
-            p.prediction_type, p.predicted_score, p.points_earned,
-            p.created_at, p.updated_at
-       FROM predictions p
-       LEFT JOIN users u   ON u.id = p.user_id
-       LEFT JOIN matches m ON m.id = p.match_id
-       ORDER BY p.created_at`
-  ).all();
-
-  const rows = [BETS_HEADER];
-  for (const b of bets) {
-    rows.push(BETS_HEADER.map(k => b[k] == null ? '' : String(b[k])));
-  }
-
-  const accessToken = await getGoogleAccessToken(sa);
+  const token = await getGoogleAccessToken(sa);
   const sid = env.SHEETS_SPREADSHEET_ID;
 
-  await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Bets!A:Z:clear`,
-    accessToken, 'POST', {}
-  );
-  await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Bets!A1?valueInputOption=RAW`,
-    accessToken, 'PUT', { range: 'Bets!A1', majorDimension: 'ROWS', values: rows }
-  );
+  const { results: champ } = await env.DB.prepare(
+    'SELECT * FROM gold_champions ORDER BY week_id DESC, rank').all();
+  const { results: lb } = await env.DB.prepare(
+    'SELECT * FROM gold_leaderboard ORDER BY total_points DESC, username').all();
 
-  return { ok: true, synced: bets.length, at: new Date().toISOString() };
+  const champRows = [CHAMP_HEADER, ...champ.map(c => [
+    c.week_id, c.user_id, c.username, c.total_points, c.correct_outcomes, c.correct_scores,
+    c.matches_predicted, c.adjustment_points, c.last_bet_at || '', c.rank, c.computed_at,
+  ].map(v => v == null ? '' : String(v)))];
+  const lbRows = [LB_HEADER, ...lb.map(l => [
+    l.user_id, l.username, l.total_points, l.correct_outcomes, l.correct_scores,
+    l.weeks_played, l.weeks_won, l.computed_at,
+  ].map(v => v == null ? '' : String(v)))];
+
+  for (const [tab, rows] of [['Champions', champRows], ['Leaderboard', lbRows]]) {
+    await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${tab}!A:Z:clear`,
+      token, 'POST', {});
+    await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${tab}!A1?valueInputOption=RAW`,
+      token, 'PUT', { range: `${tab}!A1`, majorDimension: 'ROWS', values: rows });
+  }
+  return { ok: true, champions: champ.length, leaderboard: lb.length };
 }
 
 async function sheetsFetch(url, token, method, body) {
