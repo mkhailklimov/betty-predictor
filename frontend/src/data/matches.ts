@@ -457,6 +457,26 @@ export const WEEK4_MATCHES: MatchData[] = [
   },
 ]
 
+// Week 5 — Quarter-finals (FIFA matches 97-100). Opens as Next Mon Jul 6 00:00 UTC
+// (usual cadence). Fixed schedule / venues / kickoffs below; pairings resolve from
+// the Week-4 R16 winners. Following the Week-4 append model, this array holds only
+// RESOLVED ties — the rest are appended as their R16 feeders finish (Jul 6-7), so
+// players never see an unpredictable TBD card:
+//   id 42 (Los Angeles), Fri Jul 10 19:00Z: W37 (Portugal/Spain, Jul 6) v W38 (USA/Belgium, Jul 7)
+//   id 43 (Miami),       Sat Jul 11 21:00Z: W35 (Brazil/Norway, Jul 5)  v W36 (Mexico/England, Jul 6)
+//   id 44 (Kansas City), Sun Jul 12 01:00Z: W39 (Argentina/Egypt, Jul 7) v W40 (Switzerland/Colombia, Jul 7)
+export const WEEK5_MATCHES: MatchData[] = [
+  {
+    id: 41,
+    date: 'Thu, July 9 · 4:00 PM ET',
+    kickoff: '2026-07-09T20:00:00Z', // 16:00 ET (UTC-4)
+    group: 'QF',
+    venue: 'Boston',
+    home: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' }, // won R16 id 34 (v Paraguay)
+    away: { name: 'Morocco', code: 'MOR', flag: '\u{1F1F2}\u{1F1E6}', keyPlayer: 'Achraf Hakimi' }, // won R16 id 33 (v Canada)
+  },
+]
+
 // ---------------------------------------------------------------------------
 // Weekly cadence (UTC). Each "week" is a pool of matches players predict.
 //   - becomesCurrent: Friday 06:00 UTC — this week becomes the default "current"
@@ -481,6 +501,11 @@ export const WEEKS: WeekDef[] = [
   { id: '2026_25', label: 'Week 2', matches: WEEK25_MATCHES, becomesCurrent: '2026-06-19T06:00:00Z', opensAsNext: '2026-06-15T00:00:00Z' },
   { id: '2026_26', label: 'Week 3', matches: WEEK3_MATCHES,  becomesCurrent: '2026-06-26T06:00:00Z', opensAsNext: '2026-06-22T00:00:00Z' },
   { id: '2026_27', label: 'Week 4', matches: WEEK4_MATCHES,  becomesCurrent: '2026-07-03T06:00:00Z', opensAsNext: '2026-06-29T00:00:00Z' },
+  // Week 5 (Quarter-finals). Opens as Next Mon Jul 6 00:00 UTC (usual cadence) with
+  // the one resolved tie (France v Morocco); QF2-4 are appended to WEEK5_MATCHES as
+  // their R16 feeders finish (Jul 6-7). becomesCurrent Thu Jul 9 06:00 UTC — before
+  // the first QF (Jul 9 20:00Z).
+  { id: '2026_28', label: 'Week 5', matches: WEEK5_MATCHES,  becomesCurrent: '2026-07-09T06:00:00Z', opensAsNext: '2026-07-06T00:00:00Z' },
 ]
 
 // Resolve which week is "current" and whether a "next" week is open, from now.
