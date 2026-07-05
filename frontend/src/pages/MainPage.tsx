@@ -1,6 +1,6 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
-import { resolveWeeks, MatchData } from '../data/matches'
+import { resolveWeeks, isMatchLocked, MatchData } from '../data/matches'
 import { predictionsApi } from '../services/api'
 import '../styles/MainPage.css'
 
@@ -21,6 +21,22 @@ function savePredictionsLocal(preds: Record<number, { outcome: string; score: st
 // Map frontend match id (1-10) to backend match id (match-1 to match-10)
 function toBackendMatchId(id: number): string {
   return `match-${id}`
+}
+
+// Which card to land on. A visitor arriving mid-week should not open onto a match
+// that already kicked off (locked = a dead end they can't predict). Land on the
+// nearest still-open match, preferring one not yet predicted; only fall back to a
+// locked card when every match in the week has already started.
+function nearestOpenIndex(
+  list: MatchData[],
+  preds: Record<number, { outcome: string; score: string }>,
+): number {
+  const openUnpredicted = list.findIndex(m => !isMatchLocked(m) && !preds[m.id])
+  if (openUnpredicted !== -1) return openUnpredicted
+  const open = list.findIndex(m => !isMatchLocked(m))
+  if (open !== -1) return open
+  const unpredicted = list.findIndex(m => !preds[m.id])
+  return unpredicted === -1 ? 0 : unpredicted
 }
 
 // Replay every locally-stored prediction to the backend. The /api/predictions
@@ -65,7 +81,11 @@ function resultsAvailableDate(weekMatches: MatchData[]): string {
 
 export const MainPage: React.FC = () => {
   const [predictions, setPredictions] = React.useState(loadPredictions)
-  const [currentIndex, setCurrentIndex] = React.useState(0)
+  // Open on the nearest still-predictable match of the current week, so a mid-week
+  // newcomer isn't greeted by a locked (already-started) card.
+  const [currentIndex, setCurrentIndex] = React.useState(() =>
+    nearestOpenIndex(resolveWeeks().current.matches, loadPredictions()),
+  )
   const [showToast, setShowToast] = React.useState(false)
   const [toastMessage, setToastMessage] = React.useState('')
   const [reviewMode, setReviewMode] = React.useState(false)
@@ -82,8 +102,7 @@ export const MainPage: React.FC = () => {
     setSelectedKey(key)
     setReviewMode(false)
     const wk = key === 'next' && next ? next : current
-    const firstUnpredicted = wk.matches.findIndex(m => !predictions[m.id])
-    setCurrentIndex(firstUnpredicted === -1 ? 0 : firstUnpredicted)
+    setCurrentIndex(nearestOpenIndex(wk.matches, predictions))
   }
 
   // Single header row: "Current" (default) + "Next" (only when a next week is open).
