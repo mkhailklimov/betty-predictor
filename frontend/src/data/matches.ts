@@ -461,9 +461,9 @@ export const WEEK4_MATCHES: MatchData[] = [
 // (usual cadence). Fixed schedule / venues / kickoffs below; pairings resolve from
 // the Week-4 R16 winners. Following the Week-4 append model, this array holds only
 // RESOLVED ties — the rest are appended as their R16 feeders finish (Jul 6-7), so
-// players never see an unpredictable TBD card:
+// players never see an unpredictable TBD card. Resolved so far: id 41 (QF1), id 43 (QF3).
+// Still pending their R16 feeders:
 //   id 42 (Los Angeles), Fri Jul 10 19:00Z: W37 (Portugal/Spain, Jul 6) v W38 (USA/Belgium, Jul 7)
-//   id 43 (Miami),       Sat Jul 11 21:00Z: W35 (Brazil/Norway, Jul 5)  v W36 (Mexico/England, Jul 6)
 //   id 44 (Kansas City), Sun Jul 12 01:00Z: W39 (Argentina/Egypt, Jul 7) v W40 (Switzerland/Colombia, Jul 7)
 export const WEEK5_MATCHES: MatchData[] = [
   {
@@ -474,6 +474,15 @@ export const WEEK5_MATCHES: MatchData[] = [
     venue: 'Boston',
     home: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' }, // won R16 id 34 (v Paraguay)
     away: { name: 'Morocco', code: 'MOR', flag: '\u{1F1F2}\u{1F1E6}', keyPlayer: 'Achraf Hakimi' }, // won R16 id 33 (v Canada)
+  },
+  {
+    id: 43,
+    date: 'Sat, July 11 · 5:00 PM ET',
+    kickoff: '2026-07-11T21:00:00Z', // 17:00 ET (UTC-4)
+    group: 'QF',
+    venue: 'Miami',
+    home: { name: 'Norway', code: 'NOR', flag: '\u{1F1F3}\u{1F1F4}', keyPlayer: 'Erling Haaland' }, // won R16 id 35 (Brazil 1-2 Norway)
+    away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' }, // won R16 id 36 (Mexico 2-3 England)
   },
 ]
 
