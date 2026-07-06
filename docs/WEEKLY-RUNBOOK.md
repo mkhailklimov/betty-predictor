@@ -19,6 +19,16 @@ as **Next** the **Monday before that**. Every Monday performs **both** transitio
    `frontend/src/data/matches.ts` with **Monday** `becomesCurrent` + `opensAsNext`
    anchors; build its `WEEK*_MATCHES` array.
 4. **Sync new week → D1** — insert `match-*` rows (`week_id`, `is_active = 1`).
+   **Do this AS the week opens as Next, not at Friday results.** `POST
+   /api/predictions` runs `SELECT * FROM matches WHERE id=?` and returns
+   404 "Match not found" when the row is absent, so a match visible in the app
+   but missing from D1 is **unpredictable**. (Bug caught 2026-07-06: QF1
+   `match-41` opened as Next Jul 5 but was never D1-synced → 404 until fixed.)
+   For per-match append weeks (knockouts), insert each `match-*` the same day
+   you append it to `matches.ts` + the sheet. Insert:
+   `wrangler d1 execute betty-db --remote --command "INSERT OR IGNORE INTO
+   matches (id,home_team,away_team,date,time,round,status,grp,venue,card_home,
+   card_away,is_active,week_id,match_date_utc) VALUES (...)"`.
 5. **Deploy** dev → prod (file-sync, **not** a merge — the TON manifest is
    branch-specific). Verify the toggle shows **Current + Next** on prod.
    - **Landing site** (`www.bettyscores.com`) is **separate** from the app and
