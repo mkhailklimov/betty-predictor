@@ -461,10 +461,11 @@ export const WEEK4_MATCHES: MatchData[] = [
 // (usual cadence). Fixed schedule / venues / kickoffs below; pairings resolve from
 // the Week-4 R16 winners. Following the Week-4 append model, this array holds only
 // RESOLVED ties — the rest are appended as their R16 feeders finish (Jul 6-7), so
-// players never see an unpredictable TBD card. Resolved so far: id 41 (QF1), id 43 (QF3).
-// Still pending their R16 feeders:
-//   id 42 (Los Angeles), Fri Jul 10 19:00Z: W37 (Portugal/Spain, Jul 6) v W38 (USA/Belgium, Jul 7)
-//   id 44 (Kansas City), Sun Jul 12 01:00Z: W39 (Argentina/Egypt, Jul 7) v W40 (Switzerland/Colombia, Jul 7)
+// players never see an unpredictable TBD card. All four QFs now resolved & paired:
+//   id 41 (Boston),      Thu Jul  9 20:00Z: France (W R16 34) v Morocco (W R16 33)
+//   id 42 (Los Angeles), Fri Jul 10 19:00Z: Spain (Portugal 0-1 Spain) v Belgium (USA 1-4 Belgium)
+//   id 43 (Miami),       Sat Jul 11 21:00Z: Norway (Brazil 1-2 Norway) v England (Mexico 2-3 England)
+//   id 44 (Kansas City), Sun Jul 12 01:00Z: Argentina (Argentina 3-2 Egypt) v Switzerland (Switzerland 0-0 Colombia, pens)
 export const WEEK5_MATCHES: MatchData[] = [
   {
     id: 41,
@@ -476,6 +477,15 @@ export const WEEK5_MATCHES: MatchData[] = [
     away: { name: 'Morocco', code: 'MOR', flag: '\u{1F1F2}\u{1F1E6}', keyPlayer: 'Achraf Hakimi' }, // won R16 id 33 (v Canada)
   },
   {
+    id: 42,
+    date: 'Fri, July 10 · 3:00 PM ET',
+    kickoff: '2026-07-10T19:00:00Z', // 15:00 ET (UTC-4)
+    group: 'QF',
+    venue: 'Los Angeles',
+    home: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Nico Williams' }, // won R16 id 37 (Portugal 0-1 Spain)
+    away: { name: 'Belgium', code: 'BEL', flag: '\u{1F1E7}\u{1F1EA}', keyPlayer: 'Kevin De Bruyne' }, // won R16 id 38 (USA 1-4 Belgium)
+  },
+  {
     id: 43,
     date: 'Sat, July 11 · 5:00 PM ET',
     kickoff: '2026-07-11T21:00:00Z', // 17:00 ET (UTC-4)
@@ -483,6 +493,15 @@ export const WEEK5_MATCHES: MatchData[] = [
     venue: 'Miami',
     home: { name: 'Norway', code: 'NOR', flag: '\u{1F1F3}\u{1F1F4}', keyPlayer: 'Erling Haaland' }, // won R16 id 35 (Brazil 1-2 Norway)
     away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' }, // won R16 id 36 (Mexico 2-3 England)
+  },
+  {
+    id: 44,
+    date: 'Sat, July 11 · 9:00 PM ET',
+    kickoff: '2026-07-12T01:00:00Z', // 21:00 ET (UTC-4)
+    group: 'QF',
+    venue: 'Kansas City',
+    home: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' }, // won R16 id 39 (Argentina 3-2 Egypt)
+    away: { name: 'Switzerland', code: 'SWZ', flag: '\u{1F1E8}\u{1F1ED}', keyPlayer: 'Granit Xhaka' }, // won R16 id 40 (Switzerland 0-0 Colombia, adv. on pens)
   },
 ]
 
