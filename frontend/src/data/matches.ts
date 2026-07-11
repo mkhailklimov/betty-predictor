@@ -503,6 +503,19 @@ export const WEEK5_MATCHES: MatchData[] = [
     home: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' }, // won R16 id 39 (Argentina 3-2 Egypt)
     away: { name: 'Switzerland', code: 'SWZ', flag: '\u{1F1E8}\u{1F1ED}', keyPlayer: 'Granit Xhaka' }, // won R16 id 40 (Switzerland 0-0 Colombia, adv. on pens)
   },
+  // Semi-finals live in the SAME 2026_28 week (Weekstart 2026-07-10) — appended per
+  // the QF model as each SF's feeder QFs resolve. SF1 fed by QF1 (France 2-0 Morocco)
+  // + QF2 (Spain 2-1 Belgium) — both done, so SF1 is paired. SF2 = W(QF3 Norway/England)
+  // v W(QF4 Argentina/Switzerland) — appended once those QFs finish (Jul 11-12).
+  {
+    id: 45,
+    date: 'Tue, July 14 · 3:00 PM ET',
+    kickoff: '2026-07-14T19:00:00Z', // 15:00 ET (UTC-4)
+    group: 'SF',
+    venue: 'Dallas',
+    home: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' }, // won QF1 id 41 (France 2-0 Morocco)
+    away: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Nico Williams' }, // won QF2 id 42 (Spain 2-1 Belgium)
+  },
 ]
 
 // ---------------------------------------------------------------------------
