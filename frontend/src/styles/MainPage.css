@@ -125,6 +125,16 @@
   background: #ffc20d;
 }
 
+/* Outcome saved, exact score still open — a ring rather than a filled dot. */
+.dot--partial {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px rgba(255, 194, 13, 0.6);
+}
+
+.dot--partial.dot--current {
+  background: #ffc20d;
+}
+
 /* All done message */
 .all-done {
   text-align: center;

@@ -37,27 +37,25 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
   const homeFlag = getLocalFlag(match.home.code) || flagToTwemojiUrl(match.home.flag)
   const awayFlag = getLocalFlag(match.away.code) || flagToTwemojiUrl(match.away.flag)
 
+  // An outcome on its own is already a valid bet (1 pt); the exact score upgrades it
+  // to 3. So persist as soon as the outcome is tapped, rather than waiting for a
+  // score that many players never pick — an unsaved outcome used to vanish entirely.
+  // Re-tapping the selected outcome is a no-op: there is no delete endpoint, so
+  // clearing it locally would leave a ghost bet on the backend. Players change a bet
+  // by picking a different outcome.
   const handleOutcome = (outcome: string) => {
-    if (locked) return
-    if (selectedOutcome === outcome) {
-      setSelectedOutcome(null)
-      setSelectedScore(null)
-    } else {
-      setSelectedOutcome(outcome)
-      setSelectedScore(null)
-    }
+    if (locked || selectedOutcome === outcome) return
+    setSelectedOutcome(outcome)
+    setSelectedScore(null)
+    onPredict(match.id, outcome, '')
   }
 
   const handleScore = (score: string) => {
-    if (locked) return
-    if (selectedScore === score) {
-      setSelectedScore(null)
-    } else {
-      setSelectedScore(score)
-      if (selectedOutcome) {
-        onPredict(match.id, selectedOutcome, score)
-      }
-    }
+    if (locked || !selectedOutcome) return
+    // Re-tapping the chosen score drops back to an outcome-only bet (score cleared).
+    const next = selectedScore === score ? '' : score
+    setSelectedScore(next || null)
+    onPredict(match.id, selectedOutcome, next)
   }
 
   return (
@@ -159,7 +157,12 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
         <div className={`mc__saved ${locked ? 'mc__saved--locked' : ''}`}>
           <span className="mc__saved-text">
             {locked ? '&#128274; ' : ''}
-            {prediction.outcome === '1' ? match.home.name + ' wins' : prediction.outcome === '2' ? match.away.name + ' wins' : 'Draw'} — {prediction.score}
+            {prediction.outcome === '1' ? match.home.name + ' wins' : prediction.outcome === '2' ? match.away.name + ' wins' : 'Draw'}
+            {prediction.score
+              ? ' — ' + prediction.score
+              : locked
+                ? ' — no score'
+                : ' — saved. Pick the exact score for 3 pts'}
           </span>
         </div>
       )}

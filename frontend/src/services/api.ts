@@ -51,7 +51,9 @@ export const predictionsApi = {
   create: (data: {
     match_id: string
     prediction_type: '1' | 'X' | '2'
-    predicted_score?: { home: number; away: number }
+    // null = an outcome-only bet (no exact score). The worker stores predicted_score
+    // as nullable and scores such a bet on the outcome alone.
+    predicted_score?: { home: number; away: number } | null
   }) => api.post<Prediction>('/api/predictions', data),
   getUserPredictions: (userId: string) => api.get<Prediction[]>(`/api/predictions/user/${userId}`),
   getMyPredictions: () => api.get<Prediction[]>('/api/predictions/me'),
