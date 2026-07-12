@@ -23,6 +23,15 @@ function toBackendMatchId(id: number): string {
   return `match-${id}`
 }
 
+// "2:1" → {home,away}; empty/malformed → null, i.e. an outcome-only bet. The backend
+// stores predicted_score as nullable and scores such a bet on the outcome alone.
+function parseScore(score: string): { home: number; away: number } | null {
+  if (!score) return null
+  const [h, a] = score.split(':').map(Number)
+  if (Number.isNaN(h) || Number.isNaN(a)) return null
+  return { home: h, away: a }
+}
+
 // Which card to land on. A visitor arriving mid-week should not open onto a match
 // that already kicked off (locked = a dead end they can't predict). Land on the
 // nearest still-open match, preferring one not yet predicted; only fall back to a
@@ -52,14 +61,12 @@ export async function syncPendingPredictions(): Promise<void> {
     for (const key of Object.keys(preds)) {
       const matchId = Number(key)
       const p = preds[matchId]
-      if (!p || !p.score) continue
-      const [h, a] = p.score.split(':').map(Number)
-      if (Number.isNaN(h) || Number.isNaN(a)) continue
+      if (!p || !p.outcome) continue
       try {
         await predictionsApi.create({
           match_id: toBackendMatchId(matchId),
           prediction_type: p.outcome as '1' | 'X' | '2',
-          predicted_score: { home: h, away: a },
+          predicted_score: parseScore(p.score),
         })
       } catch {
         // Leave it in localStorage; the next load (or submit) retries.
@@ -81,11 +88,6 @@ function resultsAvailableDate(weekMatches: MatchData[]): string {
 
 export const MainPage: React.FC = () => {
   const [predictions, setPredictions] = React.useState(loadPredictions)
-  // Open on the nearest still-predictable match of the current week, so a mid-week
-  // newcomer isn't greeted by a locked (already-started) card.
-  const [currentIndex, setCurrentIndex] = React.useState(() =>
-    nearestOpenIndex(resolveWeeks().current.matches, loadPredictions()),
-  )
   const [showToast, setShowToast] = React.useState(false)
   const [toastMessage, setToastMessage] = React.useState('')
   const [reviewMode, setReviewMode] = React.useState(false)
@@ -93,10 +95,23 @@ export const MainPage: React.FC = () => {
 
   // Resolve the current week and, Mon→Fri, the optional "next week" (UTC cadence).
   const { current, next } = React.useMemo(() => resolveWeeks(), [])
-  // Default to Current; the user toggles to Next to predict ahead.
-  const [selectedKey, setSelectedKey] = React.useState<'current' | 'next'>('current')
+
+  // Which week to land on. Normally Current. But between a week's last kickoff and the
+  // next week becoming current there is a dead zone — every match of the current week
+  // has started, so Current is a wall of locked cards with nothing to predict (this
+  // window ran 5 days in the group stage). When that happens and Next is already open,
+  // land on Next so a newcomer always sees a match they can actually bet on.
+  const [selectedKey, setSelectedKey] = React.useState<'current' | 'next'>(() =>
+    next && current.matches.every(isMatchLocked) ? 'next' : 'current',
+  )
   const week = selectedKey === 'next' && next ? next : current
   const matches = week.matches
+
+  // Open on the nearest still-predictable match of that week, so a mid-week newcomer
+  // isn't greeted by a locked (already-started) card.
+  const [currentIndex, setCurrentIndex] = React.useState(() =>
+    nearestOpenIndex(week.matches, loadPredictions()),
+  )
 
   const switchWeek = (key: 'current' | 'next') => {
     setSelectedKey(key)
@@ -137,13 +152,12 @@ export const MainPage: React.FC = () => {
     setPredictions(updated)
     savePredictionsLocal(updated)
 
-    // Save to backend
-    const [h, a] = score.split(':').map(Number)
+    // Save to backend. score may be '' — an outcome-only bet, saved as-is.
     try {
       await predictionsApi.create({
         match_id: toBackendMatchId(matchId),
         prediction_type: outcome as '1' | 'X' | '2',
-        predicted_score: { home: h, away: a },
+        predicted_score: parseScore(score),
       })
     } catch (error: any) {
       const detail = error?.response?.data?.detail
@@ -164,7 +178,11 @@ export const MainPage: React.FC = () => {
       setTimeout(() => { void syncPendingPredictions() }, 1500)
     }
 
-    const isAllDone = matches.every(m => updated[m.id])
+    // Only move on once the bet is complete (outcome + score). Advancing on the bare
+    // outcome would whisk the card away before the player could pick a score.
+    if (!score) return
+
+    const isAllDone = matches.every(m => updated[m.id]?.score)
 
     if (isAllDone) {
       setToastMessage('&#9989; Bets placed!')
@@ -179,7 +197,10 @@ export const MainPage: React.FC = () => {
   }
 
   // Progress is scoped to the selected week only.
-  const completedCount = matches.filter(m => predictions[m.id]).length
+  // "Complete" = outcome + score. An outcome-only bet is saved and scores 1 pt, but
+  // still has the score bonus left on the table, so it reads as in-progress here and
+  // keeps the card stack open instead of jumping to the all-done screen.
+  const completedCount = matches.filter(m => predictions[m.id]?.score).length
   const currentMatch = matches[currentIndex]
   const allDone = completedCount === matches.length
 
@@ -254,7 +275,7 @@ export const MainPage: React.FC = () => {
           {matches.map((m, i) => (
             <span
               key={m.id}
-              className={`dot ${i === currentIndex ? 'dot--current' : ''} ${predictions[m.id] ? 'dot--done' : ''}`}
+              className={`dot ${i === currentIndex ? 'dot--current' : ''} ${predictions[m.id]?.score ? 'dot--done' : predictions[m.id] ? 'dot--partial' : ''}`}
               onClick={() => setCurrentIndex(i)}
             />
           ))}
