@@ -5,10 +5,10 @@ compatibility_date = "2024-12-01"
 # Rollout switch for the initData auth fix (2026-07-14).
 #   "1" — also accept the old `Bearer <tg_id>` header, so clients still running
 #         the pre-fix bundle keep working while the new frontend propagates.
-#   "0" — signed initData only. This is what actually closes the hole; flip it
-#         once the new frontend is live and verified.
+#   "0" — signed initData only. ACTIVE since 2026-07-14: the new frontend was
+#         confirmed working in a real Telegram client, so the old header is refused.
 [vars]
-ALLOW_LEGACY_AUTH = "1"
+ALLOW_LEGACY_AUTH = "0"
 
 [[d1_databases]]
 binding = "DB"
@@ -28,7 +28,7 @@ crons = ["0 * * * *", "0 6 * * FRI"]
 name = "betty-api-dev"
 
 [env.dev.vars]
-ALLOW_LEGACY_AUTH = "1"
+ALLOW_LEGACY_AUTH = "0"
 
 [env.dev.triggers]
 crons = []

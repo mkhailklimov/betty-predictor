@@ -262,13 +262,10 @@ export default {
 
       if (method === 'GET' && path === '/api/predictions/me') {
         const token = await resolveTgId(request, env);
-        let user;
-        if (token) {
-          user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
-        }
-        if (!user) {
-          user = await env.DB.prepare('SELECT * FROM users LIMIT 1').first();
-        }
+        // No anonymous LIMIT 1 fallback — that leaked an arbitrary user's
+        // predictions to any caller (same bug as the old /api/user/me).
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
 
         const { results } = await env.DB.prepare(
@@ -356,9 +353,10 @@ export default {
 
       if (method === 'POST' && path === '/api/rewards/claim') {
         const token = await resolveTgId(request, env);
-        let user;
-        if (token) user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
-        if (!user) user = await env.DB.prepare('SELECT * FROM users LIMIT 1').first();
+        // No anonymous LIMIT 1 fallback — this claims (mutates) rewards, so it
+        // must act only on the authenticated user.
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
 
         const { results: pending } = await env.DB.prepare(
