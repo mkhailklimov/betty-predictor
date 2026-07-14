@@ -2,6 +2,14 @@ name = "betty-api"
 main = "src/worker.js"
 compatibility_date = "2024-12-01"
 
+# Rollout switch for the initData auth fix (2026-07-14).
+#   "1" — also accept the old `Bearer <tg_id>` header, so clients still running
+#         the pre-fix bundle keep working while the new frontend propagates.
+#   "0" — signed initData only. This is what actually closes the hole; flip it
+#         once the new frontend is live and verified.
+[vars]
+ALLOW_LEGACY_AUTH = "1"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "betty-db"
@@ -18,6 +26,9 @@ crons = ["0 * * * *", "0 6 * * FRI"]
 # Intentionally no crons in dev to avoid double-firing the weekly sync.
 [env.dev]
 name = "betty-api-dev"
+
+[env.dev.vars]
+ALLOW_LEGACY_AUTH = "1"
 
 [env.dev.triggers]
 crons = []

@@ -111,8 +111,13 @@ export default {
       // --- Users ---
       if (method === 'POST' && path === '/api/user/register') {
         const body = await request.json();
-        const { tg_id, username, first_name, last_name } = body;
-        if (!tg_id) return json({ detail: 'tg_id required' }, 400);
+        const { username, first_name, last_name } = body;
+        // Identity comes from the signed initData, never from the body: a
+        // client-supplied tg_id let anyone register (and thus act as) any user.
+        // During the rollout window a legacy client may still post its own id.
+        const verified = await resolveTgId(request, env);
+        const tg_id = verified || (env.ALLOW_LEGACY_AUTH === '1' ? body.tg_id : null);
+        if (!tg_id) return json({ detail: 'Unauthorized' }, 401);
 
         const existing = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(tg_id).first();
         if (existing) return json(existing, 200);
@@ -136,7 +141,7 @@ export default {
         if (!ton_address || typeof ton_address !== 'string') {
           return json({ detail: 'ton_address required' }, 400);
         }
-        const token = getToken(request);
+        const token = await resolveTgId(request, env);
         if (!token) return json({ detail: 'Unauthorized' }, 401);
         const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
@@ -147,12 +152,11 @@ export default {
       }
 
       if (method === 'GET' && path === '/api/user/me') {
-        const token = getToken(request);
-        if (token) {
-          const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
-          if (user) return json(user);
-        }
-        const user = await env.DB.prepare('SELECT * FROM users LIMIT 1').first();
+        const token = await resolveTgId(request, env);
+        // No anonymous fallback. This used to return `SELECT * FROM users LIMIT 1`
+        // — i.e. some arbitrary real user's record, wallet included — to any caller.
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 404);
         return json(user);
       }
@@ -189,7 +193,7 @@ export default {
         const body = await request.json();
         const { match_id, prediction_type, predicted_score } = body;
 
-        const token = getToken(request);
+        const token = await resolveTgId(request, env);
         if (!token) return json({ detail: 'Auth required' }, 401);
 
         let user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
@@ -257,7 +261,7 @@ export default {
       }
 
       if (method === 'GET' && path === '/api/predictions/me') {
-        const token = getToken(request);
+        const token = await resolveTgId(request, env);
         let user;
         if (token) {
           user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
@@ -351,7 +355,7 @@ export default {
       }
 
       if (method === 'POST' && path === '/api/rewards/claim') {
-        const token = getToken(request);
+        const token = await resolveTgId(request, env);
         let user;
         if (token) user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) user = await env.DB.prepare('SELECT * FROM users LIMIT 1').first();
@@ -445,7 +449,7 @@ export default {
       // POST /api/user/fav-team — Premium-only. Sets users.fav_team to a valid
       // 3-letter team code. The team code must be in the allowed WC participants list.
       if (method === 'POST' && path === '/api/user/fav-team') {
-        const token = getToken(request);
+        const token = await resolveTgId(request, env);
         if (!token) return json({ detail: 'Unauthorized' }, 401);
         const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
@@ -463,7 +467,7 @@ export default {
       // POST /api/payments/create-stars-invoice → returns { invoice_url }
       // Auth: same tg_id Bearer token as other user endpoints.
       if (method === 'POST' && path === '/api/payments/create-stars-invoice') {
-        const token = getToken(request);
+        const token = await resolveTgId(request, env);
         if (!token) return json({ detail: 'Unauthorized' }, 401);
         const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
@@ -535,9 +539,98 @@ export default {
   },
 };
 
+// Admin routes only: compared against env.ADMIN_TOKEN, which is a real secret.
+// Never use this to establish a *user* identity — see resolveTgId below.
 function getToken(request) {
   const auth = request.headers.get('Authorization');
   if (auth && auth.startsWith('Bearer ')) return auth.slice(7);
+  return null;
+}
+
+// --- Telegram Mini App authentication ---------------------------------------
+// Until 2026-07-14 user identity came from `Authorization: Bearer <tg_id>` — a
+// raw, unsigned Telegram id. Anyone could act as anyone by sending their number:
+// forge predictions, or repoint a winner's ton_wallet and steal the TON payout.
+//
+// Identity now comes from Telegram's signed initData (`Authorization: tma <initData>`),
+// verified per Telegram's spec:
+//   secret_key = HMAC_SHA256(key="WebAppData", msg=BOT_TOKEN)
+//   expected   = hex(HMAC_SHA256(key=secret_key, msg=data_check_string))
+// The bot token never leaves the worker, so initData cannot be forged client-side.
+const INITDATA_MAX_AGE_S = 24 * 60 * 60;
+
+async function hmacSha256(keyBytes, message) {
+  const key = await crypto.subtle.importKey(
+    'raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  return new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message)));
+}
+
+const toHex = (bytes) => [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
+
+// Constant-time compare, so a wrong hash can't be brute-forced byte-by-byte.
+function timingSafeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+async function verifyInitData(initData, botToken) {
+  if (!initData || !botToken) return null;
+  let params;
+  try {
+    params = new URLSearchParams(initData);
+  } catch {
+    return null;
+  }
+  const hash = params.get('hash');
+  if (!hash) return null;
+  params.delete('hash');
+
+  const entries = [...params.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  const secret = await hmacSha256(new TextEncoder().encode('WebAppData'), botToken);
+
+  // Telegram's newer payloads carry an extra Ed25519 `signature` field, and
+  // clients disagree on whether it belongs in the HMAC's data_check_string.
+  // Accept either form: both are HMACs keyed by the bot token, so neither is
+  // forgeable without it, and tolerating both avoids locking users out.
+  const candidates = [
+    entries,
+    entries.filter(([k]) => k !== 'signature'),
+  ].map((e) => e.map(([k, v]) => `${k}=${v}`).join('\n'));
+
+  let ok = false;
+  for (const dcs of candidates) {
+    const expected = toHex(await hmacSha256(secret, dcs));
+    if (timingSafeEqual(expected, hash)) { ok = true; break; }
+  }
+  if (!ok) return null;
+
+  // Reject replays of an old launch string.
+  const authDate = Number(params.get('auth_date') || 0);
+  if (!authDate || Math.floor(Date.now() / 1000) - authDate > INITDATA_MAX_AGE_S) return null;
+
+  try {
+    const user = JSON.parse(params.get('user') || '{}');
+    return user && user.id ? String(user.id) : null;
+  } catch {
+    return null;
+  }
+}
+
+// The authenticated Telegram id for user-scoped routes, or null.
+async function resolveTgId(request, env) {
+  const auth = request.headers.get('Authorization') || '';
+  if (auth.startsWith('tma ')) return await verifyInitData(auth.slice(4), env.BOT_TOKEN);
+
+  // Rollout only: clients running the pre-fix bundle still send `Bearer <tg_id>`.
+  // Flip ALLOW_LEGACY_AUTH to "0" once the signed-initData frontend is live, which
+  // closes the impersonation hole for good.
+  if (env.ALLOW_LEGACY_AUTH === '1' && auth.startsWith('Bearer ')) {
+    const t = auth.slice(7);
+    return /^\d+$/.test(t) ? t : null;
+  }
   return null;
 }
 

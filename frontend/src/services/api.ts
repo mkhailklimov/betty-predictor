@@ -1,4 +1,5 @@
 import axios from 'axios'
+import WebApp from '@twa-dev/sdk'
 import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse } from '../types'
 
 // Host-based API routing: prod domain → prod Worker, everything else → dev Worker.
@@ -20,11 +21,20 @@ const api = axios.create({
   },
 })
 
-// Add token to requests if available
+// Authenticate with Telegram's signed initData, which the API verifies against
+// the bot token. We previously sent `Bearer <tg_id>` — an unsigned number, so
+// anyone could act as any user by guessing it. Read it live from the SDK rather
+// than from localStorage: it must be the launch string Telegram actually signed.
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('tg_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  const initData = WebApp.initData || ''
+  if (initData) {
+    config.headers.Authorization = `tma ${initData}`
+  } else {
+    // Outside Telegram there is no signed identity; fall back to the legacy
+    // header so local dev (isLocalDev in App.tsx) still works. The API only
+    // honours this while ALLOW_LEGACY_AUTH is on.
+    const token = localStorage.getItem('tg_token')
+    if (token) config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
