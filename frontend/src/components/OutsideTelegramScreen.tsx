@@ -24,7 +24,7 @@ export const OutsideTelegramScreen: React.FC = () => {
           Telegram. This page can&apos;t sign you in or save bets.
         </p>
         <a className="outside-tg__button" href={TG_APP_LINK}>
-          Open in the Telegram app
+          Play with Betty
         </a>
         <p className="outside-tg__hint">
           No Telegram app?{' '}
