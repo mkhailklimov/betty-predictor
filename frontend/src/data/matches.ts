@@ -506,8 +506,9 @@ export const WEEK5_MATCHES: MatchData[] = [
   // Semi-finals live in the SAME 2026_28 week (Weekstart 2026-07-10) — appended per
   // the QF model as each SF's feeder QFs resolve. Both SFs are now paired: SF1 fed by
   // QF1 (France 2-0 Morocco) + QF2 (Spain 2-1 Belgium); SF2 fed by QF3 (Norway 1-2
-  // England) + QF4 (Argentina 3-1 Switzerland). 3rd-place + Final append once the SFs
-  // finish (Jul 14-15).
+  // England) + QF4 (Argentina 3-1 Switzerland). SFs resolved: SF1 Spain beat France,
+  // SF2 Argentina beat England -> Final = Spain v Argentina, 3rd place = France v
+  // England, both appended below (Jul 18-19).
   {
     id: 45,
     date: 'Tue, July 14 · 3:00 PM ET',
@@ -525,6 +526,24 @@ export const WEEK5_MATCHES: MatchData[] = [
     venue: 'Atlanta',
     home: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' }, // won QF3 id 43 (Norway 1-2 England)
     away: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' }, // won QF4 id 44 (Argentina 3-1 Switzerland)
+  },
+  {
+    id: 47,
+    date: 'Sat, July 18 · 3:00 PM ET',
+    kickoff: '2026-07-18T19:00:00Z', // 15:00 ET (UTC-4)
+    group: '3P',
+    venue: 'Miami',
+    home: { name: 'France', code: 'FRA', flag: '\u{1F1EB}\u{1F1F7}', keyPlayer: 'Kylian Mbappe' }, // lost SF1 id 45 (France 0-? Spain)
+    away: { name: 'England', code: 'ENG', flag: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}', keyPlayer: 'Jude Bellingham' }, // lost SF2 id 46 (England 0-? Argentina)
+  },
+  {
+    id: 48,
+    date: 'Sun, July 19 · 3:00 PM ET',
+    kickoff: '2026-07-19T19:00:00Z', // 15:00 ET (UTC-4)
+    group: 'Final',
+    venue: 'New York / New Jersey',
+    home: { name: 'Spain', code: 'ESP', flag: '\u{1F1EA}\u{1F1F8}', keyPlayer: 'Nico Williams' }, // won SF1 id 45 (Spain beat France)
+    away: { name: 'Argentina', code: 'ARG', flag: '\u{1F1E6}\u{1F1F7}', keyPlayer: 'Lionel Messi' }, // won SF2 id 46 (Argentina beat England)
   },
 ]
 

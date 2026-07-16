@@ -31,6 +31,14 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
     }
   }, [match.kickoff])
 
+  // Knockout stages carry a code in `group`; render a friendly stage name and drop
+  // the "Group " prefix. Group-stage matches (single letters A-L) keep "Group X".
+  const STAGE_LABELS: Record<string, string> = {
+    R32: 'Round of 32', R16: 'Round of 16', QF: 'Quarter-final',
+    SF: 'Semi-final', '3P': 'Third place', Final: 'Final',
+  }
+  const stageLabel = STAGE_LABELS[match.group] ?? `Group ${match.group}`
+
   const locked = isMatchLocked(match)
   const homeCard = getCardImage(match.home.code)
   const awayCard = getCardImage(match.away.code)
@@ -82,7 +90,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
 
         <div className="mc__card-vs">
           <span className="mc__card-vs-text">VS</span>
-          <span className="mc__card-info">Group {match.group}</span>
+          <span className="mc__card-info">{stageLabel}</span>
           <span className="mc__card-info">{match.date}</span>
         </div>
 
