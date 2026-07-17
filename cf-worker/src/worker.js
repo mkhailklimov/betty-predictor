@@ -43,15 +43,30 @@ function scoreBet(predOutcome, predHome, predAway, resOutcome, resHome, resAway)
 export default {
   // Cron triggers — dispatch by schedule string:
   //   "0 * * * *"  → hourly match-status update
-  //   "0 6 * * 5"  → weekly users D1→Sheets sync
+  //   "0 6 * * FRI" (or "0 6 * * 5") → weekly Friday close-out: marts + D1→Sheets sync
+  //
+  // Cloudflare echoes event.cron back VERBATIM as declared in wrangler.toml, so this
+  // must accept both the named and numeric day-of-week forms. Matching only one form
+  // silently routes the weekly run into the hourly branch below (which flips matches
+  // to finished without ever writing scores) — that shipped, and the weekly sync never
+  // ran once. Keep both forms accepted if wrangler.toml is ever edited either way.
   async scheduled(event, env, ctx) {
-    if (event.cron === '0 6 * * 5') {
+    const WEEKLY = new Set(['0 6 * * 5', '0 6 * * FRI']);
+    if (WEEKLY.has(event.cron)) {
       // Weekly: refresh marts from latest data, then mirror everything OUT to the sheet.
       ctx.waitUntil((async () => {
         try { await syncAdjustmentsFromSheet(env); } catch (e) { console.error('adj sync failed', e); }
         await rebuildMarts(env);
-        await syncUsersToSheet(env);
-        await exportMartsToSheet(env);
+        // Mirror the full picture out to Betty_Master_data. Each tab is isolated
+        // so one failing sync can't silently starve the rest.
+        for (const [tab, fn] of [
+          ['Users', syncUsersToSheet],
+          ['Bets', syncBetsToSheet],
+          ['Marts', exportMartsToSheet],
+        ]) {
+          try { console.log(tab, 'sync:', JSON.stringify(await fn(env))); }
+          catch (e) { console.error(tab, 'sync failed', e); }
+        }
       })());
       return;
     }
@@ -384,6 +399,15 @@ export default {
         }
         const result = await syncUsersToSheet(env);
         return json(result);
+      }
+
+      // --- Admin: mirror predictions D1 → "Bets" tab ---
+      if (method === 'POST' && path === '/api/admin/sync-bets') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        return json(await syncBetsToSheet(env));
       }
 
       // --- Admin: rebuild silver + gold marts from bronze ---
@@ -729,6 +753,54 @@ async function syncUsersToSheet(env) {
   );
 
   return { ok: true, synced: users.length, at: new Date().toISOString() };
+}
+
+// Google Sheets sync: predictions D1 → "Bets" tab. Invoked from the weekly
+// Friday close-out. Column order is the pre-existing contract of the Bets tab —
+// do not reorder without updating the sheet header to match.
+const BETS_HEADER = [
+  'id', 'user_id', 'tg_id', 'username', 'match_id', 'home_team', 'away_team',
+  'match_time', 'prediction_type', 'predicted_score', 'created_at', 'updated_at',
+];
+
+async function syncBetsToSheet(env) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+
+  // Full snapshot, oldest-first. Join carries the human-readable fixture columns
+  // the tab expects; predictions alone only have match_id.
+  const { results: bets } = await env.DB.prepare(`
+    SELECT p.id, p.user_id, u.tg_id, u.username, p.match_id,
+           m.home_team, m.away_team, m.time AS match_time,
+           p.prediction_type, p.predicted_score, p.created_at, p.updated_at
+    FROM predictions p
+    LEFT JOIN users u ON u.id = p.user_id
+    LEFT JOIN matches m ON m.id = p.match_id
+    ORDER BY p.created_at
+  `).all();
+
+  const rows = [BETS_HEADER];
+  for (const b of bets) {
+    rows.push(BETS_HEADER.map(k => b[k] == null ? '' : String(b[k])));
+  }
+
+  const accessToken = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+
+  // Clear the Bets tab, then write the full snapshot (same full-replace shape as
+  // Users). Predictions only grow; revisit if a weekly clear+rewrite gets slow.
+  await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Bets!A:Z:clear`,
+    accessToken, 'POST', {}
+  );
+  await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Bets!A1?valueInputOption=RAW`,
+    accessToken, 'PUT', { range: 'Bets!A1', majorDimension: 'ROWS', values: rows }
+  );
+
+  return { ok: true, synced: bets.length, at: new Date().toISOString() };
 }
 
 // ---------------------------------------------------------------------------
