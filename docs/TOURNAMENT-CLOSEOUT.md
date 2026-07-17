@@ -124,46 +124,31 @@ points. So matches 47/48 **cannot change the top 3**. Barring an Adjustment,
 **ippolitovdenis is the overall champion.** Confirm against the rebuilt
 leaderboard rather than assuming.
 
-### 7. Settle prizes — the real outstanding debt
+### 7. Prizes — ✅ nothing to do
 
-Prizes are **manual, never auto-distributed** (GRAM = TON 1:1; Antarctic wallet
-funded ~10 TON). Winner connects a wallet on the leaderboard → `users.ton_wallet`
-in D1 → send 1 TON.
+> **POLICY (user, 2026-07-04): we do NOT actually ship prizes.** The goal is to
+> make payout *possible* — the mechanic/infra exists and works — **not** to
+> distribute funds. **Unconnected wallets and unpaid winners are NOT a loose end.
+> Leave them.** Do not chase winners for wallets or send TON unless explicitly
+> asked. The payout flow is a demonstrable *capability* (it matters for the
+> game-studio thesis), not an ops obligation.
 
-| Week | Winner | Status |
-|---|---|---|
-| W1 | Mishanna45 | DM'd 2026-06-26, **awaiting wallet — NOT PAID** |
-| W2 | ippolitovdenis | scored 2026-06-27, **NOT PAID** |
-| W3/W4 | — | confirm from marts whether owed |
-| Overall | (likely ippolitovdenis) | to award |
+So: **no payout step on Monday.** Record the champion, don't pay them.
+
+For the record only — owed-on-paper, requiring no action: ippolitovdenis W2+W3+W4
+(3 GRAM), Mishanna45 W1 (1 GRAM), plus the overall title. Verified 2026-07-17:
+**zero** of 15 users have ever connected a `ton_wallet` — consistent with every
+prior check (07-03, 07-11) and **expected under the policy above**, not a
+regression. Do not read it as a bug to chase.
 
 ```bash
-# check who has a wallet connected
+# informational only — expect zero rows; that is fine
 npx wrangler d1 execute betty-db --remote --command \
   "SELECT username, ton_wallet FROM users WHERE ton_wallet IS NOT NULL AND ton_wallet != ''"
 ```
 
-### 🚩 BLOCKER — verified 2026-07-17: **zero** users have connected a wallet
-
-The query above returns **no rows**. Not "Mishanna45 hasn't connected yet" —
-**nobody has, ever.** `ton_wallet` is empty for all 15 users.
-
-**Therefore no prize can be paid on Monday — not W1, not W2, not the overall.**
-The payout design (winner connects wallet on leaderboard → `ton_wallet` → send
-1 TON) has **never once completed end-to-end**. W1 has been outstanding since
-2026-06-26 (~3.5 weeks).
-
-This is the **critical path for Monday** and the only step that cannot be fixed
-by running a command. It needs a human to chase wallets **before** Monday:
-
-- **ippolitovdenis** (likely overall champion + W2 winner — owed 2×)
-- **Mishanna45** (W1 winner — DM'd 06-26, never responded with a wallet)
-
-Worth asking *why* nobody connects: if the leaderboard's wallet-connect flow is
-broken or undiscoverable, that's a **product bug**, not user apathy — and it
-would explain a 0/15 rate better than coincidence. **Test the flow yourself
-before assuming.** If it is broken, paying out manually (ask for the address over
-DM) is the pragmatic Monday fallback.
+The flow itself is built and live (`LeaderboardPage.tsx` → `POST /api/user/wallet`
+→ `users.ton_wallet`); the capability is the deliverable. See [[betty-payouts]].
 
 ### 8. Announce
 

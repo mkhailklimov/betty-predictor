@@ -3,7 +3,10 @@
 Triggered by a simple question: *"why hasn't Betty_Master_data updated?"*
 Answer: **the weekly cron had never fired. Not once, since crons were introduced.**
 
-Three faults, stacked. Fixing one would not have fixed the others.
+**Two genuine bugs** (§1 dead cron, §2 orphaned Bets tab) — both of which kept
+`betty_master_data` stale, which was the actual question. Plus **§3, routine
+weekly results entry** that was simply due today and is *not* fallout from either
+(an earlier draft wrongly claimed it was — see §3).
 
 ---
 
@@ -67,10 +70,28 @@ predictions × users × matches. Plus `POST /api/admin/sync-bets` for on-demand 
 
 ## 3. Six knockout matches were `finished` with NULL scores
 
-Direct consequence of #1. QF1–4 and SF1–2 auto-marked `finished` on wall-clock;
-scores never written; **20 forecasts sat unscored**. The sheet still showed
-`Is active = 1` for those rows because the sheet never got the memo either — the
-D1/sheet inconsistency was the visible symptom of the dead cron.
+**NOT caused by #1 — this is the normal manual step, and it was simply due today.**
+
+An earlier draft of this changelog claimed this was a "direct consequence" of the
+dead cron. **That was wrong.** Corrected after checking: results ingestion
+(`ingestFifaResults` / `reconcileResults`) is referenced **only** from the
+`/api/admin/results` endpoint handler — it is in **no cron**, weekly or hourly.
+The weekly branch only does adjustments → rebuild → mirror-out. **Even if the cron
+had fired every Friday for a month, these scores would still be NULL.**
+
+Scores enter `matches` **only** via the admin results endpoint or direct SQL —
+there is no sheet→matches score sync. So QF1–4 + SF1–2 were unscored because the
+week's manual results entry (runbook step 6) hadn't been run yet — and 2026-07-17
+*is* that week's Friday. This was routine work, not fallout.
+
+What the hourly fallthrough *does* explain is the **cosmetic** inconsistency that
+made it look worse: the hourly handler marks matches `finished` on wall-clock
+without scores, so they advertised as done while empty, and the sheet still read
+`Is active = 1` because nothing mirrored out. **`finished` ≠ scored.**
+
+> **Also worth correcting:** the hourly branch *does* call `rebuildMarts()`, so
+> marts have been rebuilding hourly all along. The leaderboard was never stale
+> relative to the data it had — there were simply no results to score.
 
 Results sourced from ESPN and cross-checked against the bracket comments in
 `frontend/src/data/matches.ts` — all four QFs matched exactly.
@@ -155,5 +176,6 @@ Users 15, Leaderboard 5, Champions 13.
 - **Match results are still manual.** The cron mirrors data *out*; it does not
   ingest results *in*. ESPN/FIFA ingestion exists (`/api/admin/results`) but is
   not part of the weekly branch.
-- **Unpaid prizes.** W1 Mishanna45, W2 ippolitovdenis — see
-  `docs/TOURNAMENT-CLOSEOUT.md`.
+- **Unpaid prizes are NOT open** — per policy (user, 2026-07-04) we do not ship
+  prizes; making payout *possible* is the goal. Unconnected wallets are expected,
+  not a loose end. See `docs/TOURNAMENT-CLOSEOUT.md` §7.
