@@ -1,5 +1,14 @@
 # Tournament Close-Out — Monday 2026-07-20
 
+> ## ✅ EXECUTED 2026-07-20 — this run is COMPLETE.
+> All **48/48** matches scored and closed; champion **`ippolitovdenis`** (26 pts).
+> Final recorded **0-0 `X`** (Spain's winner came at 106'), 3rd place **4-6**.
+> What actually happened, including where this document was wrong:
+> **`CHANGELOG-2026-07-20.md`**.
+>
+> Kept as the reference procedure for a future tournament — **do not re-run it
+> against WC2026.** Steps 3-4 would rewrite settled results.
+
 Final whistle of World Cup 2026. This is the **last** close-out: it finalises the
 tournament, crowns the overall champion, and settles outstanding prizes.
 
@@ -111,18 +120,26 @@ npx wrangler d1 execute betty-db --remote --command \
 (bot), `bet_monitoring`, `TestUser`. `islavutin` is a **real** player and counts.
 **Tiebreak:** earlier *Last Bet At* ranks higher (whoever entered first).
 
-Standings going into the final two matches (real players only):
+⚠️ **Never trust a standings or prediction table written into this document.**
+An earlier revision recorded a 07-17 snapshot claiming *"only Victor has forecast
+47/48 (2 picks), so they cannot change the top 3"*. By the 07-20 close-out that was
+**false**: **12 predictions** had landed (5 on match 47, 7 on match 48) from six
+users, all as late entries after the snapshot was written. The champion happened to
+be unaffected — but the runbook had licensed skipping the check that would have
+caught it. **Open matches accept entries until kickoff.** Re-query at execution time:
 
-| # | User | Points |
-|---|---|---|
-| 1 | ippolitovdenis | 26 |
-| 2 | Mishanna45 | 22 |
-| 3 | islavutin | 2 |
+```bash
+npx wrangler d1 execute betty-db --remote --command \
+  "SELECT p.match_id, u.username, p.prediction_type, p.predicted_score
+   FROM predictions p JOIN users u ON u.id = p.user_id
+   WHERE p.match_id IN ('match-47','match-48') ORDER BY p.match_id"
+```
 
-⚠️ **Only Victor has forecast 47/48** (2 picks, both `1` 2-1) — and Victor has 0
-points. So matches 47/48 **cannot change the top 3**. Barring an Adjustment,
-**ippolitovdenis is the overall champion.** Confirm against the rebuilt
-leaderboard rather than assuming.
+Then confirm the champion against the **rebuilt leaderboard**, never against a
+table in a document.
+
+**Outcome (2026-07-20): `ippolitovdenis`, 26 pts** — ahead of Mishanna45 (22) and
+islavutin (2). See `CHANGELOG-2026-07-20.md`.
 
 ### 7. Prizes — ✅ nothing to do
 
