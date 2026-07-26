@@ -160,12 +160,41 @@ it holding.
 
 1. Tag and push `prod-v1-final` — **done as part of this document's commit.**
 2. Record the Worker version and Pages deployment IDs — **done, §4.3.**
-3. **Provision a separate `betty-db-dev` D1.** Today `wrangler.toml` points the
-   dev Worker at the *production* database; its own comment says *"Uses the same
-   D1 database for now (we can point to a dev D1 later if needed)"*. v1 tolerated
-   this because dev was only ever used for read-only probes. v2 dev testing
-   **writes** fixtures, guest users and prize rows. This is a blocker for
-   testing, not an optional cleanup.
+3. **Separate dev and prod at the UI layer only — the backend stays shared.**
+   **Decided 2026-07-26, superseding this document's original call for a
+   `betty-db-dev` D1.** Betty has a single source of truth (the curation sheet)
+   and no large data volumes, so a second database buys isolation the project
+   does not otherwise need.
+
+   The split already exists and needs no work:
+
+   | Layer | dev | prod |
+   |---|---|---|
+   | Frontend | `dev.betty-scores-app.pages.dev` (auto-built from `dev`) | `app.bettyscores.com` (built from `main`) |
+   | Worker | `betty-api-dev.mihel-klimm.workers.dev` | `api.bettyscores.com` |
+   | D1 | `betty-db` | `betty-db` — **same database** |
+
+   Routing is by hostname in `frontend/src/services/api.ts` (`*.pages.dev` →
+   dev Worker), so a `dev` push reaches the dev API with no env var.
+
+   **The cost of this choice, and the guardrail.** v1 tolerated a shared DB
+   because dev was read-only probes. v2 dev testing *writes* — fixtures, guest
+   users, prize rows — into the tables serving live users. Isolation therefore
+   has to come from **disposable keys instead of a separate database**:
+
+   - **Fixtures.** Publish dev test weeks under a reserved `week_id` (e.g.
+     `2026_99` and up), never a real one. The §8 "break it four ways" tests are
+     safe only if the week being broken is a throwaway.
+   - **Week rollover.** The `DEBUG_TIME` drill writes `owed` prize rows. Run it
+     against a reserved week so the rows can be deleted without touching real
+     prize history.
+   - **Identity.** Guest and merge tests create `users` rows and `merged_into`
+     tombstones. Use reserved test identities, not live ones.
+   - **Clean-up is manual.** Nothing garbage-collects a reserved week; delete it
+     when the test is done.
+
+   Anything that cannot be scoped to a disposable key does not get tested on
+   dev — it gets tested on a local `wrangler dev --local` SQLite instead.
 4. Branch `v2` off `dev`. Ship dev → prod, per the standing dev-first rule.
 
 ---
@@ -340,7 +369,7 @@ get repurposed rather than switched off.
 
 ## 6. Sequencing
 
-1. Rollback prep — tag, record IDs, provision `betty-db-dev`, branch `v2`
+1. Rollback prep — tag, record IDs, branch `v2` (no `betty-db-dev`; §4.4.3)
 2. Migrations 0004–0006, fixture ingestion, `publishWeekFromSheet` (dry-run first)
 3. `/api/weeks/*`, frontend cut over to API-driven fixtures
 4. Reels UI

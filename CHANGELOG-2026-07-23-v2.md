@@ -94,9 +94,11 @@ Rollback commands and the full drill are in `docs/RELEASE-2.0.md` §4 and §8.
 
 - **BotFather `/setdomain`** for `app.bettyscores.com` — browser action on the
   product owner's side; blocks Telegram Login Widget entirely.
-- **Provision a separate `betty-db-dev` D1.** The dev Worker currently points at
-  the *production* database. v1 tolerated that because dev was only used for
-  read-only probes; v2 dev testing writes fixtures, guest users and prize rows.
+- ~~**Provision a separate `betty-db-dev` D1.**~~ **Dropped 2026-07-26** — dev
+  and prod are separated at the UI layer only; the backend keeps one shared
+  database. One source of truth, no large data volumes. The trade-off is that
+  dev writes reach live tables, so v2 dev testing must use reserved, disposable
+  week_ids and identities. See `docs/RELEASE-2.0.md` §4.4.3.
 - **Verify ESPN league endpoint coverage**, especially women's football, before
   fixing the league list.
 
