@@ -1,11 +1,16 @@
 import React from 'react'
-import { MatchData, ALL_SCORES, getCardImage, getLocalFlag, isMatchLocked, flagToTwemojiUrl } from '../data/matches'
+import { MatchData, ALL_SCORES, getCardImage, getTeamImage, isMatchLocked } from '../data/matches'
 import '../styles/MatchCard.css'
 
 interface MatchCardProps {
   match: MatchData
   prediction: { outcome: string; score: string } | null
-  onPredict: (matchId: number, outcome: string, score: string) => void
+  onPredict: (matchId: string, outcome: string, score: string) => void
+}
+
+// Last-resort tile when a team has neither our card art nor a feed crest.
+function initials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
 }
 
 export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredict }) => {
@@ -31,19 +36,18 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
     }
   }, [match.kickoff])
 
-  // Knockout stages carry a code in `group`; render a friendly stage name and drop
-  // the "Group " prefix. Group-stage matches (single letters A-L) keep "Group X".
-  const STAGE_LABELS: Record<string, string> = {
-    R32: 'Round of 32', R16: 'Round of 16', QF: 'Quarter-final',
-    SF: 'Semi-final', '3P': 'Third place', Final: 'Final',
-  }
-  const stageLabel = STAGE_LABELS[match.group] ?? `Group ${match.group}`
+  // v1 showed the World Cup group or knockout stage. A weekly game spans many
+  // competitions, so the equivalent context is which competition this is.
+  const stageLabel = match.league
 
   const locked = isMatchLocked(match)
+  // Our own card art exists for national teams only. Club fixtures fall back to
+  // the crest the feed carries on the match row — without it a club match would
+  // render as two blank tiles.
   const homeCard = getCardImage(match.home.code)
   const awayCard = getCardImage(match.away.code)
-  const homeFlag = getLocalFlag(match.home.code) || flagToTwemojiUrl(match.home.flag)
-  const awayFlag = getLocalFlag(match.away.code) || flagToTwemojiUrl(match.away.flag)
+  const homeArt = getTeamImage(match.home)
+  const awayArt = getTeamImage(match.away)
 
   // An outcome on its own is already a valid bet (1 pt); the exact score upgrades it
   // to 3. So persist as soon as the outcome is tapped, rather than waiting for a
@@ -82,7 +86,9 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
             <img src={homeCard} alt={match.home.name} className="mc__card-img" />
           ) : (
             <div className="mc__card-fallback">
-              <img src={homeFlag} alt={match.home.name} className="mc__card-flag-img" />
+              {homeArt
+                ? <img src={homeArt} alt={match.home.name} className="mc__card-flag-img" />
+                : <span className="mc__card-initials">{initials(match.home.name)}</span>}
             </div>
           )}
           <span className="mc__card-name">{match.home.name}</span>
@@ -99,7 +105,9 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
             <img src={awayCard} alt={match.away.name} className="mc__card-img" />
           ) : (
             <div className="mc__card-fallback">
-              <img src={awayFlag} alt={match.away.name} className="mc__card-flag-img" />
+              {awayArt
+                ? <img src={awayArt} alt={match.away.name} className="mc__card-flag-img" />
+                : <span className="mc__card-initials">{initials(match.away.name)}</span>}
             </div>
           )}
           <span className="mc__card-name">{match.away.name}</span>

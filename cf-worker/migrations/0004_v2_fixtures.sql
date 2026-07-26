@@ -43,5 +43,9 @@ ALTER TABLE matches ADD COLUMN source TEXT;
 ALTER TABLE matches ADD COLUMN source_id TEXT;
 ALTER TABLE matches ADD COLUMN crest_home TEXT;
 ALTER TABLE matches ADD COLUMN crest_away TEXT;
+-- Feed abbreviations. The frontend prefers the crest, but a national-team
+-- fixture can still hit the local TEAM_CARDS art when the code is one we have.
+ALTER TABLE matches ADD COLUMN code_home TEXT;
+ALTER TABLE matches ADD COLUMN code_away TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_matches_week ON matches (week_id);

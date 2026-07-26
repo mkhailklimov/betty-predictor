@@ -1,12 +1,18 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
-import { resolveWeeks, isMatchLocked, MatchData } from '../data/matches'
-import { predictionsApi } from '../services/api'
+import { isMatchLocked, MatchData, toWeekMatches } from '../data/matches'
+import { predictionsApi, weeksApi } from '../services/api'
+import { WeekResponse } from '../types'
 import '../styles/MainPage.css'
 
-const STORAGE_KEY = 'betty_predictions_v2'
+// v3: keyed by the API's string match id. v1/v2 stored numeric 1..N keys, which
+// under v2 ids would silently read as "not predicted" — or worse, collide. The
+// bump makes the old shape unreadable rather than misread.
+const STORAGE_KEY = 'betty_predictions_v3'
 
-function loadPredictions(): Record<number, { outcome: string; score: string }> {
+type PredictionMap = Record<string, { outcome: string; score: string }>
+
+function loadPredictions(): PredictionMap {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')
   } catch {
@@ -14,13 +20,8 @@ function loadPredictions(): Record<number, { outcome: string; score: string }> {
   }
 }
 
-function savePredictionsLocal(preds: Record<number, { outcome: string; score: string }>) {
+function savePredictionsLocal(preds: PredictionMap) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(preds))
-}
-
-// Map frontend match id (1-10) to backend match id (match-1 to match-10)
-function toBackendMatchId(id: number): string {
-  return `match-${id}`
 }
 
 // "2:1" → {home,away}; empty/malformed → null, i.e. an outcome-only bet. The backend
@@ -38,7 +39,7 @@ function parseScore(score: string): { home: number; away: number } | null {
 // locked card when every match in the week has already started.
 function nearestOpenIndex(
   list: MatchData[],
-  preds: Record<number, { outcome: string; score: string }>,
+  preds: PredictionMap,
 ): number {
   const openUnpredicted = list.findIndex(m => !isMatchLocked(m) && !preds[m.id])
   if (openUnpredicted !== -1) return openUnpredicted
@@ -58,13 +59,12 @@ export async function syncPendingPredictions(): Promise<void> {
   syncInFlight = true
   try {
     const preds = loadPredictions()
-    for (const key of Object.keys(preds)) {
-      const matchId = Number(key)
+    for (const matchId of Object.keys(preds)) {
       const p = preds[matchId]
       if (!p || !p.outcome) continue
       try {
         await predictionsApi.create({
-          match_id: toBackendMatchId(matchId),
+          match_id: matchId,
           prediction_type: p.outcome as '1' | 'X' | '2',
           predicted_score: parseScore(p.score),
         })
@@ -93,31 +93,50 @@ export const MainPage: React.FC = () => {
   const [reviewMode, setReviewMode] = React.useState(false)
   const doneRef = React.useRef<HTMLDivElement>(null)
 
-  // Resolve the current week and, Mon→Fri, the optional "next week" (UTC cadence).
-  const { current, next } = React.useMemo(() => resolveWeeks(), [])
+  // The two weeks now come from the API, so they arrive asynchronously and either
+  // of them can legitimately be empty — an unpublished week is a normal state in a
+  // perpetual game, not an error.
+  const [weeks, setWeeks] = React.useState<{ current: WeekResponse | null; next: WeekResponse | null } | null>(null)
+  const [loadError, setLoadError] = React.useState(false)
+  const [selectedKey, setSelectedKey] = React.useState<'current' | 'next'>('current')
+  const [currentIndex, setCurrentIndex] = React.useState(0)
 
-  // Which week to land on. Normally Current. But between a week's last kickoff and the
-  // next week becoming current there is a dead zone — every match of the current week
-  // has started, so Current is a wall of locked cards with nothing to predict (this
-  // window ran 5 days in the group stage). When that happens and Next is already open,
-  // land on Next so a newcomer always sees a match they can actually bet on.
-  const [selectedKey, setSelectedKey] = React.useState<'current' | 'next'>(() =>
-    next && current.matches.every(isMatchLocked) ? 'next' : 'current',
-  )
-  const week = selectedKey === 'next' && next ? next : current
-  const matches = week.matches
+  const loadWeeks = React.useCallback(async () => {
+    setLoadError(false)
+    try {
+      // Settled, not all: a published current week must still render if next 500s.
+      const [c, n] = await Promise.allSettled([weeksApi.getCurrent(), weeksApi.getNext()])
+      const cur = c.status === 'fulfilled' ? c.value.data : null
+      const nxt = n.status === 'fulfilled' ? n.value.data : null
+      if (!cur && !nxt) { setLoadError(true); return }
+      setWeeks({ current: cur, next: nxt })
 
-  // Open on the nearest still-predictable match of that week, so a mid-week newcomer
-  // isn't greeted by a locked (already-started) card.
-  const [currentIndex, setCurrentIndex] = React.useState(() =>
-    nearestOpenIndex(week.matches, loadPredictions()),
-  )
+      // Land on the week the player can actually bet in. Between a week's last
+      // kickoff and the next week going live, Current is a wall of locked cards
+      // with nothing to predict; when that happens and Next has fixtures, open
+      // there instead.
+      const curMatches = toWeekMatches(cur)
+      const nextMatches = toWeekMatches(nxt)
+      const key = (curMatches.length === 0 || curMatches.every(isMatchLocked)) && nextMatches.length > 0
+        ? 'next' : 'current'
+      setSelectedKey(key)
+      setCurrentIndex(nearestOpenIndex(key === 'next' ? nextMatches : curMatches, loadPredictions()))
+    } catch {
+      setLoadError(true)
+    }
+  }, [])
+
+  React.useEffect(() => { void loadWeeks() }, [loadWeeks])
+
+  const currentMatches = React.useMemo(() => toWeekMatches(weeks?.current ?? null), [weeks])
+  const nextMatches = React.useMemo(() => toWeekMatches(weeks?.next ?? null), [weeks])
+  const hasNext = nextMatches.length > 0
+  const matches = selectedKey === 'next' && hasNext ? nextMatches : currentMatches
 
   const switchWeek = (key: 'current' | 'next') => {
     setSelectedKey(key)
     setReviewMode(false)
-    const wk = key === 'next' && next ? next : current
-    setCurrentIndex(nearestOpenIndex(wk.matches, predictions))
+    setCurrentIndex(nearestOpenIndex(key === 'next' ? nextMatches : currentMatches, predictions))
   }
 
   // Single header row: "Current" (default) + "Next" (only when a next week is open).
@@ -129,7 +148,7 @@ export const MainPage: React.FC = () => {
       >
         Current
       </button>
-      {next && (
+      {hasNext && (
         <button
           className={`week-tab ${selectedKey === 'next' ? 'week-tab--active' : ''}`}
           onClick={() => switchWeek('next')}
@@ -146,7 +165,7 @@ export const MainPage: React.FC = () => {
     void syncPendingPredictions()
   }, [])
 
-  const handlePredict = async (matchId: number, outcome: string, score: string) => {
+  const handlePredict = async (matchId: string, outcome: string, score: string) => {
     // Save to localStorage immediately (optimistic)
     const updated = { ...predictions, [matchId]: { outcome, score } }
     setPredictions(updated)
@@ -155,7 +174,7 @@ export const MainPage: React.FC = () => {
     // Save to backend. score may be '' — an outcome-only bet, saved as-is.
     try {
       await predictionsApi.create({
-        match_id: toBackendMatchId(matchId),
+        match_id: matchId,
         prediction_type: outcome as '1' | 'X' | '2',
         predicted_score: parseScore(score),
       })
@@ -202,7 +221,56 @@ export const MainPage: React.FC = () => {
   // keeps the card stack open instead of jumping to the all-done screen.
   const completedCount = matches.filter(m => predictions[m.id]?.score).length
   const currentMatch = matches[currentIndex]
-  const allDone = completedCount === matches.length
+  const allDone = matches.length > 0 && completedCount === matches.length
+
+  // Fixtures are fetched now, so the page has three states it never had while the
+  // week was compiled into the bundle.
+  if (!weeks && !loadError) {
+    return (
+      <div className="main-page">
+        <div className="all-done all-done--full">
+          <div className="spinner" />
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="main-page">
+        <div className="all-done all-done--full">
+          <div className="all-done-icon">&#128225;</div>
+          <div className="all-done-title">Couldn&rsquo;t load this week</div>
+          <div className="all-done-text">Check your connection and try again.</div>
+          <button className="all-done-review-btn" onClick={() => { void loadWeeks() }}>
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // A week with no fixtures is normal — Monday's publish may not have run yet.
+  // Say so plainly instead of rendering an empty card stack.
+  if (matches.length === 0) {
+    return (
+      <div className="main-page">
+        <div className="page-header">{weekHeader}</div>
+        <div className="all-done all-done--full">
+          <div className="all-done-icon">&#9917;</div>
+          <div className="all-done-title">No matches yet</div>
+          <div className="all-done-text">
+            This week&rsquo;s ten matches go live on Monday. Check back then.
+          </div>
+          {hasNext && selectedKey === 'current' && (
+            <button className="all-done-review-btn" onClick={() => switchWeek('next')}>
+              See next week &#8594;
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   // When all predictions are in and the user hasn't opted into review mode,
   // show a full confirmation screen instead of the card stack. This guarantees
@@ -219,16 +287,16 @@ export const MainPage: React.FC = () => {
           <div className="all-done-title">Your bets are saved!</div>
           <div className="all-done-text">You can change any prediction until that match kicks off.</div>
           <div className="all-done-hint">Check your results on <strong>{resultsAvailableDate(matches)}</strong>.</div>
-          {next && selectedKey === 'current' && (
+          {hasNext && selectedKey === 'current' && (
             <button
               className="all-done-review-btn"
               onClick={() => switchWeek('next')}
             >
-              Predict {next.label} &#8594;
+              Predict next week &#8594;
             </button>
           )}
           <button
-            className={`all-done-review-btn ${next && selectedKey === 'current' ? 'all-done-review-btn--inline' : ''}`}
+            className={`all-done-review-btn ${hasNext && selectedKey === 'current' ? 'all-done-review-btn--inline' : ''}`}
             onClick={() => setReviewMode(true)}
           >
             Review or change my bets

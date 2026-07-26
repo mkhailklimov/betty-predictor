@@ -1,6 +1,6 @@
 import axios from 'axios'
 import WebApp from '@twa-dev/sdk'
-import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse } from '../types'
+import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse, WeekResponse } from '../types'
 
 // Host-based API routing: prod domain → prod Worker, everything else → dev Worker.
 // Lets the `dev` branch's preview URL hit the dev API without a separate env var.
@@ -54,6 +54,13 @@ export const matchesApi = {
   getActive: () => api.get<Match[]>('/api/matches/active'),
   getAll: () => api.get<Match[]>('/api/matches'),
   getById: (matchId: string) => api.get<Match>(`/api/matches/${matchId}`),
+}
+
+// Weeks API — the v2 fixture source. The curation sheet publishes into D1 and
+// this serves it; the app never talks to Google.
+export const weeksApi = {
+  getCurrent: () => api.get<WeekResponse>('/api/weeks/current'),
+  getNext: () => api.get<WeekResponse>('/api/weeks/next'),
 }
 
 // Predictions API

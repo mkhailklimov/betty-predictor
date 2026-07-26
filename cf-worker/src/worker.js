@@ -1368,6 +1368,7 @@ async function publishWeekFromSheet(env, { weekId, dryRun = false } = {}) {
       home_team: f.home_team, away_team: f.away_team,
       kickoff_utc: f.kickoff_utc, league: f.league, league_name: f.league_name,
       crest_home: f.home_crest, crest_away: f.away_crest,
+      code_home: f.home_code, code_away: f.away_code,
     }));
 
   if (dryRun) return { ok: true, dry: true, week_id: bounds.week_id, matches: proposed };
@@ -1386,13 +1387,14 @@ async function publishWeekFromSheet(env, { weekId, dryRun = false } = {}) {
     stmts.push(env.DB.prepare(
       `INSERT INTO matches
        (id, home_team, away_team, date, time, match_date_utc, round, week_id,
-        league, source, source_id, crest_home, crest_away, status, is_active)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?, 'upcoming', 1)`
+        league, source, source_id, crest_home, crest_away, code_home, code_away,
+        status, is_active)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'upcoming', 1)`
     ).bind(
       m.id, m.home_team, m.away_team, m.kickoff_utc.slice(0, 10), m.kickoff_utc,
       m.kickoff_utc, m.league_name || m.league, bounds.week_id,
       m.league, FIXTURE_SOURCE, m.id.slice(FIXTURE_SOURCE.length + 1),
-      m.crest_home, m.crest_away
+      m.crest_home, m.crest_away, m.code_home, m.code_away
     ));
   }
   await env.DB.batch(stmts);

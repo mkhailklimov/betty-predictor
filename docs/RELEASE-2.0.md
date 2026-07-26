@@ -205,9 +205,11 @@ it holding.
 
 **Schema** — `cf-worker/migrations/0004_v2_fixtures.sql`, additive:
 
-- `bronze_fixtures(source, source_id, league, kickoff_utc, home_team, away_team, home_code, away_code, status, fetched_at)`, PK `(source, source_id)`
+- `bronze_fixtures(source, source_id, league, league_name, kickoff_utc, home_team, away_team, home_code, away_code, home_crest, away_crest, status, fetched_at)`, PK `(source, source_id)`
 - `weeks(week_id PK, starts_at, ends_at, status, published_at)`
-- `matches` gains nullable `league`, `source`, `source_id`
+- `matches` gains nullable `league`, `source`, `source_id`, `crest_home`,
+  `crest_away`, `code_home`, `code_away` — the crests and codes carry the feed's
+  art through to the card, which is what makes club football renderable at all
 
 **Ingestion** — new `ingestFixtures(env)` in `cf-worker/src/worker.js`, modelled
 on the existing `ingestFifaResults` (`worker.js:990`) and landing in bronze the
@@ -252,8 +254,29 @@ now arrive from the API as strings. Bump `STORAGE_KEY` to
 `betty_predictions_v3`, keyed by string id, so v1's numeric localStorage can't be
 misread.
 
-> **`TEAM_CARDS` covers 31 national teams only.** Club football needs crest URLs
-> carried on the match row from the feed. See §7.
+**Done 2026-07-26.** `matches.ts` went from 622 lines to 121: the five
+`WEEK*_MATCHES` blocks, `WEEKS`, `resolveWeeks`, `ACTIVE_MATCHES`,
+`ACTIVE_WEEK_LABEL` and `flagToTwemojiUrl` are gone; `getNow`/`DEBUG_TIME`,
+`isMatchLocked`, `TEAM_CARDS` and the card/flag helpers stayed, joined by
+`toMatchData`/`toWeekMatches` (API row → view model) and `formatKickoff`.
+
+Three consequences worth knowing:
+
+- **Team art is a three-step fallback** — our card PNG (national teams) → local
+  flag SVG → the feed crest → team initials. `flagToTwemojiUrl` had no input to
+  work from any more: it took a flag *emoji*, which only existed because every
+  fixture was hand-written with one. Club teams have no emoji, so the crest
+  replaces it.
+- **Dates are localised.** v1 hardcoded US-Eastern strings ("Thu, June 11 · 9:00
+  PM ET") because every World Cup match was in North America. A global weekly
+  game can't, so `formatKickoff` renders in the viewer's own timezone.
+- **The card's context line is now the competition**, not `Group A` / `Round of
+  16` — a week spans many competitions and no longer has a bracket.
+
+`MainPage` also grew three states it never needed while fixtures were compiled
+into the bundle: loading, load-failed (with retry), and **a published week with
+no fixtures** — which is normal, not an error, when Monday's publish hasn't run.
+It says so plainly instead of rendering an empty card stack.
 
 ### 5.2 Two-reel input
 
@@ -373,7 +396,9 @@ get repurposed rather than switched off.
 2. ~~Migration 0004, fixture ingestion, `publishWeekFromSheet` (dry-run first)~~
    **DONE 2026-07-26 — shipped to dev, all §8 fixture checks pass.** Migrations
    0005 (identity) and 0006 (prizes) move to their own workstreams below.
-3. ~~`/api/weeks/*`~~ **DONE** — frontend cut over to API-driven fixtures is next
+3. ~~`/api/weeks/*`, frontend cut over to API-driven fixtures~~ **DONE 2026-07-26.**
+   Preview: `v2.betty-scores-app.pages.dev` (a `.pages.dev` host, so it routes to
+   `betty-api-dev` automatically).
 4. Reels UI
 5. Identity — widget + guest + merge (needs `/setdomain`, §7)
 6. Site — routing, About, redirects, OG cards

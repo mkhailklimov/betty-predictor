@@ -55,6 +55,15 @@
   object-fit: contain;
 }
 
+/* Last resort: a team with neither our card art nor a crest from the feed.
+   Keeps the tile the same size so the two sides stay symmetrical. */
+.mc__card-initials {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: rgba(255, 194, 13, 0.85);
+}
+
 .mc__card-name {
   font-size: 0.8rem;
   font-weight: 700;

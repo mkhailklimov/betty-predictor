@@ -20,6 +20,29 @@ export interface Match {
   away_score?: number
 }
 
+// A row of the v2 `matches` table as served by /api/weeks/*. Superset of Match:
+// the provenance and art columns migration 0004 added.
+export interface ApiMatch extends Match {
+  week_id?: string
+  match_date_utc?: string
+  league?: string
+  source?: string
+  source_id?: string
+  crest_home?: string | null
+  crest_away?: string | null
+  code_home?: string | null
+  code_away?: string | null
+}
+
+export interface WeekResponse {
+  week_id: string
+  starts_at: string
+  ends_at: string
+  status: 'draft' | 'published' | 'closed'
+  published_at: string | null
+  matches: ApiMatch[]
+}
+
 export interface Prediction {
   id: string
   user_id: string
