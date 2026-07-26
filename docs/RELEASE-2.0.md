@@ -369,9 +369,11 @@ get repurposed rather than switched off.
 
 ## 6. Sequencing
 
-1. Rollback prep — tag, record IDs, branch `v2` (no `betty-db-dev`; §4.4.3)
-2. Migrations 0004–0006, fixture ingestion, `publishWeekFromSheet` (dry-run first)
-3. `/api/weeks/*`, frontend cut over to API-driven fixtures
+1. ~~Rollback prep — tag, record IDs, branch `v2` (no `betty-db-dev`; §4.4.3)~~ **DONE**
+2. ~~Migration 0004, fixture ingestion, `publishWeekFromSheet` (dry-run first)~~
+   **DONE 2026-07-26 — shipped to dev, all §8 fixture checks pass.** Migrations
+   0005 (identity) and 0006 (prizes) move to their own workstreams below.
+3. ~~`/api/weeks/*`~~ **DONE** — frontend cut over to API-driven fixtures is next
 4. Reels UI
 5. Identity — widget + guest + merge (needs `/setdomain`, §7)
 6. Site — routing, About, redirects, OG cards
@@ -384,10 +386,26 @@ get repurposed rather than switched off.
 
 - **BotFather `/setdomain`** for `app.bettyscores.com` — a browser action on the
   product owner's side. Blocks widget login entirely.
-- **ESPN league endpoint coverage** — verify per competition before fixing the
-  `LEAGUES` list, especially women's football.
-- **Club crests** — `TEAM_CARDS` covers 31 national teams only; club football
-  needs crest URLs from the feed carried on the match row.
+- ~~**ESPN league endpoint coverage**~~ — **RESOLVED 2026-07-26.** All 32 slugs
+  in `LEAGUES` were probed live and return real events in an in-season window;
+  a 21-day pull landed 378 fixtures with zero failures. Rejected as non-existent:
+  `sau.1` (the Saudi league is `ksa.1`), `ger.w.1`, `mex.w.1`, `ukr.1`, `kor.1`.
+  Women's coverage is real — NWSL, WSL, Liga F, Première Ligue, A-League Women,
+  UWCL — but ESPN loads new-season women's calendars late, so an empty pull is
+  usually the calendar, not the slug.
+  **A bad slug returns HTTP 200 with an empty body**, so a typo degrades silently
+  into "that league just has no games". `ingestFixtures` therefore reports any
+  slug the feed doesn't name back in its `failed` list.
+- ~~**Club crests**~~ — **RESOLVED at the data layer 2026-07-26.** The ESPN feed
+  carries a logo URL per competitor; `bronze_fixtures.home_crest`/`away_crest`
+  and `matches.crest_home`/`crest_away` carry it through to the served match.
+  Every one of the 10 published launch-week fixtures has both crests. The
+  frontend still has to *render* them instead of `TEAM_CARDS` (§5.1).
+- **Off-season reality check.** The launch week (`2026_31`, Jul 27 – Aug 2) has
+  99 candidate fixtures, but **none from the European top five** — they are still
+  in pre-season. The week is carried by MLS, Liga MX, Brasileirão, Argentina,
+  Colombia, Chile, NWSL and Sudamericana. Curation has to work with that, and the
+  About copy should not promise Premier League football in July.
 - **Exact-score reward** at 169 reel combinations (§5.2) — revisit after a few
   weeks of real data.
 - **Stars delivery stays manual** by decision; if it later needs automating,

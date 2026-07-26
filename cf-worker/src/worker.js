@@ -196,6 +196,11 @@ export default {
         return json(results);
       }
 
+      // --- v2 weeks: the app's fixture source (docs/RELEASE-2.0.md §5.1) ---
+      if (method === 'GET' && (path === '/api/weeks/current' || path === '/api/weeks/next')) {
+        return json(await getWeek(env, path.endsWith('next') ? 'next' : 'current'));
+      }
+
       if (method === 'GET' && path.match(/^\/api\/matches\/[^/]+$/)) {
         const matchId = path.split('/').pop();
         const match = await env.DB.prepare('SELECT * FROM matches WHERE id = ?').bind(matchId).first();
@@ -455,6 +460,40 @@ export default {
         if (dryRun) return json(sync);
         const rebuild = await rebuildMarts(env);
         return json({ sync, rebuild });
+      }
+
+      // --- Admin: v2 fixture pipeline (docs/RELEASE-2.0.md §5.1) ---
+      // Pull leagues → bronze_fixtures, then rewrite the Candidates tab.
+      //   ?days=N     how far ahead to pull (default 21)
+      //   ?week=ID    which week the Candidates tab is filled for (default: next)
+      //   ?sheet=0    skip the sheet write (bronze only)
+      if (method === 'POST' && path === '/api/admin/ingest-fixtures') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const days = Number(url.searchParams.get('days')) || 21;
+        const ingest = await ingestFixtures(env, { days });
+        const candidates = url.searchParams.get('sheet') === '0'
+          ? null
+          : await refreshCandidatesTab(env, { weekId: url.searchParams.get('week') || undefined });
+        return json({ ingest, candidates });
+      }
+
+      // Publish the curated Fixtures tab into `matches`.
+      //   ?dry=1      validate + return the proposed week without writing
+      //   ?week=ID    override the target week (default: the sheet's own Week ID)
+      // Returns 422 when a guard refuses — the previous week stays live.
+      if (method === 'POST' && path === '/api/admin/publish-week') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const result = await publishWeekFromSheet(env, {
+          weekId: url.searchParams.get('week') || undefined,
+          dryRun: url.searchParams.get('dry') === '1',
+        });
+        return json(result, result.ok ? 200 : 422);
       }
 
       // --- Telegram ---
@@ -1062,6 +1101,322 @@ async function reconcileResults(env, { apply = false } = {}) {
     await env.DB.batch(stmts);
   }
   return { ok: true, apply, matched: proposals.length, changed: toApply.length, proposals };
+}
+
+// ---------------------------------------------------------------------------
+// v2.0 fixture pipeline (docs/RELEASE-2.0.md §5.1)
+//
+//   ESPN scoreboard  →  bronze_fixtures  →  sheet "Candidates" (SINK)
+//                                                    ↓  a human picks 10
+//                                           sheet "Fixtures" (SOURCE)
+//                                                    ↓  Mon 00:00 cron
+//                                            matches + weeks  →  /api/weeks/*
+//
+// The sheet curates; D1 serves. The app never calls Google at runtime.
+// ---------------------------------------------------------------------------
+
+const FIXTURE_SOURCE = 'espn';
+
+// Every slug below was probed against the live scoreboard endpoint on
+// 2026-07-26 and returned a league object plus real events in an in-season
+// window. Slugs that look plausible but do NOT exist and were rejected:
+// `sau.1` (the Saudi league is `ksa.1`), `ger.w.1` / `mex.w.1` (ESPN publishes
+// no Frauen-Bundesliga or Liga MX Femenil scoreboard), `ukr.1`, `kor.1`.
+// Re-probe before adding: a bad slug returns 200 with an empty body, so a typo
+// degrades silently into "that league just has no games".
+const LEAGUES = [
+  // Europe — the core, but note these are OFF-SEASON in July/August.
+  'eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1', 'por.1', 'ned.1', 'tur.1',
+  'bel.1', 'sco.1', 'eng.2',
+  'uefa.champions', 'uefa.europa', 'uefa.europa.conf',
+  // Summer cover — these run through the European off-season and are what a
+  // late-July launch week actually has to draw on.
+  'usa.1', 'mex.1', 'bra.1', 'arg.1', 'col.1', 'chi.1', 'jpn.1', 'ksa.1',
+  'conmebol.libertadores', 'conmebol.sudamericana', 'concacaf.champions',
+  // National teams.
+  'fifa.world', 'uefa.nations', 'uefa.euro',
+  // Women's. Coverage is real but thinner than the men's game, and ESPN loads
+  // new-season schedules late — an empty pull here is usually the calendar,
+  // not a broken slug.
+  'usa.nwsl', 'eng.w.1', 'esp.w.1', 'fra.w.1', 'aus.w.1', 'uefa.wchampions',
+];
+
+// ISO-8601 week id, 'YYYY_WW' — the convention already carried by
+// matches.week_id and gold_champions.week_id ('2026_28' etc).
+function isoWeekId(date) {
+  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  // Thursday of the current ISO week determines the year and week number.
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return `${d.getUTCFullYear()}_${String(week).padStart(2, '0')}`;
+}
+
+// Monday 00:00:00Z → Sunday 23:59:59Z containing `date`.
+function weekBounds(date) {
+  const start = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  start.setUTCDate(start.getUTCDate() - ((start.getUTCDay() || 7) - 1));
+  const end = new Date(start.getTime() + 7 * 86400000 - 1000);
+  return { week_id: isoWeekId(start), starts_at: start.toISOString(), ends_at: end.toISOString() };
+}
+
+function weekBoundsFor(weekId, from = new Date()) {
+  // Walk out from `from` rather than parsing the id: ±8 weeks covers every
+  // caller (current, next, and a hand-typed id in the sheet).
+  for (let i = -8; i <= 8; i++) {
+    const b = weekBounds(new Date(from.getTime() + i * 7 * 86400000));
+    if (b.week_id === weekId) return b;
+  }
+  return null;
+}
+
+// Pull scheduled fixtures for every league into bronze_fixtures.
+// Modelled on ingestFifaResults: land raw, transform later.
+async function ingestFixtures(env, { days = 21, leagues = LEAGUES } = {}) {
+  const now = new Date();
+  const fetchedAt = now.toISOString().replace('T', ' ').slice(0, 19);
+  const ymd = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
+  const range = `${ymd(now)}-${ymd(new Date(now.getTime() + days * 86400000))}`;
+
+  const stmts = [];
+  const perLeague = {};
+  const failed = [];
+
+  for (const league of leagues) {
+    const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${range}`;
+    let data;
+    try {
+      const r = await fetch(url, { headers: { 'User-Agent': 'betty-predictor' } });
+      if (!r.ok) throw new Error(`ESPN ${r.status}`);
+      data = await r.json();
+    } catch (e) {
+      // One dead league must not starve the other thirty.
+      failed.push({ league, why: String(e) });
+      continue;
+    }
+    const leagueName = (data.leagues || [{}])[0].name || null;
+    if (!leagueName) failed.push({ league, why: 'unknown slug — feed returned no league' });
+
+    let n = 0;
+    for (const ev of data.events || []) {
+      const comp = (ev.competitions || [])[0];
+      if (!comp) continue;
+      const home = (comp.competitors || []).find((c) => c.homeAway === 'home');
+      const away = (comp.competitors || []).find((c) => c.homeAway === 'away');
+      if (!home || !away) continue;
+      const st = ((ev.status || {}).type || {}).name || '';
+      const status = st === 'STATUS_FINAL' ? 'finished'
+        : st === 'STATUS_IN_PROGRESS' || st === 'STATUS_HALFTIME' ? 'live'
+          : 'scheduled';
+      stmts.push(env.DB.prepare(
+        `INSERT OR REPLACE INTO bronze_fixtures
+         (source,source_id,league,league_name,kickoff_utc,home_team,away_team,
+          home_code,away_code,home_crest,away_crest,status,fetched_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      ).bind(
+        FIXTURE_SOURCE, String(ev.id), league, leagueName, ev.date,
+        home.team.displayName, away.team.displayName,
+        home.team.abbreviation || null, away.team.abbreviation || null,
+        home.team.logo || null, away.team.logo || null,
+        status, fetchedAt
+      ));
+      n++;
+    }
+    perLeague[league] = n;
+  }
+
+  // D1 caps a batch; chunk so a busy 30-league pull still lands.
+  for (let i = 0; i < stmts.length; i += 100) await env.DB.batch(stmts.slice(i, i + 100));
+
+  return { ok: true, source: FIXTURE_SOURCE, range, landed: stmts.length, perLeague, failed };
+}
+
+// Create a tab if it isn't there yet. Sheets answers a range on a missing tab
+// with a 400, so every read and write below would fail until someone added the
+// tab by hand — and the Monday cron is exactly when nobody is looking.
+// Concurrent callers race harmlessly: the loser's ALREADY_EXISTS is swallowed.
+async function ensureSheetTab(sid, token, title, header) {
+  try {
+    await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}:batchUpdate`,
+      token, 'POST', { requests: [{ addSheet: { properties: { title } } }] });
+  } catch (e) {
+    if (!/already exists/i.test(String(e))) throw e;
+    return false;
+  }
+  if (header) {
+    await sheetsFetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${title}!A1?valueInputOption=RAW`,
+      token, 'PUT', { range: `${title}!A1`, majorDimension: 'ROWS', values: [header] });
+  }
+  return true;
+}
+
+const CANDIDATES_HEADER = ['Week ID', 'Source ID', 'League', 'Kickoff UTC', 'Home', 'Away'];
+
+// Rewrite the "Candidates" tab from bronze for the week being curated.
+// SINK — never read back. The human copies rows from here into "Fixtures".
+async function refreshCandidatesTab(env, { weekId } = {}) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  // Default to the week being curated: the NEXT one, not the live one.
+  const bounds = weekId
+    ? weekBoundsFor(weekId)
+    : weekBounds(new Date(Date.now() + 7 * 86400000));
+  if (!bounds) throw new Error(`Unknown week id ${weekId}`);
+
+  const { results } = await env.DB.prepare(
+    `SELECT * FROM bronze_fixtures
+     WHERE kickoff_utc >= ? AND kickoff_utc <= ? AND status = 'scheduled'
+     ORDER BY kickoff_utc, league`
+  ).bind(bounds.starts_at, bounds.ends_at).all();
+
+  const rows = [CANDIDATES_HEADER, ...results.map((f) => [
+    bounds.week_id, f.source_id, f.league, f.kickoff_utc, f.home_team, f.away_team,
+  ].map((v) => (v == null ? '' : String(v))))];
+
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+  const token = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+  await ensureSheetTab(sid, token, 'Candidates', CANDIDATES_HEADER);
+  // The human's side of the handoff: if Fixtures isn't there, the curator has
+  // nowhere to paste the ten picks.
+  await ensureSheetTab(sid, token, 'Fixtures', CANDIDATES_HEADER);
+  await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Candidates!A:Z:clear`,
+    token, 'POST', {});
+  await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Candidates!A1?valueInputOption=RAW`,
+    token, 'PUT', { range: 'Candidates!A1', majorDimension: 'ROWS', values: rows });
+
+  return { ok: true, week_id: bounds.week_id, candidates: results.length };
+}
+
+const WEEK_SIZE = 10;
+
+// Read the human-curated "Fixtures" tab and publish one week into `matches`.
+// Mirrors syncAdjustmentsFromSheet, including its dryRun affordance.
+//
+// A partial or broken week must NEVER replace a good one — a bad sheet on
+// Monday morning would otherwise empty the app for every player. So every
+// check runs first, and any failure aborts the whole publish with the previous
+// week still live.
+async function publishWeekFromSheet(env, { weekId, dryRun = false } = {}) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+  const token = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+
+  await ensureSheetTab(sid, token, 'Fixtures', CANDIDATES_HEADER);
+  const res = await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Fixtures!A2:F`, token, 'GET');
+  const allRows = res.values || [];
+
+  // Which week are we publishing? Explicit arg wins; otherwise the week the
+  // sheet is filled for, which on the Monday cron is the one starting now.
+  const target = weekId || (allRows.find((r) => (r[0] || '').trim()) || [])[0]?.trim()
+    || weekBounds(new Date()).week_id;
+  const bounds = weekBoundsFor(target);
+  const errors = [];
+  if (!bounds) {
+    return { ok: false, week_id: target, errors: [`unknown week id ${target}`], published: 0 };
+  }
+
+  const rows = allRows.filter((r) => (r[0] || '').trim() === bounds.week_id);
+
+  const { results: bronze } = await env.DB.prepare(
+    'SELECT * FROM bronze_fixtures WHERE source = ?').bind(FIXTURE_SOURCE).all();
+  const byId = {};
+  for (const f of bronze) byId[f.source_id] = f;
+
+  const now = Date.now();
+  const seen = new Set();
+  const picks = [];
+  for (const r of rows) {
+    const source_id = (r[1] || '').trim();
+    if (!source_id) { errors.push('row with no Source ID'); continue; }
+    if (seen.has(source_id)) { errors.push(`duplicate source_id ${source_id}`); continue; }
+    seen.add(source_id);
+    const f = byId[source_id];
+    if (!f) { errors.push(`source_id ${source_id} unknown to bronze_fixtures`); continue; }
+    const kickoff = Date.parse(f.kickoff_utc);
+    if (!Number.isFinite(kickoff)) { errors.push(`source_id ${source_id} has an unparseable kickoff`); continue; }
+    if (kickoff < Date.parse(bounds.starts_at) || kickoff > Date.parse(bounds.ends_at)) {
+      errors.push(`source_id ${source_id} kicks off outside ${bounds.week_id} (${f.kickoff_utc})`);
+      continue;
+    }
+    if (kickoff <= now) {
+      errors.push(`source_id ${source_id} has already kicked off (${f.kickoff_utc})`);
+      continue;
+    }
+    picks.push(f);
+  }
+
+  if (rows.length !== WEEK_SIZE) {
+    errors.push(`expected ${WEEK_SIZE} rows for ${bounds.week_id}, sheet has ${rows.length}`);
+  }
+
+  if (errors.length) {
+    console.error('publishWeekFromSheet REFUSED', bounds.week_id, JSON.stringify(errors));
+    return { ok: false, week_id: bounds.week_id, errors, valid: picks.length, published: 0 };
+  }
+
+  const proposed = picks
+    .sort((a, b) => a.kickoff_utc.localeCompare(b.kickoff_utc))
+    .map((f) => ({
+      id: `${FIXTURE_SOURCE}-${f.source_id}`,
+      home_team: f.home_team, away_team: f.away_team,
+      kickoff_utc: f.kickoff_utc, league: f.league, league_name: f.league_name,
+      crest_home: f.home_crest, crest_away: f.away_crest,
+    }));
+
+  if (dryRun) return { ok: true, dry: true, week_id: bounds.week_id, matches: proposed };
+
+  const stmts = [
+    env.DB.prepare(
+      `INSERT INTO weeks (week_id, starts_at, ends_at, status, published_at)
+       VALUES (?,?,?,'published',datetime('now'))
+       ON CONFLICT(week_id) DO UPDATE SET status='published', published_at=datetime('now')`
+    ).bind(bounds.week_id, bounds.starts_at, bounds.ends_at),
+    // Re-publishing a week replaces its fixtures, but only that week's — a
+    // rerun must not touch the week players are currently betting on.
+    env.DB.prepare('DELETE FROM matches WHERE week_id = ?').bind(bounds.week_id),
+  ];
+  for (const m of proposed) {
+    stmts.push(env.DB.prepare(
+      `INSERT INTO matches
+       (id, home_team, away_team, date, time, match_date_utc, round, week_id,
+        league, source, source_id, crest_home, crest_away, status, is_active)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?, 'upcoming', 1)`
+    ).bind(
+      m.id, m.home_team, m.away_team, m.kickoff_utc.slice(0, 10), m.kickoff_utc,
+      m.kickoff_utc, m.league_name || m.league, bounds.week_id,
+      m.league, FIXTURE_SOURCE, m.id.slice(FIXTURE_SOURCE.length + 1),
+      m.crest_home, m.crest_away
+    ));
+  }
+  await env.DB.batch(stmts);
+
+  return { ok: true, week_id: bounds.week_id, published: proposed.length, matches: proposed };
+}
+
+// Serve the current / next week. `matches` is the only thing the app reads.
+async function getWeek(env, which) {
+  const base = which === 'next' ? new Date(Date.now() + 7 * 86400000) : new Date();
+  const bounds = weekBounds(base);
+  const week = await env.DB.prepare('SELECT * FROM weeks WHERE week_id = ?')
+    .bind(bounds.week_id).first();
+  const { results: matches } = await env.DB.prepare(
+    'SELECT * FROM matches WHERE week_id = ? ORDER BY match_date_utc, id'
+  ).bind(bounds.week_id).all();
+  return {
+    week_id: bounds.week_id,
+    starts_at: bounds.starts_at,
+    ends_at: bounds.ends_at,
+    status: week ? week.status : 'draft',
+    published_at: week ? week.published_at : null,
+    matches,
+  };
 }
 
 // Mirror gold marts → sheet (one-way, read-only export for monitoring).
