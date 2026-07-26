@@ -78,7 +78,8 @@
   justify-content: center;
   gap: 0.3rem;
   padding-top: 2rem;
-  min-width: 50px;
+  min-width: 64px;
+  max-width: 88px;
 }
 
 .mc__card-vs-text {
@@ -87,96 +88,14 @@
   color: #ffc20d;
 }
 
+/* The first line is now a competition name ("Chilean Primera División"), not a
+   two-character group label, so it has to be allowed to wrap. */
 .mc__card-info {
   font-size: 0.6rem;
   color: #777;
   text-align: center;
-  white-space: nowrap;
-}
-
-/* Outcome buttons */
-.mc__outcomes {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 0.8rem;
-}
-
-.mc__btn {
-  padding: 0.7rem 0.5rem;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.82rem;
-  border: 2px solid transparent;
-  transition: all 0.15s ease;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.mc__btn--w1,
-.mc__btn--w2 {
-  background: rgba(255, 194, 13, 0.12);
-  color: #ffc20d;
-  border-color: rgba(255, 194, 13, 0.25);
-}
-
-.mc__btn--draw {
-  background: rgba(255, 255, 255, 0.06);
-  color: #aaa;
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.mc__btn--active {
-  background: #ffc20d !important;
-  color: #1f1c09 !important;
-  border-color: #ffc20d !important;
-  transform: scale(1.03);
-}
-
-.mc__btn:not(:disabled):hover {
-  transform: translateY(-1px);
-}
-
-/* Score grid */
-.mc__scores {
-  margin-bottom: 0.6rem;
-}
-
-.mc__scores-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.3rem;
-}
-
-.mc__score {
-  padding: 0.5rem 0;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  background: rgba(255, 194, 13, 0.1);
-  color: #ccc;
-  border: 1px solid rgba(255, 194, 13, 0.18);
-  transition: all 0.12s ease;
-  text-align: center;
-}
-
-.mc__score--active {
-  background: #ffc20d;
-  color: #1f1c09;
-  border-color: #ffc20d;
-  font-weight: 800;
-}
-
-.mc__score--dim {
-  opacity: 0.2;
-  cursor: default;
-}
-
-.mc__score:not(:disabled):not(.mc__score--dim):hover {
-  background: rgba(255, 194, 13, 0.25);
-  color: #ffc20d;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 /* Saved state */
@@ -212,11 +131,6 @@
   color: #f44336;
 }
 
-.mc__outcomes--locked {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
 .mc__saved--locked {
   background: rgba(255, 255, 255, 0.05);
 }
@@ -228,8 +142,5 @@
 @media (max-width: 360px) {
   .mc__card-img, .mc__card-fallback {
     max-width: 110px;
-  }
-  .mc__scores-grid {
-    grid-template-columns: repeat(4, 1fr);
   }
 }

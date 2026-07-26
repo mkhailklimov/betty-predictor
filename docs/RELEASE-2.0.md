@@ -280,8 +280,9 @@ It says so plainly instead of rendering an empty card stack.
 
 ### 5.2 Two-reel input
 
-New `frontend/src/components/ScoreReels.tsx`. `MatchCard.tsx` drops the 1/X/2
-button row and the `ALL_SCORES` grid.
+**Done 2026-07-26.** New `frontend/src/components/ScoreReels.tsx` +
+`styles/ScoreReels.css`. `MatchCard.tsx` dropped the 1/X/2 button row and the
+`ALL_SCORES` grid, and the ~14 now-dead CSS rules that styled them went with it.
 
 - Two independent reels, 0–12, 13 stops each. CSS scroll-snap for touch, plus
   ▲/▼ buttons for desktop and accessibility.
@@ -292,6 +293,26 @@ button row and the `ALL_SCORES` grid.
 `{match_id, prediction_type, predicted_score:{home,away}}`. A v2 bet is therefore
 readable by a rolled-back v1 Worker — this is load-bearing for §4.
 `scoreBet()` (`worker.js:35`) is untouched: 1 pt outcome, 3 pts exact.
+
+Implementation notes worth keeping:
+
+- **`touched` is separate state, not derived from the displayed value.** The
+  reels always show *some* scoreline, and `0:0` is both the resting position and
+  a legitimate prediction — so "has this player bet?" cannot be read off the
+  reels. It seeds from a saved bet on mount so a returning player sees their bet
+  as placed, and an untouched card renders dimmed with "Spin both reels".
+- **`.reel__window` needs `position: relative`.** Centring a stop uses
+  `stop.offsetTop`, measured against the nearest *positioned* ancestor; without
+  it every reel scrolls to the wrong place. It looks like cosmetic CSS and is not.
+- Scroll-snap fires no "snapped" event, so the reel settles on a 120 ms idle
+  window and reads the stop nearest the centre line. Programmatic scrolls set a
+  flag first, or the smooth-scroll animation reports its intermediate stops as
+  user choices.
+- The ▲/▼ buttons and `role="spinbutton"` + arrow keys are not decoration:
+  scroll-snap alone is unreachable by keyboard and overshoots on a trackpad.
+- An **outcome-only bet is no longer reachable** from the UI — every reel move
+  sends a complete scoreline. v1 bets that have one still score on the outcome
+  alone, since `scoreBet()` is unchanged.
 
 > **Open:** 0–12 reels widen the exact-score space from v1's ~30 curated
 > scorelines to 169 combinations, so exact hits get materially rarer and 3 pts
@@ -399,7 +420,8 @@ get repurposed rather than switched off.
 3. ~~`/api/weeks/*`, frontend cut over to API-driven fixtures~~ **DONE 2026-07-26.**
    Preview: `v2.betty-scores-app.pages.dev` (a `.pages.dev` host, so it routes to
    `betty-api-dev` automatically).
-4. Reels UI
+4. ~~Reels UI~~ **DONE 2026-07-26** (built + deployed to the v2 preview; the
+   in-Telegram check in §8 still needs a real client)
 5. Identity — widget + guest + merge (needs `/setdomain`, §7)
 6. Site — routing, About, redirects, OG cards
 7. Prizes + cron reshape

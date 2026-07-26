@@ -1,0 +1,123 @@
+.reels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0 0.25rem;
+}
+
+.reels__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.reels__colon {
+  font-size: 2rem;
+  font-weight: 800;
+  color: rgba(255, 194, 13, 0.9);
+  padding-bottom: 0.15rem;
+}
+
+/* Until a reel is touched the 0:0 on screen is a placeholder, not a bet.
+   Dim it so it never reads as an already-placed prediction. */
+.reels--untouched .reel__stop--active {
+  color: rgba(224, 224, 224, 0.45);
+}
+
+.reels--untouched .reel__window {
+  border-color: rgba(255, 194, 13, 0.18);
+}
+
+.reel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.reel__step {
+  background: none;
+  border: none;
+  color: rgba(255, 194, 13, 0.75);
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.reel__step:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.reel__step:not(:disabled):active {
+  background: rgba(255, 194, 13, 0.12);
+}
+
+/* The window shows three stops; the middle one is the selected value.
+   position:relative is load-bearing, not cosmetic — the component centres a stop
+   using stop.offsetTop, which is measured against the nearest positioned
+   ancestor. Without it the offsets resolve against some outer element and every
+   reel scrolls to the wrong place. */
+.reel__window {
+  position: relative;
+  height: 8.4rem;
+  width: 3.6rem;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  border: 2px solid rgba(255, 194, 13, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 194, 13, 0.06);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.reel__window::-webkit-scrollbar { display: none; }
+
+.reel__window:focus-visible {
+  outline: 2px solid rgba(255, 194, 13, 0.9);
+  outline-offset: 2px;
+}
+
+/* Half a window's worth of padding top and bottom, so 0 and 12 can both reach
+   the centre line. */
+.reel__pad { height: 2.8rem; }
+
+.reel__stop {
+  height: 2.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(224, 224, 224, 0.4);
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.reel__stop--active {
+  color: #ffc20d;
+  transform: scale(1.15);
+}
+
+.reels__hint {
+  font-size: 0.8rem;
+  color: rgba(224, 224, 224, 0.7);
+  margin: 0;
+  min-height: 1.1rem;
+  text-align: center;
+}
+
+.reels--disabled .reel__window {
+  opacity: 0.5;
+}
+
+@media (max-width: 380px) {
+  .reel__window { height: 7.2rem; width: 3.2rem; }
+  .reel__pad { height: 2.4rem; }
+  .reel__stop { height: 2.4rem; font-size: 1.3rem; }
+}

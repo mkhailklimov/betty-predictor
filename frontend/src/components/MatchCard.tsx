@@ -1,5 +1,6 @@
 import React from 'react'
-import { MatchData, ALL_SCORES, getCardImage, getTeamImage, isMatchLocked } from '../data/matches'
+import { MatchData, getCardImage, getTeamImage, isMatchLocked } from '../data/matches'
+import { ScoreReels, deriveOutcome } from './ScoreReels'
 import '../styles/MatchCard.css'
 
 interface MatchCardProps {
@@ -13,13 +14,23 @@ function initials(name: string): string {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
 }
 
+// "2:1" → {home,away}. Stored predictions keep the v1 "h:a" string shape so the
+// localStorage/POST contract is unchanged under reels (§5.2, load-bearing for §4).
+function parseScore(score?: string): { home: number; away: number } | null {
+  if (!score) return null
+  const [h, a] = score.split(':').map(Number)
+  if (!Number.isFinite(h) || !Number.isFinite(a)) return null
+  return { home: h, away: a }
+}
+
 export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredict }) => {
-  const [selectedOutcome, setSelectedOutcome] = React.useState<string | null>(
-    prediction?.outcome || null
-  )
-  const [selectedScore, setSelectedScore] = React.useState<string | null>(
-    prediction?.score || null
-  )
+  // The reels always show a scoreline, so "has the player bet?" can't be read off
+  // the displayed value — an untouched card shows 0:0, which is also a perfectly
+  // legitimate prediction. `touched` is the real signal, seeded from a saved bet.
+  const parsed = parseScore(prediction?.score)
+  const [home, setHome] = React.useState(parsed?.home ?? 0)
+  const [away, setAway] = React.useState(parsed?.away ?? 0)
+  const [touched, setTouched] = React.useState(Boolean(prediction?.outcome))
 
   // Re-render exactly at kickoff (and when the tab regains focus) so an
   // already-open session locks itself live — without needing a reload.
@@ -49,25 +60,15 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
   const homeArt = getTeamImage(match.home)
   const awayArt = getTeamImage(match.away)
 
-  // An outcome on its own is already a valid bet (1 pt); the exact score upgrades it
-  // to 3. So persist as soon as the outcome is tapped, rather than waiting for a
-  // score that many players never pick — an unsaved outcome used to vanish entirely.
-  // Re-tapping the selected outcome is a no-op: there is no delete endpoint, so
-  // clearing it locally would leave a ghost bet on the backend. Players change a bet
-  // by picking a different outcome.
-  const handleOutcome = (outcome: string) => {
-    if (locked || selectedOutcome === outcome) return
-    setSelectedOutcome(outcome)
-    setSelectedScore(null)
-    onPredict(match.id, outcome, '')
-  }
-
-  const handleScore = (score: string) => {
-    if (locked || !selectedOutcome) return
-    // Re-tapping the chosen score drops back to an outcome-only bet (score cleared).
-    const next = selectedScore === score ? '' : score
-    setSelectedScore(next || null)
-    onPredict(match.id, selectedOutcome, next)
+  // Every reel movement is a complete bet: the scoreline is the prediction and the
+  // outcome falls out of it. There is no outcome-only state any more, and nothing
+  // is saved until the first movement — an untouched 0:0 is not a prediction.
+  const handleReels = (h: number, a: number) => {
+    if (locked) return
+    setHome(h)
+    setAway(a)
+    setTouched(true)
+    onPredict(match.id, deriveOutcome(h, a), `${h}:${a}`)
   }
 
   return (
@@ -114,71 +115,25 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
         </div>
       </div>
 
-      {/* Outcome buttons */}
-      <div className={`mc__outcomes ${locked ? 'mc__outcomes--locked' : ''}`}>
-        <button
-          className={`mc__btn mc__btn--w1 ${selectedOutcome === '1' ? 'mc__btn--active' : ''}`}
-          onClick={() => handleOutcome('1')}
-          disabled={locked}
-        >
-          WIN 1
-        </button>
-        <button
-          className={`mc__btn mc__btn--draw ${selectedOutcome === 'X' ? 'mc__btn--active' : ''}`}
-          onClick={() => handleOutcome('X')}
-          disabled={locked}
-        >
-          DRAW
-        </button>
-        <button
-          className={`mc__btn mc__btn--w2 ${selectedOutcome === '2' ? 'mc__btn--active' : ''}`}
-          onClick={() => handleOutcome('2')}
-          disabled={locked}
-        >
-          WIN 2
-        </button>
-      </div>
-
-      {/* Score buttons — all from 9:0 to 0:9 */}
-      {selectedOutcome && !locked && (
-        <div className="mc__scores">
-          <div className="mc__scores-grid">
-            {ALL_SCORES.map(s => {
-              const [h, a] = s.split(':').map(Number)
-              const isWin1 = h > a
-              const isDraw = h === a
-              const isWin2 = a > h
-              const matchesOutcome =
-                (selectedOutcome === '1' && isWin1) ||
-                (selectedOutcome === 'X' && isDraw) ||
-                (selectedOutcome === '2' && isWin2)
-
-              return (
-                <button
-                  key={s}
-                  className={`mc__score ${selectedScore === s ? 'mc__score--active' : ''} ${!matchesOutcome ? 'mc__score--dim' : ''}`}
-                  onClick={() => matchesOutcome && handleScore(s)}
-                  disabled={!matchesOutcome}
-                >
-                  {s}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      {/* Two reels 0–12 are the whole bet; the outcome is derived from them. */}
+      <ScoreReels
+        home={home}
+        away={away}
+        onChange={handleReels}
+        disabled={locked}
+        touched={touched}
+        homeName={match.home.name}
+        awayName={match.away.name}
+      />
 
       {/* Saved indicator */}
-      {prediction && (
+      {prediction && touched && (
         <div className={`mc__saved ${locked ? 'mc__saved--locked' : ''}`}>
           <span className="mc__saved-text">
-            {locked ? '&#128274; ' : ''}
+            {locked ? '\u{1F512} ' : ''}
             {prediction.outcome === '1' ? match.home.name + ' wins' : prediction.outcome === '2' ? match.away.name + ' wins' : 'Draw'}
-            {prediction.score
-              ? ' — ' + prediction.score
-              : locked
-                ? ' — no score'
-                : ' — saved. Pick the exact score for 3 pts'}
+            {prediction.score ? ' — ' + prediction.score : ''}
+            {locked ? '' : ' — saved'}
           </span>
         </div>
       )}
