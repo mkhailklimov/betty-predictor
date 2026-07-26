@@ -22,7 +22,13 @@ database_id = "a064b461-a310-484e-80de-66a684e71c7c"
 crons = ["0 * * * *", "0 6 * * FRI"]
 
 # Dev environment — deploy with `wrangler deploy --env dev`.
-# Uses the same D1 database for now (we can point to a dev D1 later if needed).
+# Shares the production D1 **by decision** (2026-07-26): dev and prod are
+# separated at the UI layer only. Betty has one source of truth and no large
+# data volumes, so a second database is not worth its cost. Consequence: dev
+# writes land in live tables, so v2 dev testing must be scoped to reserved,
+# disposable keys (test week_ids, test identities) — see docs/RELEASE-2.0.md
+# §4.4.3. Anything that can't be scoped that way is tested on a local
+# `wrangler dev --local` SQLite instead, not here.
 # Intentionally no crons in dev to avoid double-firing the weekly sync.
 [env.dev]
 name = "betty-api-dev"
