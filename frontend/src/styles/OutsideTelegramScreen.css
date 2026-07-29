@@ -1,13 +1,9 @@
-/* The app theme is dark (--color-bg is #1f1c09). This card previously hard-coded
-   its text to #1f1c09 too — the same near-black — so every word on it was
-   invisible; the old 2s auto-redirect just fired before anyone could notice.
-   Text now uses the theme's light tokens. */
 .outside-tg {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   padding: 24px;
   background: var(--color-bg);
   box-sizing: border-box;
@@ -44,6 +40,33 @@
   color: var(--color-text);
 }
 
+.outside-tg__widget {
+  display: flex;
+  justify-content: center;
+  min-height: 40px;
+  margin-bottom: 16px;
+}
+
+.outside-tg__divider {
+  display: flex;
+  align-items: center;
+  margin: 0 0 16px;
+  color: #a3a3a3;
+  font-size: 13px;
+}
+
+.outside-tg__divider::before,
+.outside-tg__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.outside-tg__divider span {
+  padding: 0 12px;
+}
+
 .outside-tg__button {
   display: block;
   width: 100%;
@@ -69,12 +92,24 @@
   background: #1779a8;
 }
 
+.outside-tg__button--guest {
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.outside-tg__button--guest:hover {
+  background: var(--color-border);
+}
+
+.outside-tg__button--guest:active {
+  background: var(--color-border);
+}
+
 .outside-tg__hint {
   margin: 16px 0 0;
   font-size: 13px;
   line-height: 1.5;
-  /* Not --color-text-secondary (#888): at 13px it lands at 4.33:1 on the card,
-     just under the 4.5:1 minimum for body text. */
   color: #a3a3a3;
 }
 

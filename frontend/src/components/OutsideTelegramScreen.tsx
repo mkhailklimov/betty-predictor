@@ -1,38 +1,60 @@
 import React from 'react'
 import '../styles/OutsideTelegramScreen.css'
 
+interface OutsideTelegramScreenProps {
+  onLogin: (authData: Record<string, string>) => void
+  onGuest: () => void
+}
+
 const BOT_USERNAME = 'bettyscores_bot'
 
-// No t.me anywhere on this screen, and no auto-redirect. t.me is outside our
-// control and went fully unresolvable on 2026-07-14 (no NS records, dead
-// worldwide), which turned every browser visit to app.bettyscores.com — our one
-// canonical link — into ERR_NAME_NOT_RESOLVED. Both routes below sidestep it:
-//   tg://  is handled by the OS and never does a DNS lookup, so it opens the
-//          installed Telegram app even while t.me is down.
-//   web.telegram.org resolves independently of t.me and works in any browser.
-const TG_APP_LINK = `tg://resolve?domain=${BOT_USERNAME}`
-const TG_WEB_LINK = `https://web.telegram.org/k/#@${BOT_USERNAME}`
+export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onLogin, onGuest }) => {
+  const widgetRef = React.useRef<HTMLDivElement>(null)
 
-export const OutsideTelegramScreen: React.FC = () => {
+  // Mount the Telegram Login Widget. It calls window.onTelegramAuth on success.
+  React.useEffect(() => {
+    (window as any).onTelegramAuth = (user: Record<string, string>) => {
+      onLogin(user)
+    }
+
+    if (widgetRef.current && widgetRef.current.childElementCount === 0) {
+      const script = document.createElement('script')
+      script.src = 'https://telegram.org/js/telegram-widget.js?22'
+      script.setAttribute('data-telegram-login', BOT_USERNAME)
+      script.setAttribute('data-size', 'large')
+      script.setAttribute('data-radius', '12')
+      script.setAttribute('data-onauth', 'onTelegramAuth(user)')
+      script.setAttribute('data-request-access', 'write')
+      script.async = true
+      widgetRef.current.appendChild(script)
+    }
+
+    return () => { delete (window as any).onTelegramAuth }
+  }, [onLogin])
+
   return (
     <div className="outside-tg">
       <div className="outside-tg__card">
         <img src="/betty-logo.png" alt="Betty Scores" className="outside-tg__logo" />
-        <h1 className="outside-tg__title">Betty Scores lives in Telegram</h1>
+        <h1 className="outside-tg__title">Betty Scores</h1>
         <p className="outside-tg__body">
-          Predictions, points, and your weekly 1&nbsp;TON prize all run inside
-          Telegram. This page can&apos;t sign you in or save bets.
+          Predict 10 football matches every week. Top predictors win Telegram
+          Stars prizes.
         </p>
-        <a className="outside-tg__button" href={TG_APP_LINK}>
-          Play with Betty
-        </a>
+
+        <div className="outside-tg__widget" ref={widgetRef} />
+
+        <div className="outside-tg__divider">
+          <span>or</span>
+        </div>
+
+        <button className="outside-tg__button outside-tg__button--guest" onClick={onGuest}>
+          Play as guest
+        </button>
+
         <p className="outside-tg__hint">
-          No Telegram app?{' '}
-          <a href={TG_WEB_LINK} target="_blank" rel="noreferrer">
-            Open @{BOT_USERNAME} in Telegram Web
-          </a>
-          . Or open Telegram yourself and search for{' '}
-          <strong>@{BOT_USERNAME}</strong>.
+          Guests can play and appear on the leaderboard, but are not eligible
+          for Stars prizes until they log in with Telegram.
         </p>
       </div>
     </div>

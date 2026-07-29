@@ -15,11 +15,13 @@ binding = "DB"
 database_name = "betty-db"
 database_id = "a064b461-a310-484e-80de-66a684e71c7c"
 
-# Cron triggers (prod):
-#   "0 * * * *"  — hourly: auto-update match is_active status (live/finished).
-#   "0 6 * * FRI"  — Fridays 06:00 UTC: push users D1 → Google Sheets "Users" tab.
+# Cron triggers (prod) — v2 schedule (§5.6):
+#   "0 0 * * MON"  — Monday 00:00: close week → award prizes → publish next week
+#   "0 3 * * *"    — Daily 03:00: ingest fixtures + results, refresh Candidates
+#   "0 * * * *"    — Hourly: match status (live/finished) + adjustments + marts
+#   "0 6 * * FRI"  — Friday 06:00: sheet mirrors (Users/Bets/Marts/Prizes)
 [triggers]
-crons = ["0 * * * *", "0 6 * * FRI"]
+crons = ["0 0 * * MON", "0 3 * * *", "0 * * * *", "0 6 * * FRI"]
 
 # Dev environment — deploy with `wrangler deploy --env dev`.
 # Shares the production D1 **by decision** (2026-07-26): dev and prod are

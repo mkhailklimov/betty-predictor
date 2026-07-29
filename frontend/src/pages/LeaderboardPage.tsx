@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import WebApp from '@twa-dev/sdk'
-import { TonConnectButton, useTonAddress } from '@tonconnect/ui-react'
 import { leaderboardApi, userApi, paymentsApi } from '../services/api'
 import { LeaderboardEntry, User } from '../types'
 import { FlagPickerModal } from '../components/FlagPickerModal'
@@ -10,10 +9,8 @@ export const LeaderboardPage: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [me, setMe] = useState<User | null>(null)
-  const [savedAddress, setSavedAddress] = useState<string | null>(null)
   const [premiumStatus, setPremiumStatus] = useState<'idle' | 'loading' | 'paid' | 'failed'>('idle')
   const [showFlagPicker, setShowFlagPicker] = useState(false)
-  const tonAddress = useTonAddress()
 
   useEffect(() => {
     const loadLeaderboard = async () => {
@@ -34,17 +31,6 @@ export const LeaderboardPage: React.FC = () => {
     loadLeaderboard()
   }, [])
 
-  // Persist newly-connected wallet to backend (once per address).
-  useEffect(() => {
-    if (!tonAddress || tonAddress === savedAddress) return
-    userApi.saveWallet(tonAddress)
-      .then(() => setSavedAddress(tonAddress))
-      .catch((e) => console.error('saveWallet failed:', e))
-  }, [tonAddress, savedAddress])
-
-  const myEntry = me ? leaderboard.find((e) => e.user_id === me.id) : null
-  const hasEarned = !!myEntry && (myEntry.grams ?? 0) > 0
-  const isConnected = !!tonAddress
   const isPremium = !!me?.is_premium
 
   const handleBuyPremium = async () => {
@@ -82,22 +68,22 @@ export const LeaderboardPage: React.FC = () => {
   return (
     <div className="leaderboard-page">
       <div className="page-header">
-        <h1>GRAM Leaderboard</h1>
+        <h1>Leaderboard</h1>
       </div>
 
       {leaderboard.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">&#128142;</div>
-          <p className="empty-title">No rewards yet</p>
-          <p className="empty-text">GRAM rewards are awarded to each week's winner once results are finalized.</p>
+          <p className="empty-title">No results yet</p>
+          <p className="empty-text">Scores appear here once the first week&apos;s matches are played.</p>
         </div>
       ) : (
         <div className="leaderboard-table">
           <div className="table-header">
             <div className="col rank">#</div>
             <div className="col player">Player</div>
-            <div className="col rounds">Rounds</div>
-            <div className="col ton">GRAMs &#128142;</div>
+            <div className="col rounds">Weeks</div>
+            <div className="col ton">Points</div>
           </div>
           <div className="table-body">
             {leaderboard.map((entry) => (
@@ -119,24 +105,11 @@ export const LeaderboardPage: React.FC = () => {
                   {entry.username}
                   {entry.is_premium && <span className="pro-badge">PRO</span>}
                 </div>
-                <div className="col rounds">{entry.correct_predictions + entry.correct_scores}</div>
-                <div className="col ton">{(entry.grams ?? 0) > 0 ? <>{entry.grams} &#128142;</> : '0'}</div>
+                <div className="col rounds">{entry.weeks_won ?? 0}</div>
+                <div className="col ton">{entry.points}</div>
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {hasEarned && !isConnected && (
-        <div className="ton-connect-zone">
-          <p className="ton-connect-hint">You've earned a GRAM &#128142; — connect a wallet to receive your prize.</p>
-          <TonConnectButton />
-        </div>
-      )}
-      {hasEarned && isConnected && (
-        <div className="ton-connect-zone">
-          <p className="ton-connect-hint">Wallet connected — prizes will be sent here.</p>
-          <TonConnectButton />
         </div>
       )}
 
@@ -163,10 +136,10 @@ export const LeaderboardPage: React.FC = () => {
               onClick={handleBuyPremium}
               disabled={premiumStatus === 'loading'}
             >
-              {premiumStatus === 'loading' ? 'Opening…' : 'Get fave team avatar  ⭐ 50'}
+              {premiumStatus === 'loading' ? 'Opening...' : 'Get fave team avatar  Stars 50'}
             </button>
             {premiumStatus === 'failed' && (
-              <p className="premium-error">Couldn't start payment. Try again later.</p>
+              <p className="premium-error">Couldn&apos;t start payment. Try again later.</p>
             )}
           </>
         )}

@@ -21,32 +21,46 @@ const api = axios.create({
   },
 })
 
-// Authenticate with Telegram's signed initData, which the API verifies against
-// the bot token. We previously sent `Bearer <tg_id>` — an unsigned number, so
-// anyone could act as any user by guessing it. Read it live from the SDK rather
-// than from localStorage: it must be the launch string Telegram actually signed.
+// Auth priority:
+//   1. tma <initData>  — inside Telegram Mini App (signed by bot token)
+//   2. tgauth <json>   — Telegram Login Widget (browser, signed by bot token)
+//   3. guest <token>    — guest session (server-issued opaque token)
+//   4. Bearer <tg_id>  — legacy dev fallback (ALLOW_LEGACY_AUTH only)
 api.interceptors.request.use((config) => {
   const initData = WebApp.initData || ''
   if (initData) {
     config.headers.Authorization = `tma ${initData}`
   } else {
-    // Outside Telegram there is no signed identity; fall back to the legacy
-    // header so local dev (isLocalDev in App.tsx) still works. The API only
-    // honours this while ALLOW_LEGACY_AUTH is on.
-    const token = localStorage.getItem('tg_token')
-    if (token) config.headers.Authorization = `Bearer ${token}`
+    const widgetAuth = localStorage.getItem('betty_tgauth')
+    const guestToken = localStorage.getItem('betty_guest_token')
+    if (widgetAuth) {
+      config.headers.Authorization = `tgauth ${widgetAuth}`
+    } else if (guestToken) {
+      config.headers.Authorization = `guest ${guestToken}`
+    } else {
+      const token = localStorage.getItem('tg_token')
+      if (token) config.headers.Authorization = `Bearer ${token}`
+    }
   }
   return config
 })
 
 // User API
 export const userApi = {
-  register: (userData: { tg_id: string; username?: string; first_name?: string; last_name?: string }) =>
+  register: (userData: { tg_id: string; username?: string; first_name?: string; last_name?: string; ref_source?: string }) =>
     api.post<User>('/api/user/register', userData),
   getMe: () => api.get<User>('/api/user/me'),
   getProfile: (userId: string) => api.get<User>(`/api/user/${userId}`),
   saveWallet: (ton_address: string) =>
     api.post<{ ok: boolean }>('/api/user/wallet', { ton_address }),
+}
+
+// Guest API
+export const guestApi = {
+  create: (ref?: string) =>
+    api.post<User & { guest_token: string }>(`/api/user/guest${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`),
+  merge: (guestToken: string, username?: string) =>
+    api.post<{ ok: boolean; merged: number; user: User }>('/api/user/merge', { guest_token: guestToken, username }),
 }
 
 // Matches API

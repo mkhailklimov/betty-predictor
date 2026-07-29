@@ -50,19 +50,61 @@ export default {
   // silently routes the weekly run into the hourly branch below (which flips matches
   // to finished without ever writing scores) — that shipped, and the weekly sync never
   // ran once. Keep both forms accepted if wrangler.toml is ever edited either way.
+  // Cron triggers — v2 schedule (§5.6):
+  //   "0 0 * * 1" / "0 0 * * MON"  — Monday 00:00: close week → award prizes → publish next week
+  //   "0 3 * * *"                    — Daily 03:00: ingest fixtures + results, refresh Candidates
+  //   "0 * * * *"                    — Hourly: match status (live/finished) + adjustments + rebuild marts
+  //   "0 6 * * 5" / "0 6 * * FRI"  — Friday 06:00: sheet mirrors (Users / Bets / Marts / Prizes)
+  //
+  // Every new schedule must accept BOTH the named and numeric day-of-week forms.
+  // See the comment at the top of this block.
   async scheduled(event, env, ctx) {
-    const WEEKLY = new Set(['0 6 * * 5', '0 6 * * FRI']);
-    if (WEEKLY.has(event.cron)) {
-      // Weekly: refresh marts from latest data, then mirror everything OUT to the sheet.
+    const MONDAY = new Set(['0 0 * * 1', '0 0 * * MON']);
+    const DAILY_INGEST = new Set(['0 3 * * *']);
+    const FRIDAY_SYNC = new Set(['0 6 * * 5', '0 6 * * FRI']);
+
+    if (MONDAY.has(event.cron)) {
+      // Monday midnight: close the just-ended week, award prizes, publish next.
+      ctx.waitUntil((async () => {
+        try {
+          // The week that just ended: go back 1 day to land in last week.
+          const lastWeek = weekBounds(new Date(Date.now() - 86400000));
+          console.log('closeWeek:', JSON.stringify(await closeWeek(env, lastWeek.week_id)));
+        } catch (e) { console.error('closeWeek failed', e); }
+        try {
+          console.log('publishWeek:', JSON.stringify(await publishWeekFromSheet(env)));
+        } catch (e) { console.error('publishWeek failed', e); }
+      })());
+      return;
+    }
+
+    if (DAILY_INGEST.has(event.cron)) {
+      // Daily 03:00: ingest ESPN fixtures + results, refresh Candidates tab.
+      ctx.waitUntil((async () => {
+        try { console.log('ingest:', JSON.stringify(await ingestFixtures(env))); }
+        catch (e) { console.error('ingestFixtures failed', e); }
+        try { console.log('candidates:', JSON.stringify(await refreshCandidatesTab(env))); }
+        catch (e) { console.error('refreshCandidates failed', e); }
+        // Also pull FIFA results for any WC matches still in the DB.
+        try { await ingestFifaResults(env); } catch (e) { console.error('ingestFifa failed', e); }
+        try {
+          const rec = await reconcileResults(env, { apply: true });
+          if (rec.changed) await rebuildMarts(env);
+        } catch (e) { console.error('reconcile failed', e); }
+      })());
+      return;
+    }
+
+    if (FRIDAY_SYNC.has(event.cron)) {
+      // Friday: refresh marts, then mirror everything OUT to the sheet.
       ctx.waitUntil((async () => {
         try { await syncAdjustmentsFromSheet(env); } catch (e) { console.error('adj sync failed', e); }
         await rebuildMarts(env);
-        // Mirror the full picture out to Betty_Master_data. Each tab is isolated
-        // so one failing sync can't silently starve the rest.
         for (const [tab, fn] of [
           ['Users', syncUsersToSheet],
           ['Bets', syncBetsToSheet],
           ['Marts', exportMartsToSheet],
+          ['Prizes', syncPrizesToSheet],
         ]) {
           try { console.log(tab, 'sync:', JSON.stringify(await fn(env))); }
           catch (e) { console.error(tab, 'sync failed', e); }
@@ -70,7 +112,8 @@ export default {
       })());
       return;
     }
-    // Default: hourly match-status update
+
+    // Default: hourly match-status update.
     const now = new Date();
     const { results: matches } = await env.DB.prepare('SELECT * FROM matches').all();
 
@@ -78,16 +121,15 @@ export default {
       if (!match.time) continue;
 
       const kickoff = new Date(match.time.includes('T') ? match.time : match.time.replace(' ', 'T') + 'Z');
-      const endEstimate = new Date(kickoff.getTime() + 3 * 60 * 60 * 1000); // ~3h after kickoff
+      const endEstimate = new Date(kickoff.getTime() + 3 * 60 * 60 * 1000);
 
       let newStatus = match.is_active;
 
       if (now >= endEstimate) {
-        newStatus = 3; // Game ended, hide
+        newStatus = 3;
       } else if (now >= kickoff) {
-        newStatus = 2; // Game started, locked
+        newStatus = 2;
       }
-      // 0 and 1 are set manually via admin
 
       if (newStatus !== match.is_active) {
         await env.DB.prepare(
@@ -100,8 +142,7 @@ export default {
       }
     }
 
-    // Pull manual adjustments from the sheet, then refresh marts so
-    // Champions/Leaderboard reflect newly-finished matches + adjustments.
+    // Pull manual adjustments, then refresh marts.
     ctx.waitUntil((async () => {
       try { await syncAdjustmentsFromSheet(env); } catch (e) { console.error('adj sync failed', e); }
       await rebuildMarts(env);
@@ -130,8 +171,8 @@ export default {
         // Identity comes from the signed initData, never from the body: a
         // client-supplied tg_id let anyone register (and thus act as) any user.
         // During the rollout window a legacy client may still post its own id.
-        const verified = await resolveTgId(request, env);
-        const tg_id = verified || (env.ALLOW_LEGACY_AUTH === '1' ? body.tg_id : null);
+        const authResult = await resolveTgId(request, env);
+        const tg_id = authResult ? authResult.tgId : (env.ALLOW_LEGACY_AUTH === '1' ? body.tg_id : null);
         if (!tg_id) return json({ detail: 'Unauthorized' }, 401);
 
         const existing = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(tg_id).first();
@@ -142,9 +183,11 @@ export default {
         // users have no @username set), and only then to the User_<tg_id> stub.
         const fullName = [first_name, last_name].map((s) => (s || '').trim()).filter(Boolean).join(' ');
         const displayName = username || fullName || `User_${tg_id}`;
+        const authSource = authResult ? authResult.authSource : 'miniapp';
+        const refSource = body.ref_source || null;
         await env.DB.prepare(
-          'INSERT INTO users (id, tg_id, username) VALUES (?, ?, ?)'
-        ).bind(id, tg_id, displayName).run();
+          'INSERT INTO users (id, tg_id, username, auth_source, ref_source) VALUES (?, ?, ?, ?, ?)'
+        ).bind(id, tg_id, displayName, authSource, refSource).run();
 
         const user = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
         return json(user, 201);
@@ -156,7 +199,7 @@ export default {
         if (!ton_address || typeof ton_address !== 'string') {
           return json({ detail: 'ton_address required' }, 400);
         }
-        const token = await resolveTgId(request, env);
+        const token = await resolveTgIdStr(request, env);
         if (!token) return json({ detail: 'Unauthorized' }, 401);
         const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
@@ -166,8 +209,81 @@ export default {
         return json({ ok: true });
       }
 
+      // --- v2 guest accounts (§5.3) ---
+      // Mint a guest user with an opaque token. Guests play and appear on the
+      // leaderboard but are prize-ineligible until they log in with Telegram.
+      if (method === 'POST' && path === '/api/user/guest') {
+        const id = uuid();
+        const guestToken = uuid();
+        const tg_id = `guest:${uuid()}`;
+        const refSource = url.searchParams.get('ref') || null;
+        await env.DB.prepare(
+          `INSERT INTO users (id, tg_id, username, auth_source, guest_token, ref_source)
+           VALUES (?, ?, ?, 'guest', ?, ?)`
+        ).bind(id, tg_id, 'Guest', guestToken, refSource).run();
+        const user = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
+        return json({ ...user, guest_token: guestToken }, 201);
+      }
+
+      // Merge a guest account into a real Telegram account on first login.
+      // Moves guest predictions onto the real account, sets merged_into tombstone.
+      if (method === 'POST' && path === '/api/user/merge') {
+        const auth = await resolveTgId(request, env);
+        if (!auth || auth.authSource === 'guest') return json({ detail: 'Telegram auth required' }, 401);
+        const body = await request.json();
+        const guestToken = body.guest_token;
+        if (!guestToken) return json({ detail: 'guest_token required' }, 400);
+
+        const guest = await env.DB.prepare(
+          'SELECT * FROM users WHERE guest_token = ? AND merged_into IS NULL'
+        ).bind(guestToken).first();
+        if (!guest) return json({ detail: 'Guest not found or already merged' }, 404);
+
+        // Find or create the real user.
+        let real = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(auth.tgId).first();
+        if (!real) {
+          const id = uuid();
+          const refSource = guest.ref_source || null;
+          await env.DB.prepare(
+            `INSERT INTO users (id, tg_id, username, auth_source, ref_source) VALUES (?, ?, ?, ?, ?)`
+          ).bind(id, auth.tgId, body.username || `User_${auth.tgId}`, auth.authSource, refSource).run();
+          real = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
+        }
+
+        // Move predictions: skip conflicts (real account's bet wins).
+        const { results: guestPreds } = await env.DB.prepare(
+          'SELECT * FROM predictions WHERE user_id = ?'
+        ).bind(guest.id).all();
+
+        let moved = 0;
+        for (const p of guestPreds) {
+          const conflict = await env.DB.prepare(
+            'SELECT id FROM predictions WHERE user_id = ? AND match_id = ?'
+          ).bind(real.id, p.match_id).first();
+          if (conflict) continue;
+          await env.DB.prepare(
+            'UPDATE predictions SET user_id = ? WHERE id = ?'
+          ).bind(real.id, p.id).run();
+          moved++;
+        }
+
+        // Tombstone the guest row.
+        await env.DB.prepare(
+          'UPDATE users SET merged_into = ?, updated_at = datetime("now") WHERE id = ?'
+        ).bind(real.id, guest.id).run();
+
+        // Update prediction count on real user.
+        if (moved > 0) {
+          await env.DB.prepare(
+            'UPDATE users SET predictions_count = predictions_count + ?, updated_at = datetime("now") WHERE id = ?'
+          ).bind(moved, real.id).run();
+        }
+
+        return json({ ok: true, merged: moved, user: real });
+      }
+
       if (method === 'GET' && path === '/api/user/me') {
-        const token = await resolveTgId(request, env);
+        const token = await resolveTgIdStr(request, env);
         // No anonymous fallback. This used to return `SELECT * FROM users LIMIT 1`
         // — i.e. some arbitrary real user's record, wallet included — to any caller.
         if (!token) return json({ detail: 'Unauthorized' }, 401);
@@ -213,7 +329,7 @@ export default {
         const body = await request.json();
         const { match_id, prediction_type, predicted_score } = body;
 
-        const token = await resolveTgId(request, env);
+        const token = await resolveTgIdStr(request, env);
         if (!token) return json({ detail: 'Auth required' }, 401);
 
         let user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
@@ -281,7 +397,7 @@ export default {
       }
 
       if (method === 'GET' && path === '/api/predictions/me') {
-        const token = await resolveTgId(request, env);
+        const token = await resolveTgIdStr(request, env);
         // No anonymous LIMIT 1 fallback — that leaked an arbitrary user's
         // predictions to any caller (same bug as the old /api/user/me).
         if (!token) return json({ detail: 'Unauthorized' }, 401);
@@ -372,7 +488,7 @@ export default {
       }
 
       if (method === 'POST' && path === '/api/rewards/claim') {
-        const token = await resolveTgId(request, env);
+        const token = await resolveTgIdStr(request, env);
         // No anonymous LIMIT 1 fallback — this claims (mutates) rewards, so it
         // must act only on the authenticated user.
         if (!token) return json({ detail: 'Unauthorized' }, 401);
@@ -496,6 +612,43 @@ export default {
         return json(result, result.ok ? 200 : 422);
       }
 
+      // --- Admin: manually close a week and award prizes ---
+      if (method === 'POST' && path === '/api/admin/close-week') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const weekId = url.searchParams.get('week') || weekBounds(new Date()).week_id;
+        return json(await closeWeek(env, weekId));
+      }
+
+      // --- Admin: mark a weekly prize as paid ---
+      // POST /api/admin/prizes/:week/paid?rank=1
+      if (method === 'POST' && path.match(/^\/api\/admin\/prizes\/[^/]+\/paid$/)) {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const parts = path.split('/');
+        const prizeWeek = parts[4];
+        const rank = Number(url.searchParams.get('rank'));
+        if (!rank) return json({ detail: 'rank query param required' }, 400);
+        const result = await env.DB.prepare(
+          "UPDATE weekly_prizes SET status = 'paid', paid_at = datetime('now') WHERE week_id = ? AND rank = ?"
+        ).bind(prizeWeek, rank).run();
+        return json({ ok: true, week_id: prizeWeek, rank, changed: result.changes });
+      }
+
+      // --- Public: get prizes for a week ---
+      if (method === 'GET' && path === '/api/prizes') {
+        const weekId = url.searchParams.get('week');
+        const q = weekId
+          ? env.DB.prepare('SELECT * FROM weekly_prizes WHERE week_id = ? ORDER BY rank').bind(weekId)
+          : env.DB.prepare('SELECT * FROM weekly_prizes ORDER BY week_id DESC, rank');
+        const { results } = await q.all();
+        return json(results);
+      }
+
       // --- Telegram ---
       if (method === 'POST' && path === '/api/telegram/web-app-data') {
         const body = await request.json();
@@ -510,7 +663,7 @@ export default {
       // POST /api/user/fav-team — Premium-only. Sets users.fav_team to a valid
       // 3-letter team code. The team code must be in the allowed WC participants list.
       if (method === 'POST' && path === '/api/user/fav-team') {
-        const token = await resolveTgId(request, env);
+        const token = await resolveTgIdStr(request, env);
         if (!token) return json({ detail: 'Unauthorized' }, 401);
         const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
@@ -528,7 +681,7 @@ export default {
       // POST /api/payments/create-stars-invoice → returns { invoice_url }
       // Auth: same tg_id Bearer token as other user endpoints.
       if (method === 'POST' && path === '/api/payments/create-stars-invoice') {
-        const token = await resolveTgId(request, env);
+        const token = await resolveTgIdStr(request, env);
         if (!token) return json({ detail: 'Unauthorized' }, 401);
         const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
@@ -680,19 +833,82 @@ async function verifyInitData(initData, botToken) {
   }
 }
 
-// The authenticated Telegram id for user-scoped routes, or null.
+// Telegram Login Widget verification (§5.3). Different key derivation from
+// initData: secret = SHA256(bot_token), data-check-string = sorted `k=v\n`.
+async function verifyLoginWidget(payload, botToken) {
+  if (!payload || !botToken) return null;
+  let params;
+  try {
+    params = typeof payload === 'string' ? JSON.parse(payload) : payload;
+  } catch { return null; }
+
+  const hash = params.hash;
+  if (!hash) return null;
+
+  // Build data-check-string: sorted k=v joined by \n, excluding hash.
+  const entries = Object.keys(params)
+    .filter(k => k !== 'hash')
+    .sort()
+    .map(k => `${k}=${params[k]}`);
+  const dcs = entries.join('\n');
+
+  // Login Widget secret = SHA256(bot_token), not HMAC('WebAppData', bot_token).
+  const secretRaw = await crypto.subtle.digest(
+    'SHA-256', new TextEncoder().encode(botToken));
+  const expected = toHex(await hmacSha256(new Uint8Array(secretRaw), dcs));
+
+  if (!timingSafeEqual(expected, hash)) return null;
+
+  // Reject stale auth: 24h window.
+  const authDate = Number(params.auth_date || 0);
+  if (!authDate || Math.floor(Date.now() / 1000) - authDate > INITDATA_MAX_AGE_S) return null;
+
+  return params.id ? String(params.id) : null;
+}
+
+// The authenticated identity for user-scoped routes.
+// Returns { tgId, authSource } or null.
+//   tma <initData>     → miniapp
+//   tgauth <json>      → widget (Telegram Login Widget)
+//   guest <token>       → guest (server-issued opaque token)
+//   Bearer <tg_id>     → legacy (rollout only)
 async function resolveTgId(request, env) {
   const auth = request.headers.get('Authorization') || '';
-  if (auth.startsWith('tma ')) return await verifyInitData(auth.slice(4), env.BOT_TOKEN);
+
+  if (auth.startsWith('tma ')) {
+    const tgId = await verifyInitData(auth.slice(4), env.BOT_TOKEN);
+    return tgId ? { tgId, authSource: 'miniapp' } : null;
+  }
+
+  if (auth.startsWith('tgauth ')) {
+    const tgId = await verifyLoginWidget(auth.slice(7), env.BOT_TOKEN);
+    return tgId ? { tgId, authSource: 'widget' } : null;
+  }
+
+  if (auth.startsWith('guest ')) {
+    const token = auth.slice(6);
+    if (!token) return null;
+    const user = await env.DB.prepare(
+      'SELECT tg_id FROM users WHERE guest_token = ? AND merged_into IS NULL'
+    ).bind(token).first();
+    return user ? { tgId: user.tg_id, authSource: 'guest' } : null;
+  }
 
   // Rollout only: clients running the pre-fix bundle still send `Bearer <tg_id>`.
-  // Flip ALLOW_LEGACY_AUTH to "0" once the signed-initData frontend is live, which
-  // closes the impersonation hole for good.
   if (env.ALLOW_LEGACY_AUTH === '1' && auth.startsWith('Bearer ')) {
     const t = auth.slice(7);
-    return /^\d+$/.test(t) ? t : null;
+    return /^\d+$/.test(t) ? { tgId: t, authSource: 'miniapp' } : null;
   }
   return null;
+}
+
+// Convenience: most call sites only need the tg_id string.
+async function resolveAuth(request, env) {
+  return await resolveTgId(request, env);
+}
+async function resolveTgIdStr(request, env) {
+  const r = await resolveTgId(request, env);
+  return r ? r.tgId : null;
 }
 
 function parseScores(results) {
@@ -852,7 +1068,7 @@ async function rebuildMarts(env) {
 
   const [{ results: users }, { results: predictions }, { results: matches }, { results: adjustments }] =
     await Promise.all([
-      env.DB.prepare('SELECT * FROM users').all(),
+      env.DB.prepare('SELECT * FROM users WHERE merged_into IS NULL').all(),
       env.DB.prepare('SELECT * FROM predictions').all(),
       env.DB.prepare('SELECT * FROM matches').all(),
       env.DB.prepare('SELECT * FROM bronze_adjustments').all(),
@@ -1421,6 +1637,49 @@ async function getWeek(env, which) {
   };
 }
 
+// Close a week: award Stars prizes to 1st and 2nd place, then mark the week
+// as closed. Guests (tg_id starts with 'guest:') are prize-ineligible.
+// Tie rule: equal points → earlier last-bet timestamp wins.
+async function closeWeek(env, weekId) {
+  const week = await env.DB.prepare('SELECT * FROM weeks WHERE week_id = ?').bind(weekId).first();
+  if (!week) return { ok: false, reason: 'week not found' };
+  if (week.status === 'closed') return { ok: true, already: true, week_id: weekId };
+
+  // Rebuild marts so champions are current.
+  await rebuildMarts(env);
+
+  // Get champions for this week, excluding guests.
+  const { results: champs } = await env.DB.prepare(
+    `SELECT gc.*, u.tg_id FROM gold_champions gc
+     JOIN users u ON u.id = gc.user_id
+     WHERE gc.week_id = ? AND u.tg_id NOT LIKE 'guest:%'
+     ORDER BY gc.rank`
+  ).bind(weekId).all();
+
+  const prizes = [
+    { rank: 1, stars: 100 },
+    { rank: 2, stars: 50 },
+  ];
+
+  const awarded = [];
+  for (const { rank, stars } of prizes) {
+    const winner = champs.find(c => c.rank === rank);
+    if (!winner) continue;
+    await env.DB.prepare(
+      `INSERT INTO weekly_prizes (id, week_id, rank, user_id, stars)
+       VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT(week_id, rank) DO UPDATE SET user_id=excluded.user_id, stars=excluded.stars`
+    ).bind(uuid(), weekId, rank, winner.user_id, stars).run();
+    awarded.push({ rank, user_id: winner.user_id, username: winner.username, stars });
+  }
+
+  await env.DB.prepare(
+    "UPDATE weeks SET status = 'closed', published_at = COALESCE(published_at, datetime('now')) WHERE week_id = ?"
+  ).bind(weekId).run();
+
+  return { ok: true, week_id: weekId, awarded };
+}
+
 // Mirror gold marts → sheet (one-way, read-only export for monitoring).
 // Overwrites the Champions + Leaderboard tabs from gold_* on every run.
 // These tabs are SINKS — never read back as a source.
@@ -1458,6 +1717,37 @@ async function exportMartsToSheet(env) {
       token, 'PUT', { range: `${tab}!A1`, majorDimension: 'ROWS', values: rows });
   }
   return { ok: true, champions: champ.length, leaderboard: lb.length };
+}
+
+// Mirror weekly_prizes → "Prizes" sheet tab (sink).
+const PRIZES_HEADER = ['Week ID', 'Rank', 'User ID', 'Username', 'Stars', 'Status', 'Awarded At', 'Paid At', 'Note'];
+
+async function syncPrizesToSheet(env) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+  const token = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+
+  const { results: prizes } = await env.DB.prepare(
+    `SELECT wp.*, u.username FROM weekly_prizes wp
+     LEFT JOIN users u ON u.id = wp.user_id
+     ORDER BY wp.week_id DESC, wp.rank`
+  ).all();
+
+  const rows = [PRIZES_HEADER, ...prizes.map(p => [
+    p.week_id, p.rank, p.user_id, p.username || '', p.stars,
+    p.status, p.awarded_at || '', p.paid_at || '', p.note || '',
+  ].map(v => v == null ? '' : String(v)))];
+
+  await ensureSheetTab(sid, token, 'Prizes', PRIZES_HEADER);
+  await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Prizes!A:Z:clear`,
+    token, 'POST', {});
+  await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Prizes!A1?valueInputOption=RAW`,
+    token, 'PUT', { range: 'Prizes!A1', majorDimension: 'ROWS', values: rows });
+
+  return { ok: true, synced: prizes.length, at: new Date().toISOString() };
 }
 
 async function sheetsFetch(url, token, method, body) {

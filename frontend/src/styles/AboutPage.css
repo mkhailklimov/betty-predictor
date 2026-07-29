@@ -1,0 +1,68 @@
+.about-page {
+  padding: 0 16px 100px;
+}
+
+.about-section {
+  margin-bottom: 24px;
+}
+
+.about-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 8px;
+}
+
+.about-section p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+  margin: 0 0 8px;
+}
+
+.scoring-grid {
+  display: flex;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.scoring-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.scoring-pts {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.scoring-desc {
+  font-size: 12px;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.scoring-note {
+  font-size: 12px;
+  color: #a3a3a3;
+  margin-top: 4px;
+}
+
+.about-section--footer {
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.about-section--footer p {
+  font-size: 13px;
+  color: #a3a3a3;
+}
