@@ -9,45 +9,32 @@
   position: relative;
   overflow: hidden;
 
-  /* Alternating light/dark green vertical stripes like a mowed pitch */
+  /* Darker, natural mown-lawn stripes — subtle transition between shades */
   background: repeating-linear-gradient(
     90deg,
-    #3da349 0px,
-    #3da349 60px,
-    #349040 60px,
-    #349040 120px
+    #2d7a35 0px,
+    #2f7e37 8px,
+    #327f39 52px,
+    #2f7e37 60px,
+    #296e30 60px,
+    #2b7232 68px,
+    #2d7434 112px,
+    #2b7232 120px
   );
 }
 
-/* White pitch markings overlay */
+/* Full pitch markings via inline SVG — horizontal field */
 .outside-tg::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: 20px;
   pointer-events: none;
-  background:
-    /* Outer boundary */
-    linear-gradient(0deg, #fff 2px, transparent 2px) top / 100% 1px no-repeat,
-    linear-gradient(0deg, #fff 2px, transparent 2px) bottom / 100% 1px no-repeat,
-    linear-gradient(90deg, #fff 2px, transparent 2px) left / 1px 100% no-repeat,
-    linear-gradient(90deg, #fff 2px, transparent 2px) right / 1px 100% no-repeat,
-    /* Centre line */
-    linear-gradient(0deg, #fff 2px, transparent 2px) center / 100% 2px no-repeat;
-  opacity: 0.35;
+  opacity: 0.30;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1050 680' fill='none' stroke='white' stroke-width='2.5'%3E%3Crect x='1' y='1' width='1048' height='678' rx='0'/%3E%3Cline x1='525' y1='1' x2='525' y2='679'/%3E%3Ccircle cx='525' cy='340' r='91.5'/%3E%3Ccircle cx='525' cy='340' r='4' fill='white' stroke='none'/%3E%3Crect x='1' y='138.5' width='165' height='403'/%3E%3Crect x='884' y='138.5' width='165' height='403'/%3E%3Crect x='1' y='248.5' width='55' height='183'/%3E%3Crect x='994' y='248.5' width='55' height='183'/%3E%3Ccircle cx='110' cy='340' r='4' fill='white' stroke='none'/%3E%3Ccircle cx='940' cy='340' r='4' fill='white' stroke='none'/%3E%3Cpath d='M165 267 A91.5 91.5 0 0 1 165 413'/%3E%3Cpath d='M885 267 A91.5 91.5 0 0 0 885 413'/%3E%3Cpath d='M10 1 A10 10 0 0 0 1 10'/%3E%3Cpath d='M1040 1 A10 10 0 0 1 1049 10'/%3E%3Cpath d='M1 670 A10 10 0 0 0 10 679'/%3E%3Cpath d='M1049 670 A10 10 0 0 1 1040 679'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-/* Centre circle */
 .outside-tg::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 200px;
-  height: 200px;
-  transform: translate(-50%, -50%);
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-radius: 50%;
-  pointer-events: none;
+  content: none;
 }
 
 .outside-tg__card {
