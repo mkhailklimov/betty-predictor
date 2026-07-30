@@ -34,29 +34,19 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
 
   return (
     <div className="outside-tg">
-      <div className="outside-tg__card">
+      <p className="outside-tg__tagline">
+        Betty Scores. Guess the score and win Telegram Stars ⭐
+      </p>
+
+      <div className="outside-tg__circle">
         <img src="/betty-logo.png" alt="Betty Scores" className="outside-tg__logo" />
-        <h1 className="outside-tg__title">Betty Scores</h1>
-        <p className="outside-tg__body">
-          Predict 10 football matches every week. Top predictors win Telegram
-          Stars prizes.
-        </p>
-
-        <div className="outside-tg__widget" ref={widgetRef} />
-
-        <div className="outside-tg__divider">
-          <span>or</span>
-        </div>
-
-        <button className="outside-tg__button outside-tg__button--guest" onClick={onGuest}>
-          Play as guest
-        </button>
-
-        <p className="outside-tg__hint">
-          Guests can play and appear on the leaderboard, but are not eligible
-          for Stars prizes until they log in with Telegram.
-        </p>
       </div>
+
+      <button className="outside-tg__play" onClick={onGuest}>
+        Play
+      </button>
+
+      <div className="outside-tg__widget" ref={widgetRef} />
     </div>
   )
 }

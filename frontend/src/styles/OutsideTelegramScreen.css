@@ -1,5 +1,6 @@
 .outside-tg {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -42,115 +43,77 @@
   content: none;
 }
 
-.outside-tg__card {
-  max-width: 420px;
-  width: 100%;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  padding: 32px 24px;
+/* Tagline above the circle */
+.outside-tg__tagline {
   position: relative;
   z-index: 1;
+  margin: 0 0 24px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #ffffff;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  max-width: 320px;
+}
+
+/* Centre circle with logo */
+.outside-tg__circle {
+  position: relative;
+  z-index: 1;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .outside-tg__logo {
-  width: 96px;
-  height: 96px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
-  margin-bottom: 16px;
 }
 
-.outside-tg__title {
-  margin: 0 0 12px;
-  font-size: 26px;
+/* Play button below the circle */
+.outside-tg__play {
+  position: relative;
+  z-index: 1;
+  margin-top: 24px;
+  padding: 14px 48px;
+  font-size: 18px;
   font-weight: 700;
-  color: #ffffff;
-}
-
-.outside-tg__body {
-  margin: 0 0 24px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.outside-tg__widget {
-  display: flex;
-  justify-content: center;
-  min-height: 40px;
-  margin-bottom: 16px;
-}
-
-.outside-tg__divider {
-  display: flex;
-  align-items: center;
-  margin: 0 0 16px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 13px;
-}
-
-.outside-tg__divider::before,
-.outside-tg__divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.outside-tg__divider span {
-  padding: 0 12px;
-}
-
-.outside-tg__button {
-  display: block;
-  width: 100%;
-  padding: 14px 20px;
-  font-size: 16px;
-  font-weight: 600;
+  letter-spacing: 0.5px;
   color: #ffffff;
   background: #229ED9;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  text-align: center;
-  text-decoration: none;
-  box-sizing: border-box;
-  transition: background 0.15s ease;
+  text-transform: uppercase;
+  transition: background 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.outside-tg__button:hover {
+.outside-tg__play:hover {
   background: #1c8bc1;
+  transform: scale(1.03);
 }
 
-.outside-tg__button:active {
+.outside-tg__play:active {
   background: #1779a8;
+  transform: scale(0.98);
 }
 
-.outside-tg__button--guest {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.outside-tg__button--guest:hover {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.outside-tg__button--guest:active {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-.outside-tg__hint {
-  margin: 16px 0 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.outside-tg__hint a {
-  color: var(--color-primary);
-  text-decoration: underline;
+/* Telegram widget below play button */
+.outside-tg__widget {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  min-height: 40px;
+  margin-top: 16px;
 }
