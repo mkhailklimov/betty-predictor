@@ -10,19 +10,21 @@
   position: relative;
   overflow: hidden;
 
-  /* 8 wide mown stripes across the full field */
+  /* 8 wide mown stripes — darker natural grass */
   background:
-    /* Fine grass grain — tiny scattered blades */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8 3.5' numOctaves='5' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.18'/%3E%3C/svg%3E"),
-    /* Coarse grass patches */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.15' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23p)' opacity='0.06'/%3E%3C/svg%3E"),
+    /* Fine grass grain — high-frequency blade texture */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5 5' numOctaves='6' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.22'/%3E%3C/svg%3E"),
+    /* Medium grass clumps */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6 1.2' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23m)' opacity='0.14'/%3E%3C/svg%3E"),
+    /* Coarse patches — worn/uneven areas */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.12' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23p)' opacity='0.08'/%3E%3C/svg%3E"),
     /* 8 alternating stripes */
     repeating-linear-gradient(
       90deg,
-      #1a5c23 0%,
-      #1a5c23 12.5%,
-      #154a1c 12.5%,
-      #154a1c 25%
+      #155220 0%,
+      #155220 12.5%,
+      #10421a 12.5%,
+      #10421a 25%
     );
 }
 
@@ -59,17 +61,20 @@
   -webkit-backdrop-filter: blur(6px);
 }
 
-.outside-tg__nav a {
+.outside-tg__nav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
   color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
   font-size: 13px;
   font-weight: 500;
   padding: 4px 10px;
   border-radius: 6px;
   transition: color 0.15s, background 0.15s;
+  font-family: inherit;
 }
 
-.outside-tg__nav a:hover {
+.outside-tg__nav-btn:hover {
   color: #ffffff;
   background: rgba(255, 255, 255, 0.1);
 }
@@ -80,18 +85,40 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* Tagline above the circle */
-.outside-tg__tagline {
+/* Sub-page view (about, champions, leaderboard, privacy) */
+.outside-tg--page {
+  justify-content: flex-start;
+  padding-top: 60px;
+}
+
+.outside-tg--page .outside-tg__nav {
+  position: fixed;
+}
+
+.outside-tg__page-content {
   position: relative;
   z-index: 1;
-  margin: 0 0 24px;
+  width: 100%;
+  max-width: 600px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* Tagline — positioned above the true centre */
+.outside-tg__tagline {
+  position: absolute;
+  top: calc(50% - 80px - 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  margin: 0;
   font-size: 18px;
   font-weight: 600;
   line-height: 1.4;
   color: #ffffff;
   text-align: center;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  max-width: 320px;
+  white-space: nowrap;
 }
 
 /* 3D star emoji */
@@ -103,9 +130,12 @@
   transform: translateY(-1px);
 }
 
-/* Centre circle — logo fills it exactly */
+/* Centre circle — pinned to true 50%/50% of viewport */
 .outside-tg__circle {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 1;
   width: 160px;
   height: 160px;
@@ -123,11 +153,13 @@
   object-fit: cover;
 }
 
-/* Play button below the circle */
+/* Play button — positioned below the true centre */
 .outside-tg__play {
-  position: relative;
+  position: absolute;
+  top: calc(50% + 80px + 24px);
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
-  margin-top: 24px;
   padding: 14px 48px;
   font-size: 18px;
   font-weight: 700;
@@ -140,24 +172,27 @@
   text-transform: uppercase;
   transition: background 0.15s ease, transform 0.1s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
 }
 
 .outside-tg__play:hover {
   background: #1c8bc1;
-  transform: scale(1.03);
+  transform: translateX(-50%) scale(1.03);
 }
 
 .outside-tg__play:active {
   background: #1779a8;
-  transform: scale(0.98);
+  transform: translateX(-50%) scale(0.98);
 }
 
-/* Telegram widget below play button */
+/* Telegram widget — below play button */
 .outside-tg__widget {
-  position: relative;
+  position: absolute;
+  top: calc(50% + 80px + 24px + 52px + 16px);
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
   display: flex;
   justify-content: center;
   min-height: 40px;
-  margin-top: 16px;
 }
