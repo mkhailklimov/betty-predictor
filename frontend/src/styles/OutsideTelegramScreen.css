@@ -9,34 +9,32 @@
   position: relative;
   overflow: hidden;
 
-  /* Darker mown-lawn stripes with grass texture overlay */
+  /* 8 wide mown stripes across the full field */
   background:
-    /* Grass texture — tiny noise-like dots for leaf/uneven detail */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E"),
-    /* Mowing stripes */
+    /* Fine grass grain — tiny scattered blades */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8 3.5' numOctaves='5' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.18'/%3E%3C/svg%3E"),
+    /* Coarse grass patches */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.15' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23p)' opacity='0.06'/%3E%3C/svg%3E"),
+    /* 8 alternating stripes */
     repeating-linear-gradient(
       90deg,
-      #1e6228 0px,
-      #216a2b 8px,
-      #246d2e 52px,
-      #216a2b 60px,
-      #1a5822 60px,
-      #1c5c24 68px,
-      #1e5f26 112px,
-      #1c5c24 120px
+      #1a5c23 0%,
+      #1a5c23 12.5%,
+      #154a1c 12.5%,
+      #154a1c 25%
     );
 }
 
-/* Full pitch markings via inline SVG — horizontal field, edge-to-edge */
+/* Full pitch markings — horizontal field, full width */
 .outside-tg::before {
   content: '';
   position: absolute;
-  top: 20px;
-  bottom: 20px;
-  left: 4px;
-  right: 4px;
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  right: 0;
   pointer-events: none;
-  opacity: 0.30;
+  opacity: 0.28;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1050 680' fill='none' stroke='white' stroke-width='2.5'%3E%3Crect x='1' y='1' width='1048' height='678' rx='0'/%3E%3Cline x1='525' y1='1' x2='525' y2='679'/%3E%3Ccircle cx='525' cy='340' r='91.5'/%3E%3Ccircle cx='525' cy='340' r='4' fill='white' stroke='none'/%3E%3Crect x='1' y='138.5' width='165' height='403'/%3E%3Crect x='884' y='138.5' width='165' height='403'/%3E%3Crect x='1' y='248.5' width='55' height='183'/%3E%3Crect x='994' y='248.5' width='55' height='183'/%3E%3Ccircle cx='110' cy='340' r='4' fill='white' stroke='none'/%3E%3Ccircle cx='940' cy='340' r='4' fill='white' stroke='none'/%3E%3Cpath d='M165 267 A91.5 91.5 0 0 1 165 413'/%3E%3Cpath d='M885 267 A91.5 91.5 0 0 0 885 413'/%3E%3Cpath d='M10 1 A10 10 0 0 0 1 10'/%3E%3Cpath d='M1040 1 A10 10 0 0 1 1049 10'/%3E%3Cpath d='M1 670 A10 10 0 0 0 10 679'/%3E%3Cpath d='M1049 670 A10 10 0 0 1 1040 679'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
