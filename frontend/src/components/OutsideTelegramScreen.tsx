@@ -34,8 +34,16 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
 
   return (
     <div className="outside-tg">
+      <nav className="outside-tg__nav">
+        <a href="/about">About</a>
+        <a href="/champions">Champions</a>
+        <a href="/" className="outside-tg__nav--active">Play</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <a href="/privacy">Privacy Policy</a>
+      </nav>
+
       <p className="outside-tg__tagline">
-        Guess the score and win <span className="outside-tg__star">⭐</span> Stars!
+        Predict the score and win the <span className="outside-tg__star">⭐</span> Stars!
       </p>
 
       <div className="outside-tg__circle">
