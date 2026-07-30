@@ -10,21 +10,21 @@
   position: relative;
   overflow: hidden;
 
-  /* 8 wide mown stripes — darker natural grass */
+  /* 8 wide mown stripes — dark grass with visible blade texture */
   background:
-    /* Fine grass grain — high-frequency blade texture */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5 5' numOctaves='6' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.22'/%3E%3C/svg%3E"),
-    /* Medium grass clumps */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6 1.2' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23m)' opacity='0.14'/%3E%3C/svg%3E"),
-    /* Coarse patches — worn/uneven areas */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.12' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23p)' opacity='0.08'/%3E%3C/svg%3E"),
+    /* Individual grass blades — very high frequency, strong contrast */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='4 8' numOctaves='6' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.8' intercept='-0.3'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23b)' opacity='0.3'/%3E%3C/svg%3E"),
+    /* Grass clumps — medium scale variation */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2 2.4' numOctaves='5' seed='19' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23c)' opacity='0.2'/%3E%3C/svg%3E"),
+    /* Worn patches — large scale unevenness */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.1' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23w)' opacity='0.1'/%3E%3C/svg%3E"),
     /* 8 alternating stripes */
     repeating-linear-gradient(
       90deg,
-      #155220 0%,
-      #155220 12.5%,
-      #10421a 12.5%,
-      #10421a 25%
+      #0e3d18 0%,
+      #0e3d18 12.5%,
+      #092e12 12.5%,
+      #092e12 25%
     );
 }
 
@@ -92,6 +92,7 @@
 
 /* Sub-page view */
 .outside-tg--page {
+  align-items: stretch;
   justify-content: flex-start;
   padding-top: 60px;
 }
@@ -99,8 +100,8 @@
 .outside-tg__page-content {
   position: relative;
   z-index: 1;
-  width: 50%;
-  left: 25%;
+  margin-left: 25%;
+  margin-right: 25%;
   padding: 16px;
   box-sizing: border-box;
 }
@@ -154,46 +155,76 @@
   object-fit: cover;
 }
 
-/* Play button — positioned below the true centre */
-.outside-tg__play {
+/* Two play buttons side by side */
+.outside-tg__buttons {
   position: absolute;
   top: calc(50% + 80px + 24px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
-  padding: 14px 48px;
-  font-size: 18px;
+  display: flex;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.outside-tg__play {
+  padding: 14px 28px;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   color: #ffffff;
-  background: #229ED9;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   text-transform: uppercase;
+  text-decoration: none;
+  text-align: center;
   transition: background 0.15s ease, transform 0.1s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
+  font-family: inherit;
 }
 
-.outside-tg__play:hover {
+.outside-tg__play--tg {
+  background: #229ED9;
+}
+
+.outside-tg__play--tg:hover {
   background: #1c8bc1;
-  transform: translateX(-50%) scale(1.03);
+  transform: scale(1.03);
 }
 
-.outside-tg__play:active {
+.outside-tg__play--tg:active {
   background: #1779a8;
-  transform: translateX(-50%) scale(0.98);
+  transform: scale(0.98);
 }
 
-/* Telegram widget — below play button */
-.outside-tg__widget {
+.outside-tg__play--site {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.outside-tg__play--site:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.03);
+}
+
+.outside-tg__play--site:active {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(0.98);
+}
+
+/* Hint below buttons */
+.outside-tg__hint {
   position: absolute;
   top: calc(50% + 80px + 24px + 52px + 16px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
-  display: flex;
-  justify-content: center;
-  min-height: 40px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  max-width: 340px;
 }

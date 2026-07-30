@@ -14,30 +14,8 @@ type LandingSection = 'play' | 'about' | 'champions' | 'leaderboard' | 'matches'
 
 const BOT_USERNAME = 'bettyscores_bot'
 
-export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onLogin, onGuest }) => {
-  const widgetRef = React.useRef<HTMLDivElement>(null)
+export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onGuest }) => {
   const [section, setSection] = React.useState<LandingSection>('play')
-
-  // Mount the Telegram Login Widget. It calls window.onTelegramAuth on success.
-  React.useEffect(() => {
-    (window as any).onTelegramAuth = (user: Record<string, string>) => {
-      onLogin(user)
-    }
-
-    if (widgetRef.current && widgetRef.current.childElementCount === 0) {
-      const script = document.createElement('script')
-      script.src = 'https://telegram.org/js/telegram-widget.js?22'
-      script.setAttribute('data-telegram-login', BOT_USERNAME)
-      script.setAttribute('data-size', 'large')
-      script.setAttribute('data-radius', '12')
-      script.setAttribute('data-onauth', 'onTelegramAuth(user)')
-      script.setAttribute('data-request-access', 'write')
-      script.async = true
-      widgetRef.current.appendChild(script)
-    }
-
-    return () => { delete (window as any).onTelegramAuth }
-  }, [onLogin])
 
   const stripeNav = (
     <div className="outside-tg__stripe-nav">
@@ -96,11 +74,30 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
         <img src="/betty-logo.png" alt="Betty Scores" className="outside-tg__logo" />
       </div>
 
-      <button className="outside-tg__play" onClick={onGuest}>
-        Play
-      </button>
+      <div className="outside-tg__buttons">
+        <a
+          className="outside-tg__play outside-tg__play--tg"
+          href="https://t.me/bettyscores_bot/app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Play in Telegram
+        </a>
+        <button
+          className="outside-tg__play outside-tg__play--site"
+          onClick={async () => {
+            await onGuest()
+            setSection('matches')
+          }}
+        >
+          Play on site
+        </button>
+      </div>
 
-      <div className="outside-tg__widget" ref={widgetRef} />
+      <p className="outside-tg__hint">
+        Play on site as a guest — your predictions are saved. To win
+        Telegram Stars prizes, open Betty in Telegram.
+      </p>
     </div>
   )
 }
