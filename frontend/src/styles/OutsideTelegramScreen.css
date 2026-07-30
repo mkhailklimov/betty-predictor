@@ -36,7 +36,7 @@
   right: 0;
   pointer-events: none;
   opacity: 0.28;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1050 680' fill='none' stroke='white' stroke-width='2.5' preserveAspectRatio='none'%3E%3Crect x='1' y='1' width='1048' height='678' rx='0'/%3E%3Cline x1='525' y1='1' x2='525' y2='679'/%3E%3Ccircle cx='525' cy='340' r='91.5'/%3E%3Ccircle cx='525' cy='340' r='4' fill='white' stroke='none'/%3E%3Crect x='1' y='138.5' width='165' height='403'/%3E%3Crect x='884' y='138.5' width='165' height='403'/%3E%3Crect x='1' y='248.5' width='55' height='183'/%3E%3Crect x='994' y='248.5' width='55' height='183'/%3E%3Ccircle cx='110' cy='340' r='4' fill='white' stroke='none'/%3E%3Ccircle cx='940' cy='340' r='4' fill='white' stroke='none'/%3E%3Cpath d='M165 267 A91.5 91.5 0 0 1 165 413'/%3E%3Cpath d='M885 267 A91.5 91.5 0 0 0 885 413'/%3E%3Cpath d='M10 1 A10 10 0 0 0 1 10'/%3E%3Cpath d='M1040 1 A10 10 0 0 1 1049 10'/%3E%3Cpath d='M1 670 A10 10 0 0 0 10 679'/%3E%3Cpath d='M1049 670 A10 10 0 0 1 1040 679'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1050 680' fill='none' stroke='white' stroke-width='2.5' preserveAspectRatio='none'%3E%3Crect x='1' y='1' width='1048' height='678' rx='0'/%3E%3Cline x1='525' y1='1' x2='525' y2='679'/%3E%3Crect x='1' y='138.5' width='165' height='403'/%3E%3Crect x='884' y='138.5' width='165' height='403'/%3E%3Crect x='1' y='248.5' width='55' height='183'/%3E%3Crect x='994' y='248.5' width='55' height='183'/%3E%3Ccircle cx='110' cy='340' r='4' fill='white' stroke='none'/%3E%3Ccircle cx='940' cy='340' r='4' fill='white' stroke='none'/%3E%3Cpath d='M165 267 A91.5 91.5 0 0 1 165 413'/%3E%3Cpath d='M885 267 A91.5 91.5 0 0 0 885 413'/%3E%3Cpath d='M10 1 A10 10 0 0 0 1 10'/%3E%3Cpath d='M1040 1 A10 10 0 0 1 1049 10'/%3E%3Cpath d='M1 670 A10 10 0 0 0 10 679'/%3E%3Cpath d='M1049 670 A10 10 0 0 1 1040 679'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
 }
 
 .outside-tg::after {
@@ -57,7 +57,16 @@
   max-width: 320px;
 }
 
-/* Centre circle with logo */
+/* 3D star emoji */
+.outside-tg__star {
+  display: inline-block;
+  font-size: 24px;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.4))
+          drop-shadow(0 4px 6px rgba(255, 180, 0, 0.3));
+  transform: translateY(-1px);
+}
+
+/* Centre circle — logo fills it exactly */
 .outside-tg__circle {
   position: relative;
   z-index: 1;
@@ -65,18 +74,16 @@
   height: 160px;
   border-radius: 50%;
   border: 2.5px solid rgba(255, 255, 255, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 .outside-tg__logo {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Play button below the circle */

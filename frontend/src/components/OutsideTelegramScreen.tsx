@@ -35,7 +35,7 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
   return (
     <div className="outside-tg">
       <p className="outside-tg__tagline">
-        Betty Scores. Guess the score and win Telegram Stars ⭐
+        Guess the score and win <span className="outside-tg__star">⭐</span> Stars!
       </p>
 
       <div className="outside-tg__circle">
