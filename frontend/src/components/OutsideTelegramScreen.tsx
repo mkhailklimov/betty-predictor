@@ -2,6 +2,7 @@ import React from 'react'
 import { AboutPage } from '../pages/AboutPage'
 import { ChampionsPage } from '../pages/ChampionsPage'
 import { LeaderboardPage } from '../pages/LeaderboardPage'
+import { MainPage } from '../pages/MainPage'
 import '../styles/OutsideTelegramScreen.css'
 
 interface OutsideTelegramScreenProps {
@@ -9,7 +10,7 @@ interface OutsideTelegramScreenProps {
   onGuest: () => void
 }
 
-type LandingSection = 'play' | 'about' | 'champions' | 'leaderboard' | 'privacy'
+type LandingSection = 'play' | 'about' | 'champions' | 'leaderboard' | 'matches' | 'privacy'
 
 const BOT_USERNAME = 'bettyscores_bot'
 
@@ -40,16 +41,22 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
 
   const stripeNav = (
     <div className="outside-tg__stripe-nav">
-      <button className="outside-tg__stripe-btn stripe-3" onClick={() => setSection(section === 'about' ? 'play' : 'about')}>
+      <button className="outside-tg__stripe-btn stripe-2" onClick={() => setSection('play')}>
+        Home
+      </button>
+      <button className="outside-tg__stripe-btn stripe-3" onClick={() => setSection('about')}>
         About
       </button>
-      <button className="outside-tg__stripe-btn stripe-4" onClick={() => setSection(section === 'champions' ? 'play' : 'champions')}>
+      <button className="outside-tg__stripe-btn stripe-4" onClick={() => setSection('champions')}>
         Champions
       </button>
-      <button className="outside-tg__stripe-btn stripe-5" onClick={() => setSection(section === 'leaderboard' ? 'play' : 'leaderboard')}>
+      <button className="outside-tg__stripe-btn stripe-5" onClick={() => setSection('leaderboard')}>
         Leaderboard
       </button>
-      <button className="outside-tg__stripe-btn stripe-6" onClick={() => setSection(section === 'privacy' ? 'play' : 'privacy')}>
+      <button className="outside-tg__stripe-btn stripe-6" onClick={() => setSection('matches')}>
+        Matches
+      </button>
+      <button className="outside-tg__stripe-btn stripe-7" onClick={() => setSection('privacy')}>
         Privacy Policy
       </button>
     </div>
@@ -63,6 +70,7 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
           {section === 'about' && <AboutPage />}
           {section === 'champions' && <ChampionsPage />}
           {section === 'leaderboard' && <LeaderboardPage />}
+          {section === 'matches' && <MainPage />}
           {section === 'privacy' && (
             <div className="about-page">
               <div className="page-header"><h1>Privacy Policy</h1></div>

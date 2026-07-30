@@ -77,6 +77,8 @@
   text-shadow: 0 1px 8px rgba(255, 255, 255, 0.3), 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
+/* Stripe 2 = centered at 18.75% */
+.stripe-2 { left: 18.75%; }
 /* Stripe 3 = centered at 31.25% */
 .stripe-3 { left: 31.25%; }
 /* Stripe 4 = centered at 43.75% */
@@ -85,6 +87,8 @@
 .stripe-5 { left: 56.25%; }
 /* Stripe 6 = centered at 68.75% */
 .stripe-6 { left: 68.75%; }
+/* Stripe 7 = centered at 81.25% */
+.stripe-7 { left: 81.25%; }
 
 /* Sub-page view */
 .outside-tg--page {
