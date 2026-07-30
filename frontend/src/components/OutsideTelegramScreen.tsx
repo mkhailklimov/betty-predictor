@@ -1,4 +1,7 @@
 import React from 'react'
+import { AboutPage } from '../pages/AboutPage'
+import { ChampionsPage } from '../pages/ChampionsPage'
+import { LeaderboardPage } from '../pages/LeaderboardPage'
 import '../styles/OutsideTelegramScreen.css'
 
 interface OutsideTelegramScreenProps {
@@ -6,10 +9,13 @@ interface OutsideTelegramScreenProps {
   onGuest: () => void
 }
 
+type LandingSection = 'play' | 'about' | 'champions' | 'leaderboard' | 'privacy'
+
 const BOT_USERNAME = 'bettyscores_bot'
 
 export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onLogin, onGuest }) => {
   const widgetRef = React.useRef<HTMLDivElement>(null)
+  const [section, setSection] = React.useState<LandingSection>('play')
 
   // Mount the Telegram Login Widget. It calls window.onTelegramAuth on success.
   React.useEffect(() => {
@@ -32,15 +38,47 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
     return () => { delete (window as any).onTelegramAuth }
   }, [onLogin])
 
+  const stripeNav = (
+    <div className="outside-tg__stripe-nav">
+      <button className="outside-tg__stripe-btn stripe-3" onClick={() => setSection(section === 'about' ? 'play' : 'about')}>
+        About
+      </button>
+      <button className="outside-tg__stripe-btn stripe-4" onClick={() => setSection(section === 'champions' ? 'play' : 'champions')}>
+        Champions
+      </button>
+      <button className="outside-tg__stripe-btn stripe-5" onClick={() => setSection(section === 'leaderboard' ? 'play' : 'leaderboard')}>
+        Leaderboard
+      </button>
+      <button className="outside-tg__stripe-btn stripe-6" onClick={() => setSection(section === 'privacy' ? 'play' : 'privacy')}>
+        Privacy Policy
+      </button>
+    </div>
+  )
+
+  if (section !== 'play') {
+    return (
+      <div className="outside-tg outside-tg--page">
+        {stripeNav}
+        <div className="outside-tg__page-content">
+          {section === 'about' && <AboutPage />}
+          {section === 'champions' && <ChampionsPage />}
+          {section === 'leaderboard' && <LeaderboardPage />}
+          {section === 'privacy' && (
+            <div className="about-page">
+              <div className="page-header"><h1>Privacy Policy</h1></div>
+              <section className="about-section">
+                <p>Betty Scores stores only the minimum data needed to run the game: your Telegram user ID, username, and predictions. We do not share your data with third parties. Guest accounts are anonymous and can be deleted at any time by clearing your browser storage.</p>
+              </section>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="outside-tg">
-      <nav className="outside-tg__nav">
-        <a href="/about">About</a>
-        <a href="/champions">Champions</a>
-        <a href="/" className="outside-tg__nav--active">Play</a>
-        <a href="/leaderboard">Leaderboard</a>
-        <a href="/privacy">Privacy Policy</a>
-      </nav>
+      {stripeNav}
 
       <p className="outside-tg__tagline">
         Predict the score and win stars <span className="outside-tg__star">⭐</span>!
