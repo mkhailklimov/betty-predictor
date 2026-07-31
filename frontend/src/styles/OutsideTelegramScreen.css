@@ -112,92 +112,40 @@
   box-sizing: border-box;
 }
 
-/* Centre circle — used in play prompt */
-.outside-tg__circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 2.5px solid rgba(255, 255, 255, 0.35);
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  margin: 0 auto 16px;
+/* Telegram CTA below game interface */
+.outside-tg__tg-cta {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(34, 158, 217, 0.25) 0%, rgba(26, 122, 181, 0.25) 100%);
+  border: 1px solid rgba(34, 158, 217, 0.3);
+  border-radius: 12px;
 }
 
-.outside-tg__logo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Play prompt — centered layout within page content */
-.outside-tg__play-prompt {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 80px);
-}
-
-.outside-tg__tagline-inline {
-  font-size: 18px;
+.outside-tg__tg-cta p {
+  margin: 0 0 12px;
+  font-size: 15px;
   font-weight: 600;
   color: #ffffff;
-  text-align: center;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  margin: 0 0 20px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-.outside-tg__buttons-inline {
-  display: flex;
-  gap: 12px;
-  white-space: nowrap;
-  margin-bottom: 16px;
-}
-
-.outside-tg__play-btn {
-  padding: 14px 28px;
-  font-size: 16px;
+.outside-tg__tg-cta-btn {
+  display: inline-block;
+  padding: 12px 28px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.3px;
   color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  text-transform: uppercase;
-  text-decoration: none;
-  text-align: center;
-  transition: background 0.15s ease, transform 0.1s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  font-family: inherit;
-}
-
-.outside-tg__play-btn--tg {
   background: #229ED9;
+  border-radius: 10px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  transition: background 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.outside-tg__play-btn--tg:hover {
+.outside-tg__tg-cta-btn:hover {
   background: #1c8bc1;
   transform: scale(1.03);
-}
-
-.outside-tg__play-btn--site {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.outside-tg__play-btn--site:hover {
-  background: rgba(255, 255, 255, 0.22);
-  transform: scale(1.03);
-}
-
-.outside-tg__hint-inline {
-  font-size: 13px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.5);
-  text-align: center;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-  max-width: 340px;
-  margin: 0;
 }

@@ -14,7 +14,12 @@ type LandingSection = 'play' | 'rules' | 'champions' | 'leaderboard' | 'privacy'
 
 export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onGuest }) => {
   const [section, setSection] = React.useState<LandingSection>('play')
-  const [guestReady, setGuestReady] = React.useState(false)
+
+  // Auto-create guest session on mount so Play tab works immediately
+  React.useEffect(() => {
+    onGuest()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const stripeBtn = (stripe: string, key: LandingSection, label: string) => (
     <button
@@ -36,52 +41,23 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
     </div>
   )
 
-  // Play tab: auto-create guest and show game interface
   if (section === 'play') {
-    if (!guestReady) {
-      return (
-        <div className="outside-tg outside-tg--page">
-          {stripeNav}
-          <div className="outside-tg__page-content outside-tg__play-prompt">
-            <div className="outside-tg__circle">
-              <img src="/betty-logo.png" alt="Betty Scores" className="outside-tg__logo" />
-            </div>
-            <p className="outside-tg__tagline-inline">
-              Predict the score and win stars!
-            </p>
-            <div className="outside-tg__buttons-inline">
-              <a
-                className="outside-tg__play-btn outside-tg__play-btn--tg"
-                href="https://t.me/bettyscores_bot/app"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Play in Telegram
-              </a>
-              <button
-                className="outside-tg__play-btn outside-tg__play-btn--site"
-                onClick={async () => {
-                  await onGuest()
-                  setGuestReady(true)
-                }}
-              >
-                Play on site
-              </button>
-            </div>
-            <p className="outside-tg__hint-inline">
-              Play on site as a guest — your predictions are saved.<br />
-              To win Telegram Stars prizes, open Betty in Telegram.
-            </p>
-          </div>
-        </div>
-      )
-    }
-
     return (
       <div className="outside-tg outside-tg--page">
         {stripeNav}
         <div className="outside-tg__page-content">
           <MainPage />
+          <div className="outside-tg__tg-cta">
+            <p>Want to get Stars for reward? Play in Telegram!</p>
+            <a
+              className="outside-tg__tg-cta-btn"
+              href="https://t.me/bettyscores_bot/app"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in Telegram
+            </a>
+          </div>
         </div>
       </div>
     )
