@@ -366,12 +366,6 @@ export const MainPage: React.FC = () => {
         </button>
       )}
 
-      <div className="tg-cta">
-        <a href="https://t.me/bettyscores_bot/app" target="_blank" rel="noopener noreferrer">
-          Want to get Stars for reward? Jump to Telegram version!
-        </a>
-      </div>
-
       {showToast && (
         <div className="toast" dangerouslySetInnerHTML={{ __html: toastMessage }}></div>
       )}
