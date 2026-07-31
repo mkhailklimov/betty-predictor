@@ -7,7 +7,6 @@ import { Navigation } from './components/Navigation'
 import { ChampionsPage } from './pages/ChampionsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { AboutPage } from './pages/AboutPage'
-import { OutsideTelegramScreen } from './components/OutsideTelegramScreen'
 import { User } from './types'
 
 type Page = 'champions' | 'matches' | 'leaderboard' | 'about'
@@ -36,16 +35,10 @@ function captureRefSource(): string | undefined {
   return params.get('ref') || params.get('utm_source') || undefined
 }
 
-const isLocalDev = (): boolean => {
-  const h = window.location.hostname
-  return h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local')
-}
-
 function App() {
   const [currentPage, setCurrentPage] = React.useState<Page>(pageFromPath)
   const [, setUser] = React.useState<User | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
-  const [needsAuth, setNeedsAuth] = React.useState(false)
   const { tg, user: tgUser, userId, initData } = useTelegram()
   const refSource = React.useRef(captureRefSource())
 
@@ -95,17 +88,22 @@ function App() {
             const { data } = await userApi.getMe()
             setUser(data)
           } catch {
-            // Token expired or invalid — clear and show auth screen.
+            // Token expired or invalid — clear and re-create guest.
             localStorage.removeItem('betty_tgauth')
             localStorage.removeItem('betty_guest_token')
-            setNeedsAuth(true)
+            const { data: fresh } = await guestApi.create(refSource.current)
+            localStorage.setItem('betty_guest_token', fresh.guest_token)
+            setUser(fresh)
           }
-        } else if (isLocalDev()) {
-          // Dev mode.
-          console.log('No Telegram user, running in dev mode')
         } else {
-          // Browser visitor, no auth — show login/guest screen.
-          setNeedsAuth(true)
+          // Browser visitor — auto-create guest session so matches show immediately.
+          try {
+            const { data } = await guestApi.create(refSource.current)
+            localStorage.setItem('betty_guest_token', data.guest_token)
+            setUser(data)
+          } catch (error) {
+            console.error('Auto-guest creation failed:', error)
+          }
         }
       } catch (error) {
         console.error('User init error:', error)
@@ -139,58 +137,12 @@ function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
-  // Handle Telegram Login Widget callback.
-  const handleWidgetLogin = React.useCallback(async (authData: Record<string, string>) => {
-    const authJson = JSON.stringify(authData)
-    localStorage.setItem('betty_tgauth', authJson)
-
-    // If there was a guest session, merge it.
-    const guestToken = localStorage.getItem('betty_guest_token')
-
-    try {
-      if (guestToken) {
-        const { data } = await guestApi.merge(guestToken, authData.username)
-        setUser(data.user)
-        localStorage.removeItem('betty_guest_token')
-      } else {
-        // Register or fetch via widget auth.
-        const { data } = await userApi.register({
-          tg_id: String(authData.id),
-          username: authData.username,
-          first_name: authData.first_name,
-          last_name: authData.last_name,
-          ref_source: refSource.current,
-        })
-        setUser(data)
-      }
-      setNeedsAuth(false)
-    } catch (error) {
-      console.error('Widget login failed:', error)
-    }
-  }, [])
-
-  // Handle guest play.
-  const handleGuestPlay = React.useCallback(async () => {
-    try {
-      const { data } = await guestApi.create(refSource.current)
-      localStorage.setItem('betty_guest_token', data.guest_token)
-      setUser(data)
-      setNeedsAuth(false)
-    } catch (error) {
-      console.error('Guest creation failed:', error)
-    }
-  }, [])
-
   if (isLoading) {
     return (
       <div className="app loading">
         <div className="spinner"></div>
       </div>
     )
-  }
-
-  if (needsAuth) {
-    return <OutsideTelegramScreen onLogin={handleWidgetLogin} onGuest={handleGuestPlay} />
   }
 
   return (
