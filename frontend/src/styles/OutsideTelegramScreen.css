@@ -117,8 +117,12 @@
   z-index: 1;
   margin-left: 25%;
   margin-right: 25%;
-  padding: 16px;
+  padding: 20px;
   box-sizing: border-box;
+  background: rgba(30, 60, 28, 0.85);
+  border: 1px solid rgba(144, 169, 85, 0.2);
+  border-radius: 16px;
+  margin-bottom: 20px;
 
   /* Grass palette */
   --color-primary: #ECF39E;
