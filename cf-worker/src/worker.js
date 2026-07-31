@@ -603,6 +603,26 @@ export default {
         return json({ ingest, candidates });
       }
 
+      // Write picks to the Fixtures sheet tab (so admin can monitor in Sheets).
+      //   POST body: { picks: [{ week_id, source_id, league, kickoff_utc, home_team, away_team }, ...] }
+      if (method === 'POST' && path === '/api/admin/write-fixtures') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const { picks } = await request.json();
+        if (!picks?.length) return json({ detail: 'No picks' }, 400);
+        const sa = JSON.parse(env.GOOGLE_SA_JSON);
+        const gToken = await getGoogleAccessToken(sa);
+        const sid = env.SHEETS_SPREADSHEET_ID;
+        await ensureSheetTab(sid, gToken, 'Fixtures', CANDIDATES_HEADER);
+        await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Fixtures!A:Z:clear`, gToken, 'POST', {});
+        const rows = [CANDIDATES_HEADER, ...picks.map(p => [p.week_id, p.source_id, p.league, p.kickoff_utc, p.home_team, p.away_team])];
+        await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Fixtures!A1?valueInputOption=RAW`, gToken, 'PUT',
+          { range: 'Fixtures!A1', majorDimension: 'ROWS', values: rows });
+        return json({ ok: true, written: picks.length });
+      }
+
       // Publish the curated Fixtures tab into `matches`.
       //   ?dry=1      validate + return the proposed week without writing
       //   ?week=ID    override the target week (default: the sheet's own Week ID)
