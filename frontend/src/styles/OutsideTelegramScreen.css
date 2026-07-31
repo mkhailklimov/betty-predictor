@@ -42,7 +42,18 @@
 }
 
 .outside-tg::after {
-  content: none;
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.15);
+  background: url('/betty-logo.png') center / cover no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
 }
 
 /* Nav labels placed inside grass stripes */
@@ -110,6 +121,12 @@
   margin-right: 25%;
   padding: 16px;
   box-sizing: border-box;
+
+  /* Override app theme vars for the green field background */
+  --color-primary: #4ade80;
+  --color-bg-secondary: rgba(10, 50, 20, 0.6);
+  --color-border: rgba(74, 222, 128, 0.25);
+  --color-text: #e0e0e0;
 }
 
 /* Telegram CTA below game interface */

@@ -3,8 +3,6 @@ import { championsApi } from '../services/api'
 import { ChampionEntry } from '../types'
 import '../styles/ChampionsPage.css'
 
-const PRIZE_STARS: Record<number, number> = { 1: 100, 2: 50 }
-
 export const ChampionsPage: React.FC = () => {
   const [results, setResults] = useState<ChampionEntry[]>([])
   const [weekId, setWeekId] = useState<string | null>(null)
@@ -55,6 +53,7 @@ export const ChampionsPage: React.FC = () => {
             <div className="col num">Results</div>
             <div className="col num">Scores</div>
             <div className="col num">Total</div>
+            <div className="col num stars-col">Stars</div>
           </div>
           <div className="table-body">
             {results.map((entry) => (
@@ -67,13 +66,11 @@ export const ChampionsPage: React.FC = () => {
                 </div>
                 <div className="col player">
                   {entry.username}
-                  {PRIZE_STARS[entry.rank] && (
-                    <span className="prize-badge">{PRIZE_STARS[entry.rank]} Stars</span>
-                  )}
                 </div>
                 <div className="col num">{entry.correct_predictions}</div>
                 <div className="col num">{entry.correct_scores}</div>
                 <div className="col num total">{entry.points}</div>
+                <div className="col num stars-col">{(entry as any).stars_earned || 0}</div>
               </div>
             ))}
           </div>

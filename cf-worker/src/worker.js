@@ -429,7 +429,11 @@ export default {
       // --- Leaderboard (all-time, served from gold_leaderboard mart) ---
       if (method === 'GET' && (path === '/api/leaderboard' || path === '/api/leaderboard/overall')) {
         const { results } = await env.DB.prepare(
-          'SELECT * FROM gold_leaderboard ORDER BY total_points DESC, username ASC'
+          `SELECT gl.*, COALESCE(wp.total_stars, 0) AS stars_earned
+           FROM gold_leaderboard gl
+           LEFT JOIN (SELECT user_id, SUM(stars) AS total_stars FROM weekly_prizes GROUP BY user_id) wp
+             ON gl.user_id = wp.user_id
+           ORDER BY gl.total_points DESC, gl.username ASC`
         ).all();
         const leaderboard = results.map((l, i) => ({
           rank: i + 1,
@@ -439,7 +443,8 @@ export default {
           correct_predictions: l.correct_outcomes,
           correct_scores: l.correct_scores,
           weeks_won: l.weeks_won,
-          grams: l.weeks_won, // 1 whole Gram prize per week won (integer, no decimals)
+          stars_earned: l.stars_earned,
+          grams: l.weeks_won,
           is_premium: l.is_premium === 1,
           fav_team: l.fav_team || null,
         }));
@@ -460,12 +465,14 @@ export default {
         const { results } = await env.DB.prepare(
           'SELECT * FROM gold_champions WHERE week_id = ? ORDER BY rank'
         ).bind(week).all();
+        const PRIZE_STARS = { 1: 100, 2: 50 };
         return json({
           week_id: week,
           results: results.map(c => ({
             rank: c.rank, user_id: c.user_id, username: c.username, week_id: c.week_id,
             points: c.total_points, correct_predictions: c.correct_outcomes,
-            correct_scores: c.correct_scores, matches_predicted: c.matches_predicted, ton_earned: 0,
+            correct_scores: c.correct_scores, matches_predicted: c.matches_predicted,
+            stars_earned: PRIZE_STARS[c.rank] || 0, ton_earned: 0,
           })),
         });
       }
