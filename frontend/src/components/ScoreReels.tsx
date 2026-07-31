@@ -71,7 +71,7 @@ const Reel: React.FC<ReelProps> = ({ value, onChange, disabled, label }) => {
       {/* Buttons are not decoration: scroll-snap is unusable with a keyboard, and
           desktop trackpads overshoot a 13-stop column. */}
       <button
-        className="reel__step" onClick={() => step(1)} disabled={disabled || value >= MAX_GOALS}
+        className="reel__step" onClick={() => step(-1)} disabled={disabled || value <= 0}
         aria-label={`${label} score up`} type="button"
       >&#9650;</button>
 
@@ -80,8 +80,8 @@ const Reel: React.FC<ReelProps> = ({ value, onChange, disabled, label }) => {
         role="spinbutton" tabIndex={disabled ? -1 : 0}
         aria-label={label} aria-valuenow={value} aria-valuemin={0} aria-valuemax={MAX_GOALS}
         onKeyDown={(e) => {
-          if (e.key === 'ArrowUp') { e.preventDefault(); step(1) }
-          if (e.key === 'ArrowDown') { e.preventDefault(); step(-1) }
+          if (e.key === 'ArrowUp') { e.preventDefault(); step(-1) }
+          if (e.key === 'ArrowDown') { e.preventDefault(); step(1) }
         }}
       >
         <div className="reel__pad" />
@@ -98,7 +98,7 @@ const Reel: React.FC<ReelProps> = ({ value, onChange, disabled, label }) => {
       </div>
 
       <button
-        className="reel__step" onClick={() => step(-1)} disabled={disabled || value <= 0}
+        className="reel__step" onClick={() => step(1)} disabled={disabled || value >= MAX_GOALS}
         aria-label={`${label} score down`} type="button"
       >&#9660;</button>
     </div>
