@@ -77,6 +77,12 @@
   text-shadow: 0 1px 8px rgba(255, 255, 255, 0.3), 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
+.outside-tg__stripe-btn--active {
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.4), 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
 /* Stripe 2 = centered at 18.75% */
 .stripe-2 { left: 18.75%; }
 /* Stripe 3 = centered at 31.25% */
@@ -106,47 +112,17 @@
   box-sizing: border-box;
 }
 
-/* Tagline — positioned above the true centre */
-.outside-tg__tagline {
-  position: absolute;
-  top: calc(50% - 80px - 48px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: #ffffff;
-  text-align: center;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  white-space: nowrap;
-}
-
-/* 3D star emoji */
-.outside-tg__star {
-  display: inline-block;
-  font-size: 24px;
-  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.4))
-          drop-shadow(0 4px 6px rgba(255, 180, 0, 0.3));
-  transform: translateY(-1px);
-}
-
-/* Centre circle — pinned to true 50%/50% of viewport */
+/* Centre circle — used in play prompt */
 .outside-tg__circle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  width: 160px;
-  height: 160px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   border: 2.5px solid rgba(255, 255, 255, 0.35);
   overflow: hidden;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  margin: 0 auto 16px;
 }
 
 .outside-tg__logo {
@@ -155,19 +131,32 @@
   object-fit: cover;
 }
 
-/* Two play buttons side by side */
-.outside-tg__buttons {
-  position: absolute;
-  top: calc(50% + 80px + 24px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
+/* Play prompt — centered layout within page content */
+.outside-tg__play-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+}
+
+.outside-tg__tagline-inline {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  margin: 0 0 20px;
+}
+
+.outside-tg__buttons-inline {
   display: flex;
   gap: 12px;
   white-space: nowrap;
+  margin-bottom: 16px;
 }
 
-.outside-tg__play {
+.outside-tg__play-btn {
   padding: 14px 28px;
   font-size: 16px;
   font-weight: 700;
@@ -184,47 +173,31 @@
   font-family: inherit;
 }
 
-.outside-tg__play--tg {
+.outside-tg__play-btn--tg {
   background: #229ED9;
 }
 
-.outside-tg__play--tg:hover {
+.outside-tg__play-btn--tg:hover {
   background: #1c8bc1;
   transform: scale(1.03);
 }
 
-.outside-tg__play--tg:active {
-  background: #1779a8;
-  transform: scale(0.98);
-}
-
-.outside-tg__play--site {
+.outside-tg__play-btn--site {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.outside-tg__play--site:hover {
+.outside-tg__play-btn--site:hover {
   background: rgba(255, 255, 255, 0.22);
   transform: scale(1.03);
 }
 
-.outside-tg__play--site:active {
-  background: rgba(255, 255, 255, 0.28);
-  transform: scale(0.98);
-}
-
-/* Hint below buttons */
-.outside-tg__hint {
-  position: absolute;
-  top: calc(50% + 80px + 24px + 52px + 16px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  margin: 0;
+.outside-tg__hint-inline {
   font-size: 13px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.5);
   text-align: center;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
   max-width: 340px;
+  margin: 0;
 }
