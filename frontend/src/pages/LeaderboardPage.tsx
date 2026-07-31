@@ -84,7 +84,7 @@ export const LeaderboardPage: React.FC = () => {
             <div className="col player">Player</div>
             <div className="col rounds">Weeks</div>
             <div className="col ton">Points</div>
-            <div className="col stars">Stars</div>
+            <div className="col stars">&#11088;</div>
           </div>
           <div className="table-body">
             {leaderboard.map((entry) => (
@@ -108,7 +108,7 @@ export const LeaderboardPage: React.FC = () => {
                 </div>
                 <div className="col rounds">{entry.weeks_won ?? 0}</div>
                 <div className="col ton">{entry.points}</div>
-                <div className="col stars">{entry.stars_earned ?? 0}</div>
+                <div className="col stars stars-bold">{entry.stars_earned ?? 0}</div>
               </div>
             ))}
           </div>

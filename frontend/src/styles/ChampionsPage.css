@@ -77,6 +77,7 @@
 .results-table .col.num { width: 70px; text-align: center; font-size: 0.85rem; }
 .results-table .col.num.total { color: #ECF39E; font-weight: 700; }
 .results-table .col.stars-col { color: #ECF39E; width: 55px; }
+.results-table .col.stars-bold { font-weight: 800; font-size: 0.95rem; }
 
 .results-table .medal { font-size: 1.1rem; }
 .results-table .rank-num { color: #666; font-size: 0.85rem; }

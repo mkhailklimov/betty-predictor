@@ -53,7 +53,7 @@ export const ChampionsPage: React.FC = () => {
             <div className="col num">Results</div>
             <div className="col num">Scores</div>
             <div className="col num">Total</div>
-            <div className="col num stars-col">Stars</div>
+            <div className="col num stars-col">&#11088;</div>
           </div>
           <div className="table-body">
             {results.map((entry) => (
@@ -70,7 +70,7 @@ export const ChampionsPage: React.FC = () => {
                 <div className="col num">{entry.correct_predictions}</div>
                 <div className="col num">{entry.correct_scores}</div>
                 <div className="col num total">{entry.points}</div>
-                <div className="col num stars-col">{(entry as any).stars_earned || 0}</div>
+                <div className="col num stars-col stars-bold">{(entry as any).stars_earned || 0}</div>
               </div>
             ))}
           </div>

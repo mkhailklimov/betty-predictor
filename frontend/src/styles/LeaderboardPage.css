@@ -69,6 +69,7 @@
 .leaderboard-table .col.player { flex: 1; font-weight: 600; color: #fff; }
 .leaderboard-table .col.rounds { width: 50px; text-align: center; font-size: 0.85rem; }
 .leaderboard-table .col.stars { width: 50px; text-align: center; font-size: 0.85rem; color: #ECF39E; }
+.leaderboard-table .col.stars-bold { font-weight: 800; font-size: 0.95rem; }
 .leaderboard-table .col.ton { width: 60px; text-align: right; color: #ECF39E; font-weight: 700; font-size: 0.85rem; }
 
 .leaderboard-table .medal { font-size: 1.1rem; }
