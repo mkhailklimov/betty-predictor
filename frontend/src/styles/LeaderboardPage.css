@@ -67,8 +67,9 @@
 
 .leaderboard-table .col.rank { width: 40px; text-align: center; }
 .leaderboard-table .col.player { flex: 1; font-weight: 600; color: #fff; }
-.leaderboard-table .col.rounds { width: 55px; text-align: center; font-size: 0.85rem; }
-.leaderboard-table .col.ton { width: 75px; text-align: right; color: #ffc20d; font-weight: 700; font-size: 0.85rem; }
+.leaderboard-table .col.rounds { width: 50px; text-align: center; font-size: 0.85rem; }
+.leaderboard-table .col.stars { width: 50px; text-align: center; font-size: 0.85rem; color: #ffc20d; }
+.leaderboard-table .col.ton { width: 60px; text-align: right; color: #ffc20d; font-weight: 700; font-size: 0.85rem; }
 
 .leaderboard-table .medal { font-size: 1.1rem; }
 .leaderboard-table .rank-num { color: #666; font-size: 0.85rem; }

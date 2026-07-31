@@ -48,7 +48,7 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
         <div className="outside-tg__page-content">
           <MainPage />
           <div className="outside-tg__tg-cta">
-            <p>Want to get Stars for reward? Play in Telegram!</p>
+            <p>Want to get Stars for smart predictions? Play in Telegram!</p>
             <a
               className="outside-tg__tg-cta-btn"
               href="https://t.me/bettyscores_bot/app"
