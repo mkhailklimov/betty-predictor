@@ -127,6 +127,11 @@
   --color-text: #FAF9F6;
 }
 
+/* MainPage inside landing should not fill viewport — let CTA show */
+.outside-tg__page-content .main-page {
+  min-height: auto;
+}
+
 /* Telegram CTA below game interface */
 .outside-tg__tg-cta {
   text-align: center;
