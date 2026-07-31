@@ -603,6 +603,30 @@ export default {
         return json({ ingest, candidates });
       }
 
+      // Delete sheet tabs by name.
+      //   POST body: { tabs: ["Quiz", "Adjustments", ...] }
+      if (method === 'POST' && path === '/api/admin/delete-tabs') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const { tabs } = await request.json();
+        if (!tabs?.length) return json({ detail: 'No tabs' }, 400);
+        const sa = JSON.parse(env.GOOGLE_SA_JSON);
+        const gToken = await getGoogleAccessToken(sa);
+        const sid = env.SHEETS_SPREADSHEET_ID;
+        const meta = await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}?fields=sheets.properties`, gToken, 'GET');
+        const deleted = [];
+        for (const name of tabs) {
+          const sheet = meta.sheets.find(s => s.properties.title === name);
+          if (!sheet) continue;
+          await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}:batchUpdate`, gToken, 'POST',
+            { requests: [{ deleteSheet: { sheetId: sheet.properties.sheetId } }] });
+          deleted.push(name);
+        }
+        return json({ ok: true, deleted });
+      }
+
       // Write picks to the Fixtures sheet tab (so admin can monitor in Sheets).
       //   POST body: { picks: [{ week_id, source_id, league, kickoff_utc, home_team, away_team }, ...] }
       if (method === 'POST' && path === '/api/admin/write-fixtures') {
