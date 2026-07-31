@@ -11,7 +11,7 @@
 .leaderboard-page .page-header h1 {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #ffc20d;
+  color: #ECF39E;
 }
 
 .leaderboard-page .empty-state {
@@ -38,14 +38,14 @@
 }
 
 .leaderboard-table {
-  border: 1px solid rgba(255, 194, 13, 0.15);
+  border: 1px solid rgba(144, 169, 85, 0.2);
   border-radius: 10px;
   overflow: hidden;
 }
 
 .leaderboard-table .table-header {
   display: flex;
-  background: rgba(255, 194, 13, 0.08);
+  background: rgba(144, 169, 85, 0.2);
   padding: 0.6rem 0.8rem;
   font-size: 0.65rem;
   font-weight: 700;
@@ -68,8 +68,8 @@
 .leaderboard-table .col.rank { width: 40px; text-align: center; }
 .leaderboard-table .col.player { flex: 1; font-weight: 600; color: #fff; }
 .leaderboard-table .col.rounds { width: 50px; text-align: center; font-size: 0.85rem; }
-.leaderboard-table .col.stars { width: 50px; text-align: center; font-size: 0.85rem; color: #ffc20d; }
-.leaderboard-table .col.ton { width: 60px; text-align: right; color: #ffc20d; font-weight: 700; font-size: 0.85rem; }
+.leaderboard-table .col.stars { width: 50px; text-align: center; font-size: 0.85rem; color: #ECF39E; }
+.leaderboard-table .col.ton { width: 60px; text-align: right; color: #ECF39E; font-weight: 700; font-size: 0.85rem; }
 
 .leaderboard-table .medal { font-size: 1.1rem; }
 .leaderboard-table .rank-num { color: #666; font-size: 0.85rem; }
@@ -103,8 +103,8 @@
   margin: 16px 16px 32px;
   padding: 18px 16px;
   border-radius: 12px;
-  background: #1f1c09;
-  border: 1px solid rgba(255, 194, 13, 0.45);
+  background: #31572C;
+  border: 1px solid rgba(144, 169, 85, 0.2);
   text-align: center;
 }
 .premium-zone .premium-hint {
@@ -119,8 +119,8 @@
   padding: 12px 24px;
   font-size: 1rem;
   font-weight: 600;
-  color: #1f1c09;
-  background: #ffc20d;
+  color: #31572C;
+  background: #ECF39E;
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -141,8 +141,8 @@
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #1f1c09;
-  background: #ffc20d;
+  color: #31572C;
+  background: #ECF39E;
   border-radius: 4px;
   vertical-align: middle;
 }

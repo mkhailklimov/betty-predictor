@@ -1,10 +1,10 @@
 :root {
-  --color-bg: #1f1c09;
-  --color-bg-secondary: #2a2508;
-  --color-primary: #ffc20d;
-  --color-text: #e0e0e0;
-  --color-text-secondary: #888;
-  --color-border: rgba(255, 194, 13, 0.2);
+  --color-bg: #31572C;
+  --color-bg-secondary: rgba(49, 87, 44, 0.6);
+  --color-primary: #ECF39E;
+  --color-text: #FAF9F6;
+  --color-text-secondary: #90A955;
+  --color-border: rgba(144, 169, 85, 0.3);
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;

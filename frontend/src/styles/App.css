@@ -28,7 +28,7 @@
   height: 64px;
   background: rgba(31, 28, 9, 0.97);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 194, 13, 0.15);
+  border-top: 1px solid rgba(144, 169, 85, 0.15);
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -52,7 +52,7 @@
 }
 
 .nav-button.active {
-  color: #ffc20d;
+  color: #ECF39E;
   font-weight: 700;
 }
 

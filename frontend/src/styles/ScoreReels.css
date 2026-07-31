@@ -16,7 +16,7 @@
 .reels__colon {
   font-size: 2rem;
   font-weight: 800;
-  color: rgba(255, 194, 13, 0.9);
+  color: rgba(236, 243, 158, 0.9);
   padding-bottom: 0.15rem;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .reels--untouched .reel__window {
-  border-color: rgba(255, 194, 13, 0.18);
+  border-color: rgba(144, 169, 85, 0.18);
 }
 
 .reel {
@@ -40,7 +40,7 @@
 .reel__step {
   background: none;
   border: none;
-  color: rgba(255, 194, 13, 0.75);
+  color: rgba(144, 169, 85, 0.75);
   font-size: 0.9rem;
   line-height: 1;
   padding: 0.35rem 0.75rem;
@@ -54,7 +54,7 @@
 }
 
 .reel__step:not(:disabled):active {
-  background: rgba(255, 194, 13, 0.12);
+  background: rgba(144, 169, 85, 0.12);
 }
 
 /* The window shows three stops; the middle one is the selected value.
@@ -68,9 +68,9 @@
   width: 3.6rem;
   overflow-y: auto;
   scroll-snap-type: y mandatory;
-  border: 2px solid rgba(255, 194, 13, 0.35);
+  border: 2px solid rgba(144, 169, 85, 0.35);
   border-radius: 12px;
-  background: rgba(255, 194, 13, 0.06);
+  background: rgba(144, 169, 85, 0.06);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -78,7 +78,7 @@
 .reel__window::-webkit-scrollbar { display: none; }
 
 .reel__window:focus-visible {
-  outline: 2px solid rgba(255, 194, 13, 0.9);
+  outline: 2px solid rgba(236, 243, 158, 0.9);
   outline-offset: 2px;
 }
 
@@ -100,7 +100,7 @@
 }
 
 .reel__stop--active {
-  color: #ffc20d;
+  color: #ECF39E;
   transform: scale(1.15);
 }
 

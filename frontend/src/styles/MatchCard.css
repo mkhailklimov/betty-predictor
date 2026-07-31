@@ -1,7 +1,7 @@
-/* MatchCard — Betty yellow/black theme */
+/* MatchCard — transparent on grass field */
 .mc {
-  background: #2a2508;
-  border: 1px solid rgba(255, 194, 13, 0.2);
+  background: transparent;
+  border: none;
   border-radius: 16px;
   padding: 1rem;
   transition: all 0.2s ease;
@@ -30,7 +30,7 @@
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: 12px;
-  border: 2px solid rgba(255, 194, 13, 0.3);
+  border: 2px solid rgba(236, 243, 158, 0.3);
 }
 
 .mc__card-fallback {
@@ -40,8 +40,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 194, 13, 0.08);
-  border: 2px solid rgba(255, 194, 13, 0.2);
+  background: rgba(49, 87, 44, 0.4);
+  border: 2px solid rgba(144, 169, 85, 0.3);
   border-radius: 12px;
 }
 
@@ -61,13 +61,13 @@
   font-size: 1.6rem;
   font-weight: 800;
   letter-spacing: 0.05em;
-  color: rgba(255, 194, 13, 0.85);
+  color: #ECF39E;
 }
 
 .mc__card-name {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #e0e0e0;
+  color: #FAF9F6;
   text-align: center;
 }
 
@@ -85,7 +85,7 @@
 .mc__card-vs-text {
   font-size: 0.9rem;
   font-weight: 800;
-  color: #ffc20d;
+  color: #ECF39E;
 }
 
 /* The first line is now a competition name ("Chilean Primera División"), not a
@@ -101,7 +101,7 @@
 /* Saved state */
 .mc__saved {
   text-align: center;
-  background: rgba(255, 194, 13, 0.1);
+  background: rgba(144, 169, 85, 0.2);
   border-radius: 10px;
   padding: 0.55rem 0.8rem;
   margin-top: 0.5rem;
@@ -110,7 +110,7 @@
 .mc__saved-text {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #ffc20d;
+  color: #ECF39E;
 }
 
 /* Locked state */
