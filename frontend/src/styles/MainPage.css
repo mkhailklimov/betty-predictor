@@ -1,9 +1,9 @@
 .main-page {
-  padding: 1rem;
+  padding: 0.8rem;
   padding-bottom: 2rem;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh - 72px);
 }
 
 .page-header {
@@ -140,9 +140,10 @@
   text-align: center;
   margin-top: 1rem;
   padding: 1.2rem;
-  background: rgba(144, 169, 85, 0.1);
-  border: 1px solid rgba(144, 169, 85, 0.25);
+  background: rgba(20, 44, 18, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
+  backdrop-filter: blur(4px);
 }
 
 .all-done-icon {

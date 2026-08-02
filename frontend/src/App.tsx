@@ -6,25 +6,22 @@ import { MainPage, syncPendingPredictions } from './pages/MainPage'
 import { Navigation } from './components/Navigation'
 import { ChampionsPage } from './pages/ChampionsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
-import { AboutPage } from './pages/AboutPage'
 import { OutsideTelegramScreen } from './components/OutsideTelegramScreen'
 import { User } from './types'
 
-type Page = 'champions' | 'matches' | 'leaderboard' | 'about'
+type Page = 'champions' | 'matches' | 'leaderboard'
 
 const PAGE_PATHS: Record<string, Page> = {
   '/': 'matches',
   '/matches': 'matches',
   '/leaderboard': 'leaderboard',
   '/champions': 'champions',
-  '/about': 'about',
 }
 
 const PATH_FOR_PAGE: Record<Page, string> = {
   matches: '/matches',
   leaderboard: '/leaderboard',
   champions: '/champions',
-  about: '/about',
 }
 
 function pageFromPath(): Page {
@@ -199,7 +196,6 @@ function App() {
         {currentPage === 'champions' && <ChampionsPage />}
         {currentPage === 'matches' && <MainPage />}
         {currentPage === 'leaderboard' && <LeaderboardPage />}
-        {currentPage === 'about' && <AboutPage />}
       </div>
       <Navigation currentPage={currentPage} onPageChange={navigateTo} />
     </div>
