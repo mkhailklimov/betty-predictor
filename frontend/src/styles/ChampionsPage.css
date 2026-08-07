@@ -45,9 +45,11 @@
 }
 
 .results-table {
-  border: 1px solid rgba(144, 169, 85, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   overflow: hidden;
+  background: rgba(20, 44, 18, 0.7);
+  backdrop-filter: blur(4px);
 }
 
 .results-table .table-header {
