@@ -131,6 +131,18 @@ export const MainPage: React.FC = () => {
   const currentMatches = React.useMemo(() => toWeekMatches(weeks?.current ?? null), [weeks])
   const nextMatches = React.useMemo(() => toWeekMatches(weeks?.next ?? null), [weeks])
   const hasNext = nextMatches.length > 0
+
+  // "Mon 17 Aug" for the next week's first day, read off the API rather than
+  // assumed — the empty-week screen is only allowed to name a date it can see.
+  const nextOpensOn = React.useMemo(() => {
+    const starts = weeks?.next?.starts_at
+    if (!starts) return null
+    const d = new Date(starts)
+    if (Number.isNaN(d.getTime())) return null
+    return d.toLocaleDateString('en-GB', {
+      weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC',
+    })
+  }, [weeks])
   const matches = selectedKey === 'next' && hasNext ? nextMatches : currentMatches
 
   const switchWeek = (key: 'current' | 'next') => {
@@ -250,8 +262,15 @@ export const MainPage: React.FC = () => {
     )
   }
 
-  // A week with no fixtures is normal — Monday's publish may not have run yet.
-  // Say so plainly instead of rendering an empty card stack.
+  // A week with no fixtures is normal — a perpetual game has quiet weeks, and a
+  // round may simply not be curated yet.
+  //
+  // This screen must not name a day it cannot verify. It used to promise "this
+  // week's ten matches go live on Monday", which is only true if a week is
+  // actually being published that Monday; through a deliberate pause it sends
+  // people back on a date with nothing waiting for them, and spends their second
+  // visit as well as their first. So: name a date only when there is a published
+  // week to read it off, and otherwise say plainly that we don't have one yet.
   if (matches.length === 0) {
     return (
       <div className="main-page">
@@ -260,7 +279,11 @@ export const MainPage: React.FC = () => {
           <div className="all-done-icon">&#9917;</div>
           <div className="all-done-title">No matches yet</div>
           <div className="all-done-text">
-            This week&rsquo;s ten matches go live on Monday. Check back then.
+            {hasNext && selectedKey === 'current' ? (
+              <>The next round is already up{nextOpensOn ? <> — it opens {nextOpensOn}</> : null}.</>
+            ) : (
+              <>We haven&rsquo;t posted the next round yet. It shows up here the moment it does.</>
+            )}
           </div>
           {hasNext && selectedKey === 'current' && (
             <button className="all-done-review-btn" onClick={() => switchWeek('next')}>
