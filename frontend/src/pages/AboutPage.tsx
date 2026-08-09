@@ -56,6 +56,11 @@ export const AboutPage: React.FC = () => {
           their last prediction earlier wins. Guest players are not eligible for
           prizes until they log in with Telegram.
         </p>
+        <p className="scoring-note">
+          Participation is free and voluntary. The organisers are not obligated to
+          distribute Star prizes; however, we commit to making every effort to
+          deliver prizes within one month after results are calculated.
+        </p>
       </section>
 
       <section className="about-section">
