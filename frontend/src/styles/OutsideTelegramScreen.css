@@ -1,175 +1,320 @@
-.outside-tg {
+/* ── Betty 2.0 Landing — Stadium Layout ── */
+
+/* Stadium wrapper — fills viewport, dark surround */
+.landing {
+  display: flex;
+  min-height: 100vh;
+  background: #0f1a0d;
+  color: #FAF9F6;
+  overflow-x: hidden;
+}
+
+/* ── Tribunes (side panels, desktop only) ── */
+.landing__tribune {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .landing__tribune {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    background:
+      /* Seat rows pattern */
+      repeating-linear-gradient(
+        180deg,
+        rgba(30, 45, 28, 0.9) 0px,
+        rgba(25, 38, 23, 0.95) 8px,
+        rgba(35, 52, 32, 0.9) 8px,
+        rgba(30, 45, 28, 0.95) 16px
+      );
+    border-right: 2px solid rgba(144, 169, 85, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .landing__tribune--right {
+    border-right: none;
+    border-left: 2px solid rgba(144, 169, 85, 0.15);
+  }
+
+  /* Subtle crowd noise — random dots as "people" */
+  .landing__tribune::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Ccircle cx='8' cy='8' r='2.5' fill='rgba(144,169,85,0.08)'/%3E%3Ccircle cx='24' cy='4' r='2' fill='rgba(200,200,180,0.06)'/%3E%3Ccircle cx='36' cy='12' r='2.5' fill='rgba(144,169,85,0.06)'/%3E%3Ccircle cx='16' cy='14' r='2' fill='rgba(200,200,180,0.05)'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+}
+
+/* Banner slots inside tribunes */
+.landing__banner {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .landing__banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 24px 16px;
+    padding: 20px 12px;
+    background: rgba(15, 26, 13, 0.7);
+    border: 1px dashed rgba(144, 169, 85, 0.2);
+    border-radius: 8px;
+    color: rgba(144, 169, 85, 0.3);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    min-height: 80px;
+  }
+}
+
+/* ── Pitch (center column) ── */
+.landing__pitch {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   width: 100%;
-  min-height: 100vh;
-  padding: 24px;
-  box-sizing: border-box;
+  max-width: 480px;
+  margin: 0 auto;
   position: relative;
-  overflow: hidden;
 
-  /* 8 wide mown stripes — dark grass with visible blade texture */
+  /* Grass stripes */
   background:
-    /* Subtle grass blade texture */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='4 8' numOctaves='6' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.8' intercept='-0.3'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23b)' opacity='0.12'/%3E%3C/svg%3E"),
-    /* Grass clumps */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2 2.4' numOctaves='5' seed='19' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23c)' opacity='0.08'/%3E%3C/svg%3E"),
-    /* 8 alternating stripes — Forest dark/light */
     repeating-linear-gradient(
-      90deg,
-      #31572C 0%,
-      #31572C 12.5%,
-      #264722 12.5%,
-      #264722 25%
+      180deg,
+      #2a5226 0px,
+      #2a5226 64px,
+      #315a2c 64px,
+      #315a2c 128px
     );
 }
 
-/* Full pitch markings — horizontal field, full width */
-.outside-tg::before {
+/* Pitch markings overlay */
+.landing__pitch::before {
   content: '';
-  position: absolute;
-  top: 10px;
-  bottom: 10px;
-  left: 0;
-  right: 0;
-  pointer-events: none;
-  opacity: 0.28;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1050 680' fill='none' stroke='white' stroke-width='2.5' preserveAspectRatio='none'%3E%3Crect x='1' y='1' width='1048' height='678' rx='0'/%3E%3Cline x1='525' y1='1' x2='525' y2='679'/%3E%3Crect x='1' y='138.5' width='165' height='403'/%3E%3Crect x='884' y='138.5' width='165' height='403'/%3E%3Crect x='1' y='248.5' width='55' height='183'/%3E%3Crect x='994' y='248.5' width='55' height='183'/%3E%3Ccircle cx='110' cy='340' r='4' fill='white' stroke='none'/%3E%3Ccircle cx='940' cy='340' r='4' fill='white' stroke='none'/%3E%3Cpath d='M165 267 A91.5 91.5 0 0 1 165 413'/%3E%3Cpath d='M885 267 A91.5 91.5 0 0 0 885 413'/%3E%3Cpath d='M10 1 A10 10 0 0 0 1 10'/%3E%3Cpath d='M1040 1 A10 10 0 0 1 1049 10'/%3E%3Cpath d='M1 670 A10 10 0 0 0 10 679'/%3E%3Cpath d='M1049 670 A10 10 0 0 1 1040 679'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-}
-
-.outside-tg::after {
-  content: '';
-  position: absolute;
-  top: 50%;
+  position: fixed;
+  top: 0;
+  bottom: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  border: 2.5px solid rgba(255, 255, 255, 0.15);
-  background: url('/betty-logo.png') center / cover no-repeat;
-  opacity: 0.12;
-  pointer-events: none;
-}
-
-/* Nav labels placed inside grass stripes */
-.outside-tg__stripe-nav {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.outside-tg__stripe-btn {
-  position: absolute;
-  top: 28px;
-  pointer-events: auto;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  letter-spacing: 0.3px;
-  padding: 6px 4px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  transition: color 0.15s, text-shadow 0.15s;
   transform: translateX(-50%);
-  white-space: nowrap;
+  width: 100%;
+  max-width: 480px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' preserveAspectRatio='none' viewBox='0 0 400 800'%3E%3Cdefs%3E%3Cstyle%3Eline,rect,circle,path%7Bstroke:white;fill:none;stroke-width:1.5%7D%3C/style%3E%3C/defs%3E%3Crect x='12' y='12' width='376' height='776' rx='2'/%3E%3Cline x1='12' y1='400' x2='388' y2='400'/%3E%3Ccircle cx='200' cy='400' r='55'/%3E%3Ccircle cx='200' cy='400' r='3' fill='white'/%3E%3Crect x='100' y='12' width='200' height='110' rx='1'/%3E%3Crect x='140' y='12' width='120' height='44' rx='1'/%3E%3Cpath d='M 148 122 A 48 48 0 0 0 252 122'/%3E%3Ccircle cx='200' cy='100' r='3' fill='white'/%3E%3Crect x='100' y='678' width='200' height='110' rx='1'/%3E%3Crect x='140' y='744' width='120' height='44' rx='1'/%3E%3Cpath d='M 148 678 A 48 48 0 0 1 252 678'/%3E%3Ccircle cx='200' cy='700' r='3' fill='white'/%3E%3Cpath d='M 12 24 A 12 12 0 0 0 24 12'/%3E%3Cpath d='M 376 12 A 12 12 0 0 0 388 24'/%3E%3Cpath d='M 12 776 A 12 12 0 0 1 24 788'/%3E%3Cpath d='M 376 788 A 12 12 0 0 1 388 776'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
-.outside-tg__stripe-btn:hover {
-  color: #ffffff;
-  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.3), 0 1px 4px rgba(0, 0, 0, 0.6);
-}
-
-.outside-tg__stripe-btn--active {
-  color: #ffffff;
-  font-weight: 800;
-  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.4), 0 1px 4px rgba(0, 0, 0, 0.6);
-}
-
-/* Stripe 2 = centered at 18.75% */
-.stripe-2 { left: 18.75%; }
-/* Stripe 3 = centered at 31.25% */
-.stripe-3 { left: 31.25%; }
-/* Stripe 4 = centered at 43.75% */
-.stripe-4 { left: 43.75%; }
-/* Stripe 5 = centered at 56.25% */
-.stripe-5 { left: 56.25%; }
-/* Stripe 6 = centered at 68.75% */
-.stripe-6 { left: 68.75%; }
-/* Stripe 7 = centered at 81.25% */
-.stripe-7 { left: 81.25%; }
-
-/* Sub-page view */
-.outside-tg--page {
-  align-items: stretch;
-  justify-content: flex-start;
-  padding-top: 60px;
-}
-
-.outside-tg__page-content {
+/* Goal nets — top and bottom of pitch */
+.landing__goal {
+  height: 28px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 6px,
+      rgba(255, 255, 255, 0.06) 6px,
+      rgba(255, 255, 255, 0.06) 7px
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 6px,
+      rgba(255, 255, 255, 0.06) 6px,
+      rgba(255, 255, 255, 0.06) 7px
+    );
+  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
   position: relative;
   z-index: 1;
-  margin-left: 25%;
-  margin-right: 25%;
-  padding: 20px;
-  box-sizing: border-box;
-  background: rgba(30, 60, 28, 0.85);
-  border: 1px solid rgba(144, 169, 85, 0.2);
-  border-radius: 16px;
-  margin-bottom: 20px;
+}
 
-  /* Grass palette */
+.landing__goal--bottom {
+  border-bottom: none;
+  border-top: 2px solid rgba(255, 255, 255, 0.12);
+  margin-top: auto;
+}
+
+/* ── Hero ── */
+.landing__hero {
+  text-align: center;
+  padding: 32px 20px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.landing__logo {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #90A955;
+  box-shadow: 0 0 30px rgba(144, 169, 85, 0.3);
+  margin-bottom: 10px;
+}
+
+.landing__title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ECF39E;
+  margin: 0 0 2px;
+  letter-spacing: -0.5px;
+}
+
+.landing__subtitle {
+  font-size: 0.75rem;
+  color: rgba(250, 249, 246, 0.55);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+
+.landing__slogan {
+  font-size: 1rem;
+  color: #ECF39E;
+  font-style: italic;
+  margin: 0 0 16px;
+  opacity: 0.85;
+}
+
+/* League badges */
+.landing__leagues {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 0 8px;
+}
+
+.landing__league-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #FAF9F6;
+  background: rgba(144, 169, 85, 0.2);
+  border: 1px solid rgba(144, 169, 85, 0.3);
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* ── Tab Navigation ── */
+.landing__tabs {
+  display: flex;
+  background: rgba(20, 36, 18, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(144, 169, 85, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.landing__tab {
+  flex: 1;
+  padding: 11px 6px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(250, 249, 246, 0.45);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.landing__tab:hover {
+  color: rgba(250, 249, 246, 0.75);
+}
+
+.landing__tab--active {
+  color: #ECF39E;
+  border-bottom-color: #ECF39E;
+}
+
+/* ── Content area ── */
+.landing__content {
+  flex: 1;
+  padding: 0 12px 20px;
+  position: relative;
+  z-index: 1;
+
+  /* Grass palette variables for child components */
   --color-primary: #ECF39E;
   --color-bg-secondary: rgba(49, 87, 44, 0.6);
   --color-border: rgba(144, 169, 85, 0.3);
   --color-text: #FAF9F6;
+  --color-text-secondary: #90A955;
 }
 
-/* MainPage inside landing should not fill viewport — let CTA show */
-.outside-tg__page-content .main-page {
+/* MainPage inside landing should not fill viewport */
+.landing__content .main-page {
   min-height: auto;
 }
 
-/* Telegram CTA below game interface */
-.outside-tg__tg-cta {
+/* ── Telegram CTA (inline, below matches) ── */
+.landing__cta {
   text-align: center;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: rgba(30, 60, 28, 0.85);
-  border: 1px solid rgba(144, 169, 85, 0.3);
+  margin-top: 16px;
+  padding: 16px 14px;
+  background: rgba(20, 40, 18, 0.85);
+  border: 1px solid rgba(144, 169, 85, 0.25);
   border-radius: 12px;
 }
 
-.outside-tg__tg-cta p {
-  margin: 0 0 12px;
-  font-size: 15px;
+.landing__cta-text {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #ffffff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  color: #FAF9F6;
+  line-height: 1.4;
 }
 
-.outside-tg__tg-cta-btn {
+.landing__cta-btn {
   display: inline-block;
-  padding: 12px 28px;
-  font-size: 15px;
+  padding: 11px 28px;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #ffffff;
   background: #229ED9;
   border-radius: 10px;
   text-decoration: none;
-  text-transform: uppercase;
   letter-spacing: 0.3px;
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s, transform 0.1s;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.outside-tg__tg-cta-btn:hover {
+.landing__cta-btn:hover {
   background: #1c8bc1;
   transform: scale(1.03);
+}
+
+/* ── Sticky CTA for non-play tabs ── */
+.landing__sticky-cta {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 11px 28px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #229ED9;
+  border-radius: 24px;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.landing__sticky-cta:hover {
+  background: #1c8bc1;
+  transform: translateX(-50%) scale(1.03);
 }

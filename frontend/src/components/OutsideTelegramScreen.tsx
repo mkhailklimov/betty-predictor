@@ -10,83 +10,117 @@ interface OutsideTelegramScreenProps {
   onGuest: () => void
 }
 
-type LandingSection = 'play' | 'rules' | 'champions' | 'leaderboard' | 'privacy' | 'stats'
+type Section = 'play' | 'rules' | 'champions' | 'leaderboard'
+
+const LEAGUES = [
+  { code: 'eng.1', short: 'EPL' },
+  { code: 'esp.1', short: 'La Liga' },
+  { code: 'ita.1', short: 'Serie A' },
+  { code: 'ger.1', short: 'Bund.' },
+  { code: 'fra.1', short: 'Ligue 1' },
+  { code: 'uefa.cl', short: 'UCL' },
+]
 
 export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onGuest }) => {
-  const [section, setSection] = React.useState<LandingSection>('play')
+  const [section, setSection] = React.useState<Section>('play')
 
-  // Auto-create guest session on mount so Play tab works immediately
   React.useEffect(() => {
     onGuest()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const stripeBtn = (stripe: string, key: LandingSection, label: string) => (
-    <button
-      className={`outside-tg__stripe-btn ${stripe}${section === key ? ' outside-tg__stripe-btn--active' : ''}`}
-      onClick={() => setSection(key)}
-    >
-      {label}
-    </button>
-  )
-
-  const stripeNav = (
-    <div className="outside-tg__stripe-nav">
-      {stripeBtn('stripe-2', 'play', 'Play')}
-      {stripeBtn('stripe-3', 'rules', 'Rules')}
-      {stripeBtn('stripe-4', 'champions', 'Champions')}
-      {stripeBtn('stripe-5', 'leaderboard', 'Leaderboard')}
-      {stripeBtn('stripe-6', 'privacy', 'Privacy')}
-      {stripeBtn('stripe-7', 'stats', 'My Stats')}
-    </div>
-  )
-
-  if (section === 'play') {
-    return (
-      <div className="outside-tg outside-tg--page">
-        {stripeNav}
-        <div className="outside-tg__page-content">
-          <MainPage />
-          <div className="outside-tg__tg-cta">
-            <p>Want to get Stars for smart predictions? Play in Telegram!</p>
-            <a
-              className="outside-tg__tg-cta-btn"
-              href="https://t.me/bettyscores_bot/app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open in Telegram
-            </a>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="outside-tg outside-tg--page">
-      {stripeNav}
-      <div className="outside-tg__page-content">
-        {section === 'rules' && <AboutPage />}
-        {section === 'champions' && <ChampionsPage />}
-        {section === 'leaderboard' && <LeaderboardPage />}
-        {section === 'privacy' && (
-          <div className="about-page">
-            <div className="page-header"><h1>Privacy Policy</h1></div>
-            <section className="about-section">
-              <p>Betty Scores stores only the minimum data needed to run the game: your Telegram user ID, username, and predictions. We do not share your data with third parties. Guest accounts are anonymous and can be deleted at any time by clearing your browser storage.</p>
-            </section>
+    <div className="landing">
+      {/* Left tribune (desktop only) */}
+      <aside className="landing__tribune landing__tribune--left">
+        <div className="landing__banner">Ad space</div>
+        <div className="landing__banner">Ad space</div>
+        <div className="landing__banner">Ad space</div>
+      </aside>
+
+      {/* Pitch — the main column */}
+      <div className="landing__pitch">
+        {/* Top goal */}
+        <div className="landing__goal" />
+
+        {/* Hero */}
+        <header className="landing__hero">
+          <img src="/betty-logo.png" alt="Betty" className="landing__logo" />
+          <h1 className="landing__title">Betty Scores</h1>
+          <p className="landing__subtitle">European Football Predictions</p>
+          <p className="landing__slogan">Sniff the score, catch a star</p>
+          <div className="landing__leagues">
+            {LEAGUES.map(l => (
+              <span key={l.code} className="landing__league-badge">{l.short}</span>
+            ))}
           </div>
-        )}
-        {section === 'stats' && (
-          <div className="about-page">
-            <div className="page-header"><h1>My Stats</h1></div>
-            <section className="about-section">
-              <p>Your personal stats will appear here once you start predicting.</p>
-            </section>
-          </div>
-        )}
+        </header>
+
+        {/* Tab navigation */}
+        <nav className="landing__tabs">
+          {([
+            ['play', 'Play'],
+            ['leaderboard', 'Leaderboard'],
+            ['champions', 'Champions'],
+            ['rules', 'Rules'],
+          ] as [Section, string][]).map(([key, label]) => (
+            <button
+              key={key}
+              className={`landing__tab${section === key ? ' landing__tab--active' : ''}`}
+              onClick={() => setSection(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Content */}
+        <div className="landing__content">
+          {section === 'play' && (
+            <>
+              <MainPage />
+              <div className="landing__cta">
+                <p className="landing__cta-text">
+                  Compete on the leaderboard &amp; earn stars — play in Telegram!
+                </p>
+                <a
+                  className="landing__cta-btn"
+                  href="https://t.me/bettyscores_bot/app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open in Telegram
+                </a>
+              </div>
+            </>
+          )}
+          {section === 'leaderboard' && <LeaderboardPage />}
+          {section === 'champions' && <ChampionsPage />}
+          {section === 'rules' && <AboutPage />}
+        </div>
+
+        {/* Bottom goal */}
+        <div className="landing__goal landing__goal--bottom" />
       </div>
+
+      {/* Right tribune (desktop only) */}
+      <aside className="landing__tribune landing__tribune--right">
+        <div className="landing__banner">Ad space</div>
+        <div className="landing__banner">Ad space</div>
+        <div className="landing__banner">Ad space</div>
+      </aside>
+
+      {/* Sticky Telegram CTA for non-play tabs */}
+      {section !== 'play' && (
+        <a
+          className="landing__sticky-cta"
+          href="https://t.me/bettyscores_bot/app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Play in Telegram
+        </a>
+      )}
     </div>
   )
 }
