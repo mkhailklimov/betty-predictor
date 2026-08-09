@@ -16,10 +16,9 @@
   --radius-lg: 0.75rem;
   --transition: all 0.2s ease;
 
-  /* Football field colors */
-  --field-dark: #264722;
-  --field-light: #31572C;
-  --field-line: rgba(255, 255, 255, 0.18);
+  /* Forest colors */
+  --field-dark: #1a3a18;
+  --field-light: #264722;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
