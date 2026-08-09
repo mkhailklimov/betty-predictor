@@ -42,7 +42,7 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
         <header className="landing__hero">
           <img src="/betty-logo.png" alt="Betty" className="landing__logo" />
           <h1 className="landing__title">Betty Scores</h1>
-          <p className="landing__slogan">Sniff the Score, Catch a Star &#11088;!</p>
+          <p className="landing__slogan">Sniff the Score, Catch a Star&#11088;!</p>
         </header>
 
         {/* Content */}
