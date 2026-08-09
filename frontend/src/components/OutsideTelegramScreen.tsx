@@ -24,8 +24,11 @@ const LEAGUES = [
 export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onGuest }) => {
   const [section, setSection] = React.useState<Section>('play')
 
+  // Create guest session if none exists yet
   React.useEffect(() => {
-    onGuest()
+    if (!localStorage.getItem('betty_guest_token') && !localStorage.getItem('betty_tgauth')) {
+      onGuest()
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

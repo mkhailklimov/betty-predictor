@@ -186,7 +186,9 @@ function App() {
     )
   }
 
-  if (needsAuth) {
+  // Web visitors always see the stadium landing page, whether they have
+  // a guest token or not. Only Telegram mini app users get the in-app view.
+  if (!isTelegramApp) {
     return <OutsideTelegramScreen onLogin={handleWidgetLogin} onGuest={handleGuestPlay} />
   }
 
