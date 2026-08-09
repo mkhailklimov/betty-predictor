@@ -10,7 +10,7 @@ interface OutsideTelegramScreenProps {
   onGuest: () => void
 }
 
-type Section = 'play' | 'rules' | 'champions' | 'leaderboard' | 'privacy'
+type Section = 'play' | 'rules' | 'champions' | 'leaderboard'
 
 function getTelegramLink(): string {
   const guestToken = localStorage.getItem('betty_guest_token')
@@ -68,25 +68,6 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
           {section === 'leaderboard' && <LeaderboardPage />}
           {section === 'champions' && <ChampionsPage />}
           {section === 'rules' && <AboutPage />}
-          {section === 'privacy' && (
-            <div className="info-page">
-              <h2>Privacy Policy</h2>
-              <p>
-                Betty Scores is a Telegram Mini App. We collect only the data necessary
-                to run the game: your Telegram user ID, display name, and predictions.
-              </p>
-              <p>
-                We do not sell or share your personal data with third parties. Your data
-                is stored securely on Cloudflare infrastructure and is used solely to
-                provide the game experience, compute scores, and distribute prizes.
-              </p>
-              <p>
-                By using Betty Scores you agree to Telegram&apos;s Terms of Service and
-                Mini Apps policies. You can delete your account and all associated data
-                at any time by contacting <strong>@bettyscores_bot</strong> on Telegram.
-              </p>
-            </div>
-          )}
         </div>
 
       </div>
@@ -100,8 +81,7 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
           ['play',        '\u26BD', 'Play'],
           ['champions',   '\uD83C\uDFC6', 'Champions'],
           ['leaderboard', '\u2B50', 'Hall of Fame'],
-          ['rules',       '\uD83D\uDCD6', 'Rules'],
-          ['privacy',     '\uD83D\uDD12', 'Privacy'],
+          ['rules',       '\uD83D\uDCD6', 'Rules & Privacy'],
         ] as [Section, string, string][]).map(([key, icon, label]) => (
           <button
             key={key}
