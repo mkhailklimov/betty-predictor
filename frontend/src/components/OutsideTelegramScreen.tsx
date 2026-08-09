@@ -12,6 +12,14 @@ interface OutsideTelegramScreenProps {
 
 type Section = 'play' | 'rules' | 'champions' | 'leaderboard' | 'privacy'
 
+function getTelegramLink(): string {
+  const guestToken = localStorage.getItem('betty_guest_token')
+  if (guestToken) {
+    return `https://t.me/bettyscores_bot/app?startapp=gt_${guestToken}`
+  }
+  return 'https://t.me/bettyscores_bot/app'
+}
+
 export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onGuest }) => {
   const [section, setSection] = React.useState<Section>('play')
 
@@ -48,7 +56,7 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
                 </p>
                 <a
                   className="landing__cta-btn"
-                  href="https://t.me/bettyscores_bot/app"
+                  href={getTelegramLink()}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -90,8 +98,8 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
       <nav className="landing__bottom-nav">
         {([
           ['play',        '\u26BD', 'Play'],
-          ['leaderboard', '\uD83C\uDFC6', 'Leaders'],
-          ['champions',   '\u2B50', 'Champions'],
+          ['champions',   '\uD83C\uDFC6', 'Champions'],
+          ['leaderboard', '\u2B50', 'Hall of Fame'],
           ['rules',       '\uD83D\uDCD6', 'Rules'],
           ['privacy',     '\uD83D\uDD12', 'Privacy'],
         ] as [Section, string, string][]).map(([key, icon, label]) => (

@@ -68,7 +68,7 @@ export const LeaderboardPage: React.FC = () => {
   return (
     <div className="leaderboard-page">
       <div className="page-header">
-        <h1>Leaderboard</h1>
+        <h1>Hall of Fame</h1>
       </div>
 
       {leaderboard.length === 0 ? (

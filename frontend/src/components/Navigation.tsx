@@ -1,7 +1,7 @@
 import React from 'react'
 import '../styles/App.css'
 
-type Page = 'champions' | 'matches' | 'leaderboard'
+type Page = 'champions' | 'matches' | 'leaderboard' | 'rules'
 
 interface NavigationProps {
   currentPage: Page
@@ -12,13 +12,6 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChang
   return (
     <nav className="navigation">
       <button
-        className={`nav-button ${currentPage === 'champions' ? 'active' : ''}`}
-        onClick={() => onPageChange('champions')}
-      >
-        <span className="icon">&#127942;</span>
-        <span className="label">Champions</span>
-      </button>
-      <button
         className={`nav-button ${currentPage === 'matches' ? 'active' : ''}`}
         onClick={() => onPageChange('matches')}
       >
@@ -26,11 +19,25 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChang
         <span className="label">Play</span>
       </button>
       <button
+        className={`nav-button ${currentPage === 'champions' ? 'active' : ''}`}
+        onClick={() => onPageChange('champions')}
+      >
+        <span className="icon">&#127942;</span>
+        <span className="label">Champions</span>
+      </button>
+      <button
         className={`nav-button ${currentPage === 'leaderboard' ? 'active' : ''}`}
         onClick={() => onPageChange('leaderboard')}
       >
-        <span className="icon">&#128142;</span>
-        <span className="label">Leaderboard</span>
+        <span className="icon">&#11088;</span>
+        <span className="label">Hall of Fame</span>
+      </button>
+      <button
+        className={`nav-button ${currentPage === 'rules' ? 'active' : ''}`}
+        onClick={() => onPageChange('rules')}
+      >
+        <span className="icon">&#128214;</span>
+        <span className="label">Rules</span>
       </button>
     </nav>
   )

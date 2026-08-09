@@ -1,4 +1,5 @@
 import React from 'react'
+import WebApp from '@twa-dev/sdk'
 import './styles/App.css'
 import { useTelegram } from './hooks/useTelegram'
 import { userApi, guestApi } from './services/api'
@@ -7,21 +8,24 @@ import { Navigation } from './components/Navigation'
 import { ChampionsPage } from './pages/ChampionsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { OutsideTelegramScreen } from './components/OutsideTelegramScreen'
+import { AboutPage } from './pages/AboutPage'
 import { User } from './types'
 
-type Page = 'champions' | 'matches' | 'leaderboard'
+type Page = 'champions' | 'matches' | 'leaderboard' | 'rules'
 
 const PAGE_PATHS: Record<string, Page> = {
   '/': 'matches',
   '/matches': 'matches',
   '/leaderboard': 'leaderboard',
   '/champions': 'champions',
+  '/rules': 'rules',
 }
 
 const PATH_FOR_PAGE: Record<Page, string> = {
   matches: '/matches',
   leaderboard: '/leaderboard',
   champions: '/champions',
+  rules: '/rules',
 }
 
 function pageFromPath(): Page {
@@ -124,6 +128,18 @@ function App() {
             ref_source: refSource.current,
           })
           setUser(data)
+
+          // Merge guest predictions if launched with startapp=gt_TOKEN
+          try {
+            const startParam = WebApp.initDataUnsafe?.start_param
+            if (startParam && startParam.startsWith('gt_')) {
+              const guestToken = startParam.slice(3)
+              await guestApi.merge(guestToken, tgUserObj?.username)
+            }
+          } catch (mergeErr) {
+            console.error('Guest merge failed (non-fatal):', mergeErr)
+          }
+
           return
         } catch (error) {
           console.error(`Registration attempt ${attempt + 1} failed:`, error)
@@ -198,6 +214,7 @@ function App() {
         {currentPage === 'champions' && <ChampionsPage />}
         {currentPage === 'matches' && <MainPage />}
         {currentPage === 'leaderboard' && <LeaderboardPage />}
+        {currentPage === 'rules' && <AboutPage />}
       </div>
       <Navigation currentPage={currentPage} onPageChange={navigateTo} />
     </div>

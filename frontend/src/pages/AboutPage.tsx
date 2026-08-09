@@ -67,6 +67,21 @@ export const AboutPage: React.FC = () => {
         </p>
       </section>
 
+      <section className="about-section">
+        <h2>Privacy</h2>
+        <p>
+          We collect only the data necessary to run the game: your Telegram user ID,
+          display name, and predictions. We do not sell or share your personal data
+          with third parties.
+        </p>
+        <p>
+          Your data is stored securely on Cloudflare infrastructure and is used solely
+          to provide the game experience, compute scores, and distribute prizes. You
+          can delete your account and all associated data at any time by contacting{' '}
+          <strong>@bettyscores_bot</strong> on Telegram.
+        </p>
+      </section>
+
       <section className="about-section about-section--footer">
         <p>
           Betty Scores is a Telegram Mini App. Questions or feedback? Message{' '}
