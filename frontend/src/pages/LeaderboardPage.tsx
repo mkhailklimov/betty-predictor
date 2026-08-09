@@ -73,7 +73,7 @@ export const LeaderboardPage: React.FC = () => {
 
       {leaderboard.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">&#128142;</div>
+          <div className="empty-icon">&#11088;</div>
           <p className="empty-title">No results yet</p>
           <p className="empty-text">Scores appear here once the first week&apos;s matches are played.</p>
         </div>
