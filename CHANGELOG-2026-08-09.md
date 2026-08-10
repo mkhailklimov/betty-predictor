@@ -45,7 +45,41 @@
 
 ---
 
-## Commits (dev branch)
+# Changelog — 2026-08-10
+
+## UX: Default 0:0 Predictions & Match Navigation
+
+### Default 0:0 for All Open Matches
+- Every open (unlocked) match is auto-saved as **0:0 (Draw)** when the week loads.
+- If a user opens the app and leaves without touching anything, all open matches are recorded as 0:0.
+- If a user predicts some matches and leaves, the rest stay as 0:0.
+- Locked matches (already kicked off) are excluded from auto-save.
+
+### Match Navigation
+- **Removed auto-advance**: Score reels no longer jump to the next match automatically. User must press the **Next** button.
+- **Removed "All Done" takeover screen**: Card stack is always visible. No more modal blocking the view after all predictions are in.
+- **Progress bar** now tracks current position (match N of 10) instead of prediction count.
+
+### Guest-to-Telegram Prediction Merge Fix
+- After Telegram registration, **all backend predictions are hydrated into localStorage**. This fixes the bug where predictions made on `app.bettyscores.com` as a guest disappeared after clicking "Open in Telegram".
+- Hydration runs on every TG launch (not just merge), so predictions from other devices also sync.
+
+### Dev Site Isolation
+- **"Open in Telegram" CTA hidden** on dev/pages.dev URLs. Only shown on `app.bettyscores.com`. Prevents dev site from linking to the prod bot with incompatible guest tokens.
+
+### Hall of Fame & Champions Table Fixes
+- **Hall of Fame**: Player names left-aligned (was centered).
+- **Champions**: Metric columns (Results, Scores, Total, Stars) made more compact (54px/40px) to give more space to the nickname column. Player names left-aligned.
+- **Champions**: Removed bold from all metric columns (Total, Stars were bold).
+
+### Commit
+| Commit | Description |
+|--------|-------------|
+| `31b32be` | Default 0:0 predictions, hydrate on merge, UI table fixes |
+
+---
+
+## Commits (dev branch, 2026-08-09)
 
 | Commit | Description |
 |--------|-------------|
