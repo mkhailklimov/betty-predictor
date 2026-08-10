@@ -1,6 +1,6 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
-import { isMatchLocked, MatchData, toWeekMatches } from '../data/matches'
+import { isMatchLocked, toWeekMatches } from '../data/matches'
 import { predictionsApi, weeksApi } from '../services/api'
 import { WeekResponse } from '../types'
 import '../styles/MainPage.css'
@@ -33,21 +33,6 @@ function parseScore(score: string): { home: number; away: number } | null {
   return { home: h, away: a }
 }
 
-// Which card to land on. A visitor arriving mid-week should not open onto a match
-// that already kicked off (locked = a dead end they can't predict). Land on the
-// nearest still-open match, preferring one not yet predicted; only fall back to a
-// locked card when every match in the week has already started.
-function nearestOpenIndex(
-  list: MatchData[],
-  preds: PredictionMap,
-): number {
-  const openUnpredicted = list.findIndex(m => !isMatchLocked(m) && !preds[m.id])
-  if (openUnpredicted !== -1) return openUnpredicted
-  const open = list.findIndex(m => !isMatchLocked(m))
-  if (open !== -1) return open
-  const unpredicted = list.findIndex(m => !preds[m.id])
-  return unpredicted === -1 ? 0 : unpredicted
-}
 
 // Replay every locally-stored prediction to the backend. The /api/predictions
 // endpoint is an idempotent upsert, so re-sending is safe. This is the real
@@ -77,21 +62,10 @@ export async function syncPendingPredictions(): Promise<void> {
   }
 }
 
-// Date of the day AFTER the last match of a week — for the "check results on …" line.
-function resultsAvailableDate(weekMatches: MatchData[]): string {
-  const last = weekMatches[weekMatches.length - 1]
-  if (!last) return ''
-  const d = new Date(last.kickoff)
-  d.setUTCDate(d.getUTCDate() + 1)
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', timeZone: 'UTC' })
-}
-
 export const MainPage: React.FC = () => {
   const [predictions, setPredictions] = React.useState(loadPredictions)
   const [showToast, setShowToast] = React.useState(false)
   const [toastMessage, setToastMessage] = React.useState('')
-  const [reviewMode, setReviewMode] = React.useState(false)
-  const doneRef = React.useRef<HTMLDivElement>(null)
 
   // The two weeks now come from the API, so they arrive asynchronously and either
   // of them can legitimately be empty — an unpublished week is a normal state in a
@@ -120,7 +94,7 @@ export const MainPage: React.FC = () => {
       const key = (curMatches.length === 0 || curMatches.every(isMatchLocked)) && nextMatches.length > 0
         ? 'next' : 'current'
       setSelectedKey(key)
-      setCurrentIndex(nearestOpenIndex(key === 'next' ? nextMatches : curMatches, loadPredictions()))
+      setCurrentIndex(0)
     } catch {
       setLoadError(true)
     }
@@ -147,8 +121,7 @@ export const MainPage: React.FC = () => {
 
   const switchWeek = (key: 'current' | 'next') => {
     setSelectedKey(key)
-    setReviewMode(false)
-    setCurrentIndex(nearestOpenIndex(key === 'next' ? nextMatches : currentMatches, predictions))
+    setCurrentIndex(0)
   }
 
   // Single header row: "Current" (default) + "Next" (only when a next week is open).
@@ -170,6 +143,27 @@ export const MainPage: React.FC = () => {
       )}
     </div>
   )
+
+  // Auto-save 0:0 (draw) for every open match the player hasn't touched yet.
+  // This way if someone opens the app and leaves, all open matches count as 0:0.
+  React.useEffect(() => {
+    if (!weeks) return
+    const allMatches = [...currentMatches, ...nextMatches]
+    const current = loadPredictions()
+    let changed = false
+    const updated = { ...current }
+    for (const m of allMatches) {
+      if (isMatchLocked(m)) continue
+      if (updated[m.id]?.score) continue
+      updated[m.id] = { outcome: 'X', score: '0:0' }
+      changed = true
+    }
+    if (changed) {
+      setPredictions(updated)
+      savePredictionsLocal(updated)
+      void syncPendingPredictions()
+    }
+  }, [weeks, currentMatches, nextMatches])
 
   // Recover any predictions that never reached the backend (e.g. placed before
   // registration landed). Safe to run on every mount — the endpoint upserts.
@@ -209,31 +203,9 @@ export const MainPage: React.FC = () => {
       setTimeout(() => { void syncPendingPredictions() }, 1500)
     }
 
-    // Only move on once the bet is complete (outcome + score). Advancing on the bare
-    // outcome would whisk the card away before the player could pick a score.
-    if (!score) return
-
-    const isAllDone = matches.every(m => updated[m.id]?.score)
-
-    if (isAllDone) {
-      setToastMessage('&#9989; Bets placed!')
-      setShowToast(true)
-      setTimeout(() => {
-        doneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }, 300)
-      setTimeout(() => setShowToast(false), 4000)
-    } else if (currentIndex < matches.length - 1) {
-      setTimeout(() => setCurrentIndex(currentIndex + 1), 600)
-    }
   }
 
-  // Progress is scoped to the selected week only.
-  // "Complete" = outcome + score. An outcome-only bet is saved and scores 1 pt, but
-  // still has the score bonus left on the table, so it reads as in-progress here and
-  // keeps the card stack open instead of jumping to the all-done screen.
-  const completedCount = matches.filter(m => predictions[m.id]?.score).length
   const currentMatch = matches[currentIndex]
-  const allDone = matches.length > 0 && completedCount === matches.length
 
   // Fixtures are fetched now, so the page has three states it never had while the
   // week was compiled into the bundle.
@@ -295,40 +267,6 @@ export const MainPage: React.FC = () => {
     )
   }
 
-  // When all predictions are in and the user hasn't opted into review mode,
-  // show a full confirmation screen instead of the card stack. This guarantees
-  // the "bets saved" message is visible on every TG WebView (scrollIntoView is
-  // unreliable inside Telegram's WebView).
-  if (allDone && !reviewMode) {
-    return (
-      <div className="main-page">
-        <div className="page-header">
-          {weekHeader}
-        </div>
-        <div className="all-done all-done--full" ref={doneRef}>
-          <div className="all-done-icon">&#9989;</div>
-          <div className="all-done-title">Your bets are saved!</div>
-          <div className="all-done-text">You can change any prediction until that match kicks off.</div>
-          <div className="all-done-hint">Check your results on <strong>{resultsAvailableDate(matches)}</strong>.</div>
-          {hasNext && selectedKey === 'current' && (
-            <button
-              className="all-done-review-btn"
-              onClick={() => switchWeek('next')}
-            >
-              Predict next week &#8594;
-            </button>
-          )}
-          <button
-            className={`all-done-review-btn ${hasNext && selectedKey === 'current' ? 'all-done-review-btn--inline' : ''}`}
-            onClick={() => setReviewMode(true)}
-          >
-            Review or change my bets
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="main-page">
       <div className="page-header">
@@ -336,12 +274,11 @@ export const MainPage: React.FC = () => {
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${(completedCount / matches.length) * 100}%` }}
+            style={{ width: `${((currentIndex + 1) / matches.length) * 100}%` }}
           />
         </div>
         <p className="progress-text">
           Match {currentIndex + 1} of {matches.length}
-          {completedCount > 0 && ` · ${completedCount} predicted`}
         </p>
       </div>
 
@@ -379,15 +316,6 @@ export const MainPage: React.FC = () => {
           Next &#8594;
         </button>
       </div>
-
-      {allDone && reviewMode && (
-        <button
-          className="all-done-review-btn all-done-review-btn--inline"
-          onClick={() => setReviewMode(false)}
-        >
-          Back to confirmation
-        </button>
-      )}
 
       {showToast && (
         <div className="toast" dangerouslySetInnerHTML={{ __html: toastMessage }}></div>

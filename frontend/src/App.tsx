@@ -2,7 +2,7 @@ import React from 'react'
 import WebApp from '@twa-dev/sdk'
 import './styles/App.css'
 import { useTelegram } from './hooks/useTelegram'
-import { userApi, guestApi } from './services/api'
+import { userApi, guestApi, predictionsApi } from './services/api'
 import { MainPage, syncPendingPredictions } from './pages/MainPage'
 import { Navigation } from './components/Navigation'
 import { ChampionsPage } from './pages/ChampionsPage'
@@ -46,7 +46,7 @@ function App() {
   const [currentPage, setCurrentPage] = React.useState<Page>(pageFromPath)
   const [, setUser] = React.useState<User | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
-  const [needsAuth, setNeedsAuth] = React.useState(false)
+  const [, setNeedsAuth] = React.useState(false)
   const { tg, user: tgUser, userId, initData } = useTelegram()
   const refSource = React.useRef(captureRefSource())
 
@@ -138,6 +138,23 @@ function App() {
             }
           } catch (mergeErr) {
             console.error('Guest merge failed (non-fatal):', mergeErr)
+          }
+
+          // Always hydrate localStorage from backend so predictions from
+          // guest merge, other devices, or prior sessions show up immediately.
+          try {
+            const { data: preds } = await predictionsApi.getMyPredictions()
+            const stored: Record<string, { outcome: string; score: string }> = {}
+            for (const p of preds) {
+              const outcome = p.prediction_type
+              const score = p.predicted_score ? `${p.predicted_score.home}:${p.predicted_score.away}` : ''
+              stored[p.match_id] = { outcome, score }
+            }
+            // Merge: backend wins for keys it has, keep any local-only keys
+            const local = JSON.parse(localStorage.getItem('betty_predictions_v3') || '{}')
+            localStorage.setItem('betty_predictions_v3', JSON.stringify({ ...local, ...stored }))
+          } catch (hydroErr) {
+            console.error('Prediction hydration failed (non-fatal):', hydroErr)
           }
 
           return

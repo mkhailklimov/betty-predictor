@@ -61,7 +61,6 @@
   padding: 0.7rem 0.8rem;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   align-items: center;
-  text-align: center;
 }
 
 .leaderboard-table .table-row.top-1 { background: rgba(255, 215, 0, 0.08); }
@@ -69,7 +68,7 @@
 .leaderboard-table .table-row.top-3 { background: rgba(205, 127, 50, 0.06); }
 
 .leaderboard-table .col.rank { width: 36px; text-align: center; }
-.leaderboard-table .col.player { flex: 1; font-weight: 600; color: #fff; }
+.leaderboard-table .col.player { flex: 1; font-weight: 600; color: #fff; text-align: left; }
 .leaderboard-table .col.rounds { width: 60px; text-align: center; font-size: 0.85rem; font-weight: 400; }
 .leaderboard-table .col.stars { width: 60px; text-align: center; font-size: 0.85rem; color: #ECF39E; font-weight: 400; }
 .leaderboard-table .col.stars-bold { font-weight: 400; font-size: 0.9rem; }

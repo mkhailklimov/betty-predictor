@@ -12,6 +12,8 @@ interface OutsideTelegramScreenProps {
 
 type Section = 'play' | 'rules' | 'champions' | 'leaderboard'
 
+const isProdSite = () => window.location.hostname === 'app.bettyscores.com'
+
 function getTelegramLink(): string {
   const guestToken = localStorage.getItem('betty_guest_token')
   if (guestToken) {
@@ -50,19 +52,21 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
           {section === 'play' && (
             <>
               <MainPage />
-              <div className="landing__cta">
-                <p className="landing__cta-text">
-                  Compete on the leaderboard &amp; earn stars — play in Telegram!
-                </p>
-                <a
-                  className="landing__cta-btn"
-                  href={getTelegramLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open in Telegram
-                </a>
-              </div>
+              {isProdSite() && (
+                <div className="landing__cta">
+                  <p className="landing__cta-text">
+                    Compete on the leaderboard &amp; earn stars — play in Telegram!
+                  </p>
+                  <a
+                    className="landing__cta-btn"
+                    href={getTelegramLink()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open in Telegram
+                  </a>
+                </div>
+              )}
             </>
           )}
           {section === 'leaderboard' && <LeaderboardPage />}
