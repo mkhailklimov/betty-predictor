@@ -23,7 +23,11 @@ function getTelegramLink(): string {
 }
 
 export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ onGuest }) => {
-  const [section, setSection] = React.useState<Section>('play')
+  const [section, setSection] = React.useState<Section>(() => {
+    const tab = new URLSearchParams(window.location.search).get('tab')
+    if (tab && ['play', 'rules', 'champions', 'leaderboard'].includes(tab)) return tab as Section
+    return 'play'
+  })
 
   // Create guest session if none exists yet
   React.useEffect(() => {

@@ -766,6 +766,25 @@ export default {
         }
         const update = await request.json();
 
+        // /start command → welcome message with button to open the mini app.
+        if (update.message && update.message.text && update.message.text.startsWith('/start')) {
+          const chatId = update.message.chat.id;
+          await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: 'Welcome to Betty Scores!\n\nPredict exact scores for 10 top football matches every week and compete for Stars prizes.\n\nTap the button below to start playing.',
+              reply_markup: {
+                inline_keyboard: [[
+                  { text: 'Open Betty Scores', web_app: { url: 'https://app.bettyscores.com' } }
+                ]]
+              }
+            }),
+          });
+          return json({ ok: true });
+        }
+
         if (update.pre_checkout_query) {
           const q = update.pre_checkout_query;
           await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/answerPreCheckoutQuery`, {
