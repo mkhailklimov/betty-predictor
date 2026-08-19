@@ -55,8 +55,10 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, prediction, onPredi
   // Our own card art exists for national teams only. Club fixtures fall back to
   // the crest the feed carries on the match row — without it a club match would
   // render as two blank tiles.
-  const homeCard = getCardImage(match.home.code)
-  const awayCard = getCardImage(match.away.code)
+  // Only use our card PNGs for national teams (no crest from the feed).
+  // Club codes can collide with national ones (e.g. PAR = Parma vs Paraguay).
+  const homeCard = match.home.crest ? null : getCardImage(match.home.code)
+  const awayCard = match.away.crest ? null : getCardImage(match.away.code)
   const homeArt = getTeamImage(match.home)
   const awayArt = getTeamImage(match.away)
 

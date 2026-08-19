@@ -65,7 +65,10 @@ export function getLocalFlag(code: string | null): string | null {
 // Club football only ever has the third, which is exactly why the crest URL is
 // carried on the match row.
 export function getTeamImage(team: TeamData): string | null {
-  return getCardImage(team.code) || getLocalFlag(team.code) || team.crest
+  // Feed-sourced teams (clubs) carry their own crest — use it directly so that
+  // a club code like PAR (Parma) doesn't collide with a national-team card (Paraguay).
+  if (team.crest) return team.crest
+  return getCardImage(team.code) || getLocalFlag(team.code) || null
 }
 
 // Kickoff → the card's date line, in the viewer's own timezone. v1 hardcoded
