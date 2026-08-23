@@ -118,9 +118,10 @@ export default {
     const { results: matches } = await env.DB.prepare('SELECT * FROM matches').all();
 
     for (const match of matches) {
-      if (!match.time) continue;
+      const timeStr = match.time || match.match_date_utc;
+      if (!timeStr) continue;
 
-      const kickoff = new Date(match.time.includes('T') ? match.time : match.time.replace(' ', 'T') + 'Z');
+      const kickoff = new Date(timeStr.includes('T') ? timeStr : timeStr.replace(' ', 'T') + 'Z');
       const endEstimate = new Date(kickoff.getTime() + 3 * 60 * 60 * 1000);
 
       let newStatus = match.is_active;
