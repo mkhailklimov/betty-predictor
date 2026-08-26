@@ -816,6 +816,171 @@ export default {
         return json({ ok: true });
       }
 
+      // --- v2.1 Challenges (RELEASE-2.1.md §1) ---
+
+      // GET /api/challenges/current — this week's challenges + caller's predictions.
+      if (method === 'GET' && path === '/api/challenges/current') {
+        const bounds = weekBounds(new Date());
+        const { results: challenges } = await env.DB.prepare(
+          'SELECT * FROM challenges WHERE week_id = ? ORDER BY created_at'
+        ).bind(bounds.week_id).all();
+
+        // Attach the caller's predictions if authenticated.
+        let myPredictions = {};
+        const token = await resolveTgIdStr(request, env).catch(() => null);
+        if (token) {
+          const user = await env.DB.prepare('SELECT id FROM users WHERE tg_id = ?').bind(token).first();
+          if (user) {
+            const { results: preds } = await env.DB.prepare(
+              'SELECT challenge_id, answer, points_earned FROM challenge_predictions WHERE user_id = ?'
+            ).bind(user.id).all();
+            for (const p of preds) myPredictions[p.challenge_id] = p;
+          }
+        }
+
+        // Enrich challenges with match data (crests, team names) when linked.
+        const matchIds = challenges.map(c => c.match_id).filter(Boolean);
+        const matchMap = {};
+        if (matchIds.length) {
+          const { results: ms } = await env.DB.prepare(
+            `SELECT id, home_team, away_team, crest_home, crest_away, code_home, code_away, league, time, match_date_utc
+             FROM matches WHERE id IN (${matchIds.map(() => '?').join(',')})`
+          ).bind(...matchIds).all();
+          for (const m of ms) matchMap[m.id] = m;
+        }
+
+        return json({
+          week_id: bounds.week_id,
+          starts_at: bounds.starts_at,
+          ends_at: bounds.ends_at,
+          challenges: challenges.map(c => {
+            const m = c.match_id ? matchMap[c.match_id] : null;
+            return {
+              ...c,
+              options: JSON.parse(c.options),
+              my_prediction: myPredictions[c.id] || null,
+              match: m ? {
+                home_team: m.home_team, away_team: m.away_team,
+                crest_home: m.crest_home, crest_away: m.crest_away,
+                code_home: m.code_home, code_away: m.code_away,
+                league: m.league,
+              } : null,
+            };
+          }),
+        });
+      }
+
+      // POST /api/challenges/:id/predict — submit or update an answer.
+      // Body: { answer: "Yes" | "Over" | "Home" | "2:1" | ... }
+      if (method === 'POST' && path.match(/^\/api\/challenges\/[^/]+\/predict$/)) {
+        const challengeId = path.split('/')[3];
+        const token = await resolveTgIdStr(request, env);
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
+        if (!user) return json({ detail: 'User not found' }, 401);
+
+        const challenge = await env.DB.prepare('SELECT * FROM challenges WHERE id = ?').bind(challengeId).first();
+        if (!challenge) return json({ detail: 'Challenge not found' }, 404);
+        if (challenge.correct_answer) return json({ detail: 'Challenge already resolved' }, 400);
+
+        // Lockout: if challenge is tied to a match, check kickoff.
+        if (challenge.match_id) {
+          const match = await env.DB.prepare('SELECT time, match_date_utc FROM matches WHERE id = ?').bind(challenge.match_id).first();
+          if (match) {
+            const timeStr = match.time || match.match_date_utc;
+            if (timeStr) {
+              let t = timeStr.includes('T') ? timeStr : timeStr.replace(' ', 'T');
+              if (!/[Zz]|[+-]\d{2}:?\d{2}$/.test(t)) t += 'Z';
+              const kickoff = new Date(t);
+              if (!isNaN(kickoff.getTime()) && new Date() >= kickoff) {
+                return json({ detail: 'Betting closed — match has started' }, 403);
+              }
+            }
+          }
+        }
+
+        const body = await request.json();
+        const answer = body.answer;
+        if (!answer) return json({ detail: 'answer required' }, 400);
+
+        // Validate answer against allowed options (for non-exact-score types).
+        const options = JSON.parse(challenge.options);
+        if (options[0] !== 'reels' && !options.includes(answer)) {
+          return json({ detail: `answer must be one of: ${options.join(', ')}` }, 400);
+        }
+
+        // Upsert.
+        const existing = await env.DB.prepare(
+          'SELECT id FROM challenge_predictions WHERE user_id = ? AND challenge_id = ?'
+        ).bind(user.id, challengeId).first();
+
+        if (existing) {
+          await env.DB.prepare(
+            'UPDATE challenge_predictions SET answer = ?, created_at = datetime("now") WHERE id = ?'
+          ).bind(answer, existing.id).run();
+        } else {
+          await env.DB.prepare(
+            'INSERT INTO challenge_predictions (id, user_id, challenge_id, answer) VALUES (?, ?, ?, ?)'
+          ).bind(uuid(), user.id, challengeId, answer).run();
+        }
+
+        return json({ ok: true, challenge_id: challengeId, answer });
+      }
+
+      // --- Admin: publish challenges from the Challenges sheet tab → D1 ---
+      // POST /api/admin/publish-challenges?dry=1&week=2026_37
+      if (method === 'POST' && path === '/api/admin/publish-challenges') {
+        const adminToken = getToken(request);
+        if (!env.ADMIN_TOKEN || adminToken !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const result = await publishChallengesFromSheet(env, {
+          weekId: url.searchParams.get('week') || undefined,
+          dryRun: url.searchParams.get('dry') === '1',
+        });
+        return json(result, result.ok ? 200 : 422);
+      }
+
+      // --- Admin: resolve challenges — set correct answers and award points ---
+      // POST /api/admin/resolve-challenges?week=2026_37
+      // Body: { answers: { "<challenge_id>": "Yes", ... } }
+      if (method === 'POST' && path === '/api/admin/resolve-challenges') {
+        const adminToken = getToken(request);
+        if (!env.ADMIN_TOKEN || adminToken !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const body = await request.json();
+        const answers = body.answers;
+        if (!answers || typeof answers !== 'object') return json({ detail: 'answers object required' }, 400);
+
+        let resolved = 0, scored = 0;
+        for (const [challengeId, correctAnswer] of Object.entries(answers)) {
+          const ch = await env.DB.prepare('SELECT * FROM challenges WHERE id = ?').bind(challengeId).first();
+          if (!ch) continue;
+
+          // Set the correct answer on the challenge.
+          await env.DB.prepare(
+            "UPDATE challenges SET correct_answer = ?, resolved_at = datetime('now') WHERE id = ?"
+          ).bind(correctAnswer, challengeId).run();
+          resolved++;
+
+          // Score all predictions for this challenge.
+          const { results: preds } = await env.DB.prepare(
+            'SELECT * FROM challenge_predictions WHERE challenge_id = ?'
+          ).bind(challengeId).all();
+
+          for (const p of preds) {
+            const earned = p.answer === correctAnswer ? ch.points : 0;
+            await env.DB.prepare(
+              'UPDATE challenge_predictions SET points_earned = ? WHERE id = ?'
+            ).bind(earned, p.id).run();
+            if (earned > 0) scored++;
+          }
+        }
+
+        return json({ ok: true, resolved, scored });
+      }
+
       return json({ detail: 'Not found' }, 404);
 
     } catch (err) {
@@ -1539,6 +1704,103 @@ async function ensureSheetTab(sid, token, title, header) {
 }
 
 const CANDIDATES_HEADER = ['Week ID', 'Source ID', 'League', 'Kickoff UTC', 'Home', 'Away'];
+const CHALLENGES_HEADER = ['Week ID', 'Match Source ID', 'Type', 'Question Text', 'Options', 'Points', 'Correct Answer'];
+
+// Publish challenges from the "Challenges" sheet tab → D1.
+// Each row: Week ID | Match Source ID | Type | Question Text | Options | Points | Correct Answer
+// Options is comma-separated: "Yes,No" or "Over,Under" or "reels" for exact_score.
+async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+  const token = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+
+  await ensureSheetTab(sid, token, 'Challenges', CHALLENGES_HEADER);
+  const res = await sheetsFetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Challenges!A2:G`, token, 'GET');
+  const allRows = res.values || [];
+
+  const target = weekId || (allRows.find((r) => (r[0] || '').trim()) || [])[0]?.trim()
+    || weekBounds(new Date()).week_id;
+  const bounds = weekBoundsFor(target);
+  if (!bounds) {
+    return { ok: false, week_id: target, errors: [`unknown week id ${target}`], published: 0 };
+  }
+
+  const rows = allRows.filter((r) => (r[0] || '').trim() === bounds.week_id);
+  const errors = [];
+
+  if (rows.length < 1) {
+    errors.push(`no challenge rows for ${bounds.week_id}`);
+  }
+  if (rows.length > 10) {
+    errors.push(`too many challenges for ${bounds.week_id}: ${rows.length} (max 10)`);
+  }
+
+  const VALID_TYPES = new Set(['exact_score', 'will_score', 'over_under', 'clean_sheet', 'first_to_score']);
+  const challenges = [];
+  for (const r of rows) {
+    const type = (r[2] || '').trim();
+    const question = (r[3] || '').trim();
+    const optionsStr = (r[4] || '').trim();
+    const points = Number(r[5]) || 0;
+    const matchSourceId = (r[1] || '').trim();
+
+    if (!type || !question || !optionsStr || !points) {
+      errors.push(`incomplete row: ${JSON.stringify(r)}`);
+      continue;
+    }
+    if (!VALID_TYPES.has(type)) {
+      errors.push(`invalid type "${type}" for question "${question}"`);
+      continue;
+    }
+
+    // Resolve match_id from source_id if provided.
+    let matchId = null;
+    if (matchSourceId) {
+      const match = await env.DB.prepare(
+        'SELECT id FROM matches WHERE id = ? OR source_id = ?'
+      ).bind(matchSourceId, matchSourceId).first();
+      if (match) matchId = match.id;
+      // Not an error if match not found — challenge might reference a match not yet published.
+    }
+
+    const options = optionsStr === 'reels' ? '["reels"]' : JSON.stringify(optionsStr.split(',').map(s => s.trim()));
+
+    challenges.push({ type, question, options, points, matchId, matchSourceId });
+  }
+
+  if (errors.length) {
+    console.error('publishChallengesFromSheet REFUSED', bounds.week_id, JSON.stringify(errors));
+    return { ok: false, week_id: bounds.week_id, errors, valid: challenges.length, published: 0 };
+  }
+
+  if (dryRun) return { ok: true, dry: true, week_id: bounds.week_id, challenges };
+
+  // Delete existing challenges for this week (re-publish replaces them).
+  // Also delete any predictions for the old challenges to avoid orphans.
+  const { results: oldChallenges } = await env.DB.prepare(
+    'SELECT id FROM challenges WHERE week_id = ?'
+  ).bind(bounds.week_id).all();
+  const stmts = [];
+  for (const old of oldChallenges) {
+    stmts.push(env.DB.prepare('DELETE FROM challenge_predictions WHERE challenge_id = ?').bind(old.id));
+  }
+  stmts.push(env.DB.prepare('DELETE FROM challenges WHERE week_id = ?').bind(bounds.week_id));
+
+  for (const c of challenges) {
+    const id = uuid();
+    stmts.push(env.DB.prepare(
+      `INSERT INTO challenges (id, week_id, match_id, type, question, options, points)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, bounds.week_id, c.matchId, c.type, c.question, c.options, c.points));
+  }
+  await env.DB.batch(stmts);
+
+  return { ok: true, week_id: bounds.week_id, published: challenges.length, challenges };
+}
 
 // Rewrite the "Candidates" tab from bronze for the week being curated.
 // SINK — never read back. The human copies rows from here into "Fixtures".

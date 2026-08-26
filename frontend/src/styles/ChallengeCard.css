@@ -1,0 +1,222 @@
+/* ChallengeCard — same visual language as MatchCard */
+.cc {
+  background: rgba(20, 44, 18, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 1.2rem;
+  backdrop-filter: blur(4px);
+  position: relative;
+}
+
+.cc--resolved {
+  opacity: 0.8;
+}
+
+/* Points badge — top right */
+.cc__points-badge {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  background: rgba(144, 169, 85, 0.3);
+  color: #ECF39E;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  z-index: 1;
+}
+
+/* Match header with crests */
+.cc__match-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cc__team {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cc__crest {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.cc__team-initials {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(49, 87, 44, 0.4);
+  border: 2px solid rgba(144, 169, 85, 0.3);
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ECF39E;
+}
+
+.cc__team-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #FAF9F6;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.cc__vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding-top: 0.5rem;
+  min-width: 48px;
+}
+
+.cc__type-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.cc__league {
+  font-size: 0.55rem;
+  color: #777;
+  text-align: center;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Hero icon when no match is linked */
+.cc__icon-hero {
+  text-align: center;
+  margin-bottom: 0.8rem;
+}
+
+.cc__icon-large {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+/* Question area */
+.cc__question {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding: 0 0.5rem;
+}
+
+.cc__question-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #FAF9F6;
+  line-height: 1.35;
+}
+
+/* Option buttons */
+.cc__options {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.cc__option {
+  flex: 1;
+  padding: 0.8rem 0.5rem;
+  border: 2px solid rgba(144, 169, 85, 0.3);
+  border-radius: 12px;
+  background: rgba(49, 87, 44, 0.3);
+  color: #FAF9F6;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.cc__option:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.cc__option--selected {
+  background: rgba(144, 169, 85, 0.4);
+  border-color: #ECF39E;
+  color: #ECF39E;
+}
+
+.cc__option--correct {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: #4CAF50;
+  color: #4CAF50;
+}
+
+.cc__option--wrong {
+  background: rgba(244, 67, 54, 0.15);
+  border-color: #f44336;
+  color: #f44336;
+}
+
+.cc__option:disabled {
+  cursor: default;
+}
+
+/* Reels wrapper */
+.cc__reels {
+  margin-top: 0.4rem;
+}
+
+/* Result display */
+.cc__result {
+  text-align: center;
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  margin-top: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.cc__result--win {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4CAF50;
+}
+
+.cc__result--loss {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+.cc__result--missed {
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
+}
+
+.cc__saved {
+  text-align: center;
+  background: rgba(144, 169, 85, 0.2);
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  margin-top: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ECF39E;
+}
+
+@media (max-width: 360px) {
+  .cc__crest {
+    width: 44px;
+    height: 44px;
+  }
+  .cc__question-text {
+    font-size: 0.95rem;
+  }
+  .cc__option {
+    font-size: 0.85rem;
+    padding: 0.65rem 0.4rem;
+  }
+}
