@@ -1,145 +1,241 @@
-# Betty Scores 2.1 — EPL Focus & Multi-Platform Content Pivot
+# Betty Scores 2.1 — Fun Predictions & Multi-Platform Growth
 
 ## Vision
 
-Betty pivots from grey multi-league score predictions to engaging, fun football content
-centered on the English Premier League and Great Britain / Ireland national teams.
-The product becomes a content-first prediction game distributed via short-form video
-(TikTok, YouTube Shorts, Instagram Reels, Facebook) with the prediction as the CTA.
+Betty stops being a boring score-prediction spreadsheet and becomes a fun,
+shareable football prediction game. 5-6 creative questions per week replace
+10 dry score guesses. The game lives on the web and acquires players from
+four social media platforms — YouTube, TikTok, Facebook, and Telegram.
 
-## What Changes
+---
 
-### 1. Content Focus: EPL + GB/Ireland
+## 1. Fun Prediction Formats
 
-**Primary:** English Premier League — all 380 season matches.
+Each week: **5-6 hand-crafted questions** instead of 10 score predictions.
 
-**Secondary (when scheduled):**
-- Champions League / Europa League — matches involving British clubs only
-  (Arsenal, Chelsea, Liverpool, Man City, Aston Villa, Man Utd, Newcastle, etc.)
-- National teams — England, Scotland, Wales, Northern Ireland, Republic of Ireland
-  (Nations League, World Cup qualifiers, friendlies)
+| # | Format | Example | Answer type | Points |
+|---|--------|---------|-------------|--------|
+| 1 | **Exact Score** | "Arsenal vs Chelsea — what's the final score?" | Two reels (existing) | 5 |
+| 2 | **Will He Score?** | "Will Haaland score against Everton?" | Yes / No | 2 |
+| 3 | **Over/Under 2.5** | "Liverpool vs Man City — over or under 2.5 total goals?" | Over / Under | 2 |
+| 4 | **Clean Sheet** | "Will Onana keep a clean sheet vs Brighton?" | Yes / No | 3 |
+| 5 | **First to Score** | "North London Derby — who scores first?" | Home / Away / Nobody | 3 |
+| 6 | **Derby Prophet** | "Merseyside Derby — pick the exact score" | Two reels | 5 |
 
-**Dropped:** La Liga, Serie A, Ligue 1, Bundesliga, MLS, Brazilian, etc. as standalone content.
-Top matches from other leagues may appear as specials but are not the core.
+**Rules:**
+- Every question ties to a real match that week
+- Mix of easy (Yes/No) and hard (exact score) keeps it fun for everyone
+- Questions are curated by Misha in the sheet, not auto-generated
+- Each question = one potential Reels/Shorts script (see section 4)
 
-### 2. Fun Prediction Formats (replace dry 1/X/2)
+---
 
-Instead of "predict the score", users answer catchy yes/no and multiple-choice questions:
+## 2. Football Focus: British Football
 
-| Format | Example | Options | Points |
-|--------|---------|---------|--------|
-| **Will They Score?** | "Will Arsenal score today?" | Yes / No | 1 |
-| **Over/Under** | "Arsenal vs Chelsea — over 2.5 goals?" | Over / Under | 1 |
-| **First Blood** | "Who scores first? Man Utd vs Man City" | Home / Away / Nobody | 2 |
-| **Red Card Roulette** | "Will there be a red card?" | Yes / No | 3 (rare event) |
-| **Derby Prophet** | "North London Derby — exact score?" | Free input | 5 |
-| **Weekend Accumulator** | "Pick 5 correct outcomes this weekend" | 5 selections | 10 if all correct |
+**Primary — English Premier League:**
+All 380 season matches as the pool. 4-5 questions per week from EPL.
 
-Each format maps to one short video. The prediction IS the engagement hook.
+**Secondary — British clubs in Europe:**
+- Champions League — Arsenal, Liverpool, Man City, Aston Villa
+- Europa League — Man Utd, Tottenham, Newcastle, West Ham
 
-- 6 good questions per week > 10 boring ones
-- Mix of easy (Will They Score) and hard (Derby Prophet) for range
-- Keep it fun, not a spreadsheet
+**Tertiary — Cup & National:**
+- FA Cup (from Round 3 onward)
+- England, Scotland, Wales, Northern Ireland, Republic of Ireland
+  (Nations League, World Cup qualifiers)
 
-### 3. Multi-Platform User Acquisition
+**Dropped from 2.0:** La Liga, Serie A, Bundesliga, Ligue 1, MLS as regular content.
 
-**Content pipeline:**
+---
+
+## 3. Multi-Platform Player Acquisition
+
+### Architecture
+
 ```
-Goal clip (5-15s) + prediction question overlay
-  -> Post to TikTok / YouTube Shorts / Instagram Reels / Facebook
-  -> CTA: "Think Arsenal scores 3+? Prove it -> link in bio"
-  -> User lands on app.bettyscores.com
-  -> Signs in with their platform account
-  -> Makes prediction in 2 taps
+                        ┌─────────────┐
+                        │   YouTube   │
+                        │   Shorts    │
+                        └──────┬──────┘
+                               │ "Think Haaland scores?
+                               │  Prove it → link in bio"
+                               ▼
+┌─────────────┐     ┌───────────────────────┐     ┌─────────────┐
+│   TikTok    │────▶│                       │◀────│  Facebook   │
+│   Reels     │     │   app.bettyscores.com │     │  Reels      │
+└─────────────┘     │                       │     └─────────────┘
+                    │      BETTY GAME       │
+                    │                       │
+                    │   5-6 fun questions   │
+                    │   predict in 2 taps   │
+                    │   leaderboard & stars │
+                    │                       │
+                    └───────────┬───────────┘
+                               ▲
+                               │ Mini App (existing)
+                        ┌──────┴──────┐
+                        │  Telegram   │
+                        │  @bettyscores_bot
+                        └─────────────┘
 ```
 
-**Target platforms for distribution:**
-- TikTok (new)
-- YouTube Shorts (new)
-- Facebook / Instagram Reels (new)
-- Telegram (existing — keep Mini App as one channel)
+### Player Registration by Nickname
 
-### 4. Multi-Platform Authentication
+Players from YouTube, TikTok, and Facebook sign up with just a **nickname** —
+no OAuth, no complex login. The web app is the primary product.
 
-Users can register/login via any of these — no Telegram requirement:
+| Platform | How they arrive | Registration |
+|----------|----------------|--------------|
+| YouTube | Shorts → link in bio → web app | Nickname + "from YouTube" tag |
+| TikTok | Reels → link in bio → web app | Nickname + "from TikTok" tag |
+| Facebook | Reels → link → web app | Nickname + "from Facebook" tag |
+| Telegram | Mini App (existing TWA auth) | Automatic (Telegram ID) |
 
-| Provider | Auth Method | Status |
-|----------|------------|--------|
-| Google/YouTube | OAuth 2.0 | Planned — Phase 1 |
-| Facebook | Facebook Login SDK | Planned — Phase 1 |
-| Telegram | Existing TWA auth | Keep as-is |
-| TikTok | TikTok Login Kit | Planned — Phase 2 (slower approval) |
+**Stars eligibility:** To earn Telegram Stars prizes, a player must link
+their account to the Telegram Mini App. Social-only players see their
+stats and leaderboard position but get a prompt: "Connect Telegram to
+claim your Stars."
 
 **DB schema change:**
 ```sql
-ALTER TABLE users ADD COLUMN provider TEXT;      -- 'telegram','google','facebook','tiktok'
-ALTER TABLE users ADD COLUMN provider_id TEXT;
-ALTER TABLE users ADD COLUMN display_name TEXT;
+ALTER TABLE users ADD COLUMN provider TEXT;       -- 'telegram','youtube','tiktok','facebook','web'
+ALTER TABLE users ADD COLUMN display_name TEXT;    -- the nickname they chose
 ALTER TABLE users ADD COLUMN avatar_url TEXT;
--- Unique constraint on (provider, provider_id)
--- Existing telegram users: provider='telegram', provider_id=tg_id
+-- Existing telegram users: provider='telegram', display_name=username
+-- Social users: provider='youtube', display_name='FootballFan99'
 ```
 
-**The web app (app.bettyscores.com) becomes the primary product.**
-Telegram Mini App remains as one channel but is no longer the only entry point.
+### Merge Flow
 
-### 5. Shareable Result Cards
+When a YouTube/TikTok/Facebook player opens the Telegram Mini App:
+1. App detects their Telegram ID
+2. Prompts: "Link your Betty account?"
+3. Merges predictions and stats from the web account into the Telegram account
+4. Now eligible for Stars prizes
 
-After each prediction round, users get a canvas-rendered image (1080x1920)
-showing their picks and results — designed for sharing to Stories/TikTok/etc.
-Creates a viral loop: share card -> friends see -> they join.
+---
 
-## Betty_Master_Data Sheet Changes
+## 4. Content-to-Game Pipeline
 
-New **Challenges** tab structure:
+Every prediction question doubles as a **script for a promotional video**.
 
-| Week ID | Match Source ID | League | Kickoff UTC | Home | Away | Challenge Type | Question Text | Options | Correct Answer | Points |
-|---------|----------------|--------|-------------|------|------|---------------|---------------|---------|----------------|--------|
+### Example: Week 37, Question 2
 
-- Replaces the old Fixtures tab as the source of truth for weekly content
-- Misha approves challenges in the sheet before they go live
-- Correct Answer filled after match completes
-- Old tabs (Users, Predictions, Leaderboards) stay untouched
+**Question:** "Will Haaland score against Everton?"
 
-## Development Plan
+**Video script (15s Reels/Shorts):**
+```
+[0-3s]  Haaland goal compilation (3 quick clips)
+[3-6s]  Text overlay: "Haaland vs Everton this Saturday"
+[6-9s]  Text: "Will he score? 🎯"
+[9-12s] Screen recording: opening Betty, tapping YES on the question
+[12-15s] Text: "Make your pick → link in bio"
+        Betty logo + @bettyscores handle
+```
 
-### Phase 1: Content & Challenge Engine (next 2 sessions)
-- [ ] New `challenges` table in D1 (type, question, options, points, answer)
-- [ ] New Challenges tab in Betty_Master_Data
-- [ ] Admin endpoint: publish challenges from sheet to D1
-- [ ] Frontend: render challenge cards instead of match score inputs
-- [ ] Scoring engine for yes/no, over/under, first_blood, accumulator
-- [ ] Populate week 37-38 with EPL challenges
+**Post to:** TikTok, YouTube Shorts, Facebook Reels, Telegram channel
 
-### Phase 2: Multi-Platform Auth (1-2 sessions)
-- [ ] Standalone web app login page (not TWA-only)
-- [ ] Google OAuth 2.0 integration
-- [ ] Facebook Login integration
-- [ ] Unified user table with provider/provider_id
-- [ ] Migrate existing Telegram users (backfill provider columns)
+**Weekly content calendar:**
+- Monday: questions published in Betty + 1 video per question recorded
+- Tue-Fri: post 1-2 videos per day across all 4 platforms
+- Saturday/Sunday: matches play, results come in
+- Sunday night: leaderboard update, share winner cards
 
-### Phase 3: Content & Sharing (1 session)
-- [ ] Shareable prediction card (canvas render, 1080x1920)
-- [ ] Share to Story / copy link flow
+---
+
+## 5. Challenges Table (D1 Schema)
+
+```sql
+CREATE TABLE challenges (
+  id          TEXT PRIMARY KEY,
+  week_id     TEXT NOT NULL,
+  match_id    TEXT,                -- links to matches table (nullable for combo questions)
+  type        TEXT NOT NULL,       -- 'exact_score','will_score','over_under','clean_sheet','first_to_score'
+  question    TEXT NOT NULL,       -- "Will Haaland score against Everton?"
+  options     TEXT NOT NULL,       -- JSON: ["Yes","No"] or ["Over","Under"] or ["Home","Away","Nobody"]
+  points      INTEGER NOT NULL,
+  correct_answer TEXT,             -- filled after match: "Yes", "Over", "2:1", etc.
+  resolved_at TEXT,
+  created_at  TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (week_id) REFERENCES weeks(week_id)
+);
+
+CREATE TABLE challenge_predictions (
+  id            TEXT PRIMARY KEY,
+  user_id       TEXT NOT NULL,
+  challenge_id  TEXT NOT NULL,
+  answer        TEXT NOT NULL,     -- "Yes", "Over", "Home", "2:1", etc.
+  points_earned INTEGER DEFAULT 0,
+  created_at    TEXT DEFAULT (datetime('now')),
+  UNIQUE(user_id, challenge_id),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (challenge_id) REFERENCES challenges(id)
+);
+```
+
+---
+
+## 6. Betty_Master_Data Sheet Changes
+
+New **Challenges** tab (replaces Fixtures as the weekly source):
+
+| Week ID | Match Source ID | Type | Question Text | Options | Points | Correct Answer |
+|---------|----------------|------|---------------|---------|--------|----------------|
+| 2026_37 | espn:123 | will_score | Will Haaland score against Everton? | Yes,No | 2 | |
+| 2026_37 | espn:124 | over_under | Liverpool vs Man City — over 2.5 goals? | Over,Under | 2 | |
+| 2026_37 | espn:125 | exact_score | Arsenal vs Chelsea — final score? | reels | 5 | |
+
+- Misha curates 5-6 questions per week
+- Correct Answer filled after match ends
+- Monday cron publishes to D1
+
+---
+
+## 7. Development Plan
+
+### Phase 1: Challenge Engine
+- [ ] `challenges` + `challenge_predictions` tables in D1
+- [ ] Challenges tab in Betty_Master_Data
+- [ ] `POST /api/admin/publish-challenges` — sheet to D1
+- [ ] `GET /api/challenges/current` — serve this week's questions
+- [ ] `POST /api/challenges/:id/predict` — submit answer
+- [ ] Frontend: challenge cards (Yes/No buttons, Over/Under, reels for exact score)
+- [ ] Scoring engine: resolve answers after match, award points
+- [ ] Leaderboard works across challenge types
+
+### Phase 2: Nickname Registration
+- [ ] Web signup: pick a nickname, tag platform source
+- [ ] No OAuth — just nickname + optional email
+- [ ] "Connect Telegram" prompt for Stars eligibility
+- [ ] Merge flow: web account → Telegram account
+
+### Phase 3: Content Pipeline
+- [ ] Shareable result cards (canvas, 1080x1920)
+- [ ] First batch of Reels scripts from week 37 questions
 - [ ] Link-in-bio landing page optimized for social traffic
+- [ ] Telegram channel posts with prediction CTAs
 
-### Phase 4: TikTok Auth + Polish
-- [ ] TikTok Login Kit integration (requires app review)
+### Phase 4: Polish & Scale
 - [ ] Onboarding flow for social media newcomers
-- [ ] Points/leaderboard across all challenge types
+- [ ] Weekly content calendar automation
+- [ ] A/B test question formats by engagement
 
-## Rollback
+---
 
-Betty 2.0 stable state saved as git tag `v2.0`:
-- GitHub release: https://github.com/MihelKlimm/betty-predictor/releases/tag/v2.0
-- Rollback: `git checkout v2.0`
+## 8. Rollback
 
-## Schedule
+Betty 2.0 backup verified and committed:
+- Backup: `backups/betty-d1-v2.0.sql` (verified 2026-08-26)
+- Rollback procedure: `docs/BACKUP-2.0.md`
+- Git tag: `v2.0`
+
+---
+
+## 9. Schedule
 
 | Week | ISO | Content |
 |------|-----|---------|
-| 34 | Aug 17-23 | Current format (already live) |
-| 35 | Aug 24-30 | Current format (already live) |
-| 36 | Aug 31 - Sep 6 | Current format (already live) |
-| 37 | Sep 7-13 | **First fun format week** — EPL only |
-| 38 | Sep 14-20 | Fun format + CL group stage begins (British clubs) |
+| 35 | Aug 24-30 | Current format (10 matches) |
+| 36 | Aug 31 - Sep 6 | Current format (last old-style week) |
+| 37 | Sep 7-13 | **First fun format** — 5-6 EPL challenges + first Reels batch |
+| 38 | Sep 14-20 | Fun format + CL group stage (British clubs) |
