@@ -234,37 +234,72 @@ Challenge cards currently show ESPN team crests (when linked to a match) or
 emoji icons as fallback. The goal is custom sticker-style animated illustrations
 that make each card feel alive and shareable.
 
-### What to prepare
+### 9.1 Strikers — "Will He Score?" stickers (8 stickers)
 
-**Per challenge type — reusable across weeks:**
+| # | Player | Club | Jersey | Kit colors | Visual |
+|---|--------|------|--------|------------|--------|
+| 1 | Erling Haaland | Man City | #9 | Sky blue | Celebrating, arms wide, ball in net |
+| 2 | Mohamed Salah | Liverpool | #11 | Red | Running with ball, one arm raised |
+| 3 | Bukayo Saka | Arsenal | #7 | Red & white | Dribbling past defender |
+| 4 | Cole Palmer | Chelsea | #20 | Blue | Cool celebration, finger wag |
+| 5 | Alexander Isak | Newcastle | #14 | Black & white stripes | Heading the ball |
+| 6 | Bruno Fernandes | Man Utd | #8 | Red | Shooting, dramatic pose |
+| 7 | Son Heung-min | Tottenham | #7 | White | Sprint with ball |
+| 8 | Ollie Watkins | Aston Villa | #11 | Claret & blue | Sliding celebration |
 
-| # | Type | Illustration needed | Usage |
-|---|------|-------------------|-------|
-| 1 | **will_score** | Striker celebrating a goal — dynamic pose, arms raised, ball in net behind | "Will Haaland score?" cards |
-| 2 | **over_under** | Scoreboard / stadium display showing "2.5" with arrows up and down | "Over/Under 2.5 goals?" cards |
-| 3 | **clean_sheet** | Goalkeeper diving to save — full stretch, gloves out, goal frame visible | "Will Onana keep a clean sheet?" cards |
-| 4 | **first_to_score** | Two players racing to the ball — split composition, left vs right | "Who scores first?" cards |
-| 5 | **exact_score** | Slot machine / reel machine with footballs — fun, casino-game feel | "Pick the exact score" cards |
-| 6 | **derby** | Stadium packed with two sets of fans — split colors left/right | Derby-specific challenges |
+### 9.2 Goalkeepers — "Clean Sheet?" stickers (5 stickers)
 
-**Per-team / per-player — for specific questions:**
+| # | Player | Club | Jersey | Kit colors | Visual |
+|---|--------|------|--------|------------|--------|
+| 9 | Andre Onana | Man Utd | #24 | Green/black | Diving full stretch, gloves out |
+| 10 | Alisson | Liverpool | #1 | Yellow/green | Catching a high ball |
+| 11 | David Raya | Arsenal | #22 | Yellow | Low save, ball at fingertips |
+| 12 | Ederson | Man City | #31 | Green | Punching a cross away |
+| 13 | Robert Sanchez | Chelsea | #1 | Yellow | Spreading to block |
 
-| # | Subject | Illustration needed | When to use |
-|---|---------|-------------------|-------------|
-| 7 | **Big 6 stadiums** | Emirates, Anfield, Old Trafford, Stamford Bridge, Etihad, Tottenham Stadium — stylized, sticker art | Any challenge involving that team |
-| 8 | **Star players** | Haaland, Salah, Saka, Bruno Fernandes, Son — cartoon/sticker style portrait, recognizable but not photorealistic (avoids likeness rights) | "Will X score?" questions |
-| 9 | **Rivalry flames** | Two crests with fire/lightning between them | Derby challenges |
-| 10 | **Red card** | Referee holding up a red card — dramatic pose | Future "Red Card Roulette" challenge type |
+### 9.3 Stadiums — exact score & derby stickers (8 stickers)
+
+| # | Stadium | Club | Visual hint |
+|---|---------|------|-------------|
+| 14 | Emirates Stadium | Arsenal | Angular roof, red seats, cannon |
+| 15 | Anfield | Liverpool | "You'll Never Walk Alone" gate, red glow |
+| 16 | Old Trafford | Man Utd | Red brick, "Theatre of Dreams" sign |
+| 17 | Stamford Bridge | Chelsea | Blue seats, compact, lion |
+| 18 | Etihad Stadium | Man City | Curved roof, sky blue seats |
+| 19 | Tottenham Hotspur Stadium | Spurs | Golden cockerel, modern glass |
+| 20 | St James' Park | Newcastle | Hillside, black & white |
+| 21 | Villa Park | Aston Villa | Holte End, claret seats |
+
+### 9.4 Derby matchups — rivalry stickers (5 stickers)
+
+| # | Derby name | Teams | Visual |
+|---|------------|-------|--------|
+| 22 | North London | Arsenal vs Tottenham | Red vs White split, lightning between crests |
+| 23 | Merseyside | Liverpool vs Everton | Red vs Blue split, fire between crests |
+| 24 | Manchester | Man City vs Man Utd | Sky blue vs Red, thunder |
+| 25 | West London | Chelsea vs Fulham | Blue vs White, sparks |
+| 26 | The Big One | Liverpool vs Man Utd | Red vs Red (different shades), flames |
+
+### 9.5 Generic type stickers — reusable (4 stickers)
+
+| # | Type | Visual |
+|---|------|--------|
+| 27 | **over_under** | Scoreboard showing "2.5" with green arrow up / red arrow down |
+| 28 | **first_to_score** | Two players racing to the ball — split left vs right |
+| 29 | **exact_score** | Slot machine with footballs — casino-game feel |
+| 30 | **red_card** | Referee holding up red card — dramatic pose, future challenge type |
+
+### Total: 30 stickers
 
 ### Specs
 
 - **Format:** PNG with transparency, or animated WebP/GIF
-- **Size:** 400×400px minimum (displayed at ~200px on mobile, 2x for retina)
+- **Size:** 400x400px minimum (displayed at ~200px on mobile, 2x for retina)
 - **Style:** Cartoon/sticker — bold outlines, flat colors, slightly exaggerated proportions.
   Think Telegram sticker packs, not photorealism.
 - **Color palette:** Match Betty's forest theme — greens (#31572C, #90A955), cream (#ECF39E), white (#FAF9F6)
 - **No real player faces** — use jersey number + team colors to suggest identity.
-  "Haaland" = Man City blue #9, not a portrait.
+  "Haaland" = Man City sky blue #9, not a portrait.
 
 ### How they'll be used
 
@@ -275,8 +310,9 @@ that make each card feel alive and shareable.
 
 ### Where to source
 
-- **AI generation:** Midjourney or DALL-E with prompt "telegram sticker style, football goalkeeper diving, flat illustration, bold outline, green background"
-- **Sticker artists:** Fiverr "telegram sticker pack" — $5-20 per sticker, $50-100 for a full set
+- **AI generation:** Midjourney or DALL-E with prompt like:
+  `"telegram sticker style, football goalkeeper #24 in green kit diving to save, flat illustration, bold outline, transparent background, no face details"`
+- **Sticker artists:** Fiverr "telegram sticker pack" — $5-20 per sticker, $50-100 for a full set of 30
 - **Free packs:** Search Telegram sticker packs for football/soccer — some are Creative Commons
 
 ---
