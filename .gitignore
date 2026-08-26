@@ -71,3 +71,6 @@ Thumbs.db
 
 # Local Netlify folder
 .netlify
+
+# Database backups (tracked — release snapshots belong in git)
+# backups/
