@@ -233,9 +233,25 @@ Betty 2.0 backup verified and committed:
 
 ## 9. Schedule
 
-| Week | ISO | Content |
-|------|-----|---------|
+**Prod deploy: Monday Sep 7, 2026 at 00:00 UTC** (midnight Sun→Mon).
+The Monday 00:00 cron already runs `closeWeek → award prizes → publish next week`,
+so 2.1 deploys right before that cron fires on the new code.
+
+### Deploy sequence (Sun Sep 6, ~23:50 UTC)
+
+1. Take a fresh D1 backup: `npx wrangler d1 export betty-db --output=backups/betty-d1-pre-2.1.sql --remote`
+2. Run D1 migrations (challenges + challenge_predictions tables)
+3. Deploy Worker: `cd cf-worker && npx wrangler deploy`
+4. Deploy Frontend: `cd frontend && VITE_API_BASE=https://api.bettyscores.com npm run build && npx wrangler pages deploy dist --project-name=betty-scores-app --branch=main`
+5. Verify: `curl https://api.bettyscores.com/api/challenges/current`
+6. Monday 00:00 cron fires → closes week 36, publishes week 37 challenges
+
+### Timeline
+
+| Week | ISO | What happens |
+|------|-----|--------------|
 | 35 | Aug 24-30 | Current format (10 matches) |
-| 36 | Aug 31 - Sep 6 | Current format (last old-style week) |
+| 36 | Aug 31 - Sep 6 | **Last old-style week.** Dev: build challenge engine + nickname registration |
+| — | Sun Sep 6 23:50 UTC | **DEPLOY 2.1 to prod** |
 | 37 | Sep 7-13 | **First fun format** — 5-6 EPL challenges + first Reels batch |
 | 38 | Sep 14-20 | Fun format + CL group stage (British clubs) |
