@@ -838,15 +838,35 @@ export default {
           }
         }
 
+        // Enrich challenges with match data (crests, team names) when linked.
+        const matchIds = challenges.map(c => c.match_id).filter(Boolean);
+        const matchMap = {};
+        if (matchIds.length) {
+          const { results: ms } = await env.DB.prepare(
+            `SELECT id, home_team, away_team, crest_home, crest_away, code_home, code_away, league, time, match_date_utc
+             FROM matches WHERE id IN (${matchIds.map(() => '?').join(',')})`
+          ).bind(...matchIds).all();
+          for (const m of ms) matchMap[m.id] = m;
+        }
+
         return json({
           week_id: bounds.week_id,
           starts_at: bounds.starts_at,
           ends_at: bounds.ends_at,
-          challenges: challenges.map(c => ({
-            ...c,
-            options: JSON.parse(c.options),
-            my_prediction: myPredictions[c.id] || null,
-          })),
+          challenges: challenges.map(c => {
+            const m = c.match_id ? matchMap[c.match_id] : null;
+            return {
+              ...c,
+              options: JSON.parse(c.options),
+              my_prediction: myPredictions[c.id] || null,
+              match: m ? {
+                home_team: m.home_team, away_team: m.away_team,
+                crest_home: m.crest_home, crest_away: m.crest_away,
+                code_home: m.code_home, code_away: m.code_away,
+                league: m.league,
+              } : null,
+            };
+          }),
         });
       }
 

@@ -8,7 +8,6 @@ interface ChallengeCardProps {
   onPredict: (challengeId: string, answer: string) => void
 }
 
-// "2:1" → { home, away }
 function parseScore(s: string): { home: number; away: number } | null {
   if (!s) return null
   const [h, a] = s.split(':').map(Number)
@@ -16,13 +15,17 @@ function parseScore(s: string): { home: number; away: number } | null {
   return { home: h, away: a }
 }
 
-// Icons per challenge type
+function initials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
+}
+
+// Type-specific illustration icons (large, sticker-style)
 const TYPE_ICON: Record<string, string> = {
-  will_score: '\u26BD',     // soccer ball
-  over_under: '\u{1F4CA}',  // bar chart
-  clean_sheet: '\u{1F9E4}', // gloves
-  first_to_score: '\u{1F3AF}', // target
-  exact_score: '\u{1F3B0}', // slot machine
+  will_score: '\u26BD',
+  over_under: '\u{1F4CA}',
+  clean_sheet: '\u{1F9E4}',
+  first_to_score: '\u{1F3AF}',
+  exact_score: '\u{1F3B0}',
 }
 
 export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredict }) => {
@@ -30,8 +33,8 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
   const resolved = !!challenge.correct_answer
   const myAnswer = challenge.my_prediction?.answer ?? null
   const pointsEarned = challenge.my_prediction?.points_earned ?? 0
+  const m = challenge.match
 
-  // Reels state for exact_score type
   const parsed = myAnswer ? parseScore(myAnswer) : null
   const [home, setHome] = React.useState(parsed?.home ?? 0)
   const [away, setAway] = React.useState(parsed?.away ?? 0)
@@ -59,9 +62,34 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
         {challenge.points} {challenge.points === 1 ? 'pt' : 'pts'}
       </div>
 
+      {/* Match illustration: crests + league, or big type icon */}
+      {m ? (
+        <div className="cc__match-header">
+          <div className="cc__team">
+            {m.crest_home
+              ? <img src={m.crest_home} alt={m.home_team} className="cc__crest" />
+              : <span className="cc__team-initials">{initials(m.home_team)}</span>}
+            <span className="cc__team-name">{m.home_team}</span>
+          </div>
+          <div className="cc__vs">
+            <span className="cc__type-icon">{icon}</span>
+            {m.league && <span className="cc__league">{m.league}</span>}
+          </div>
+          <div className="cc__team">
+            {m.crest_away
+              ? <img src={m.crest_away} alt={m.away_team} className="cc__crest" />
+              : <span className="cc__team-initials">{initials(m.away_team)}</span>}
+            <span className="cc__team-name">{m.away_team}</span>
+          </div>
+        </div>
+      ) : (
+        <div className="cc__icon-hero">
+          <span className="cc__icon-large">{icon}</span>
+        </div>
+      )}
+
       {/* Question */}
       <div className="cc__question">
-        <span className="cc__icon">{icon}</span>
         <span className="cc__question-text">{challenge.question}</span>
       </div>
 
@@ -74,8 +102,8 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
             onChange={handleReels}
             disabled={resolved}
             touched={touched}
-            homeName="Home"
-            awayName="Away"
+            homeName={m?.home_team || 'Home'}
+            awayName={m?.away_team || 'Away'}
           />
         </div>
       ) : (
@@ -107,7 +135,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
         <div className={`cc__result ${pointsEarned > 0 ? 'cc__result--win' : 'cc__result--loss'}`}>
           {pointsEarned > 0
             ? `\u2705 Correct! +${pointsEarned} pts`
-            : `\u274C Wrong — answer was: ${challenge.correct_answer}`}
+            : `\u274C Wrong \u2014 answer was: ${challenge.correct_answer}`}
         </div>
       )}
       {resolved && !myAnswer && (

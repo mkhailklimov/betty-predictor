@@ -111,6 +111,15 @@ export interface Challenge {
   resolved_at: string | null
   created_at: string
   my_prediction: { challenge_id: string; answer: string; points_earned: number } | null
+  match: {
+    home_team: string
+    away_team: string
+    crest_home: string | null
+    crest_away: string | null
+    code_home: string | null
+    code_away: string | null
+    league: string | null
+  } | null
 }
 
 export interface ChallengesResponse {
