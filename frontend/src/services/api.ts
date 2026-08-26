@@ -1,6 +1,6 @@
 import axios from 'axios'
 import WebApp from '@twa-dev/sdk'
-import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse, WeekResponse } from '../types'
+import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse, WeekResponse, ChallengesResponse } from '../types'
 
 // Host-based API routing: prod domain → prod Worker, everything else → dev Worker.
 // Lets the `dev` branch's preview URL hit the dev API without a separate env var.
@@ -110,6 +110,15 @@ export const paymentsApi = {
     api.post<{ invoice_url: string; payload: string }>('/api/payments/create-stars-invoice'),
   setFavTeam: (team_code: string) =>
     api.post<{ ok: boolean; fav_team: string }>('/api/user/fav-team', { team_code }),
+}
+
+// Challenges API (v2.1)
+export const challengesApi = {
+  getCurrent: () => api.get<ChallengesResponse>('/api/challenges/current'),
+  predict: (challengeId: string, answer: string) =>
+    api.post<{ ok: boolean; challenge_id: string; answer: string }>(
+      `/api/challenges/${challengeId}/predict`, { answer }
+    ),
 }
 
 // Rewards API

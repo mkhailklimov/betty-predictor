@@ -95,3 +95,27 @@ export interface WeeklyReward {
   status: 'pending' | 'claimed'
   claimed_at?: string
 }
+
+// v2.1 Challenges
+export type ChallengeType = 'exact_score' | 'will_score' | 'over_under' | 'clean_sheet' | 'first_to_score'
+
+export interface Challenge {
+  id: string
+  week_id: string
+  match_id: string | null
+  type: ChallengeType
+  question: string
+  options: string[]  // ["Yes","No"] or ["Over","Under"] or ["reels"]
+  points: number
+  correct_answer: string | null
+  resolved_at: string | null
+  created_at: string
+  my_prediction: { challenge_id: string; answer: string; points_earned: number } | null
+}
+
+export interface ChallengesResponse {
+  week_id: string
+  starts_at: string
+  ends_at: string
+  challenges: Challenge[]
+}

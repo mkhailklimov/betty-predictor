@@ -1,8 +1,9 @@
 import React from 'react'
 import { MatchCard } from '../components/MatchCard'
+import { ChallengeCard } from '../components/ChallengeCard'
 import { isMatchLocked, toWeekMatches } from '../data/matches'
-import { predictionsApi, weeksApi } from '../services/api'
-import { WeekResponse } from '../types'
+import { predictionsApi, weeksApi, challengesApi } from '../services/api'
+import { WeekResponse, Challenge } from '../types'
 import '../styles/MainPage.css'
 
 // v3: keyed by the API's string match id. v1/v2 stored numeric 1..N keys, which
@@ -71,6 +72,7 @@ export const MainPage: React.FC = () => {
   // of them can legitimately be empty — an unpublished week is a normal state in a
   // perpetual game, not an error.
   const [weeks, setWeeks] = React.useState<{ current: WeekResponse | null; next: WeekResponse | null } | null>(null)
+  const [challenges, setChallenges] = React.useState<Challenge[]>([])
   const [loadError, setLoadError] = React.useState(false)
   const [selectedKey, setSelectedKey] = React.useState<'current' | 'next'>('current')
   const [currentIndex, setCurrentIndex] = React.useState(0)
@@ -79,11 +81,15 @@ export const MainPage: React.FC = () => {
     setLoadError(false)
     try {
       // Settled, not all: a published current week must still render if next 500s.
-      const [c, n] = await Promise.allSettled([weeksApi.getCurrent(), weeksApi.getNext()])
+      const [c, n, ch] = await Promise.allSettled([
+        weeksApi.getCurrent(), weeksApi.getNext(), challengesApi.getCurrent(),
+      ])
       const cur = c.status === 'fulfilled' ? c.value.data : null
       const nxt = n.status === 'fulfilled' ? n.value.data : null
-      if (!cur && !nxt) { setLoadError(true); return }
+      const chs = ch.status === 'fulfilled' ? ch.value.data.challenges : []
+      if (!cur && !nxt && chs.length === 0) { setLoadError(true); return }
       setWeeks({ current: cur, next: nxt })
+      setChallenges(chs)
 
       // Land on the week the player can actually bet in. Between a week's last
       // kickoff and the next week going live, Current is a wall of locked cards
@@ -171,6 +177,31 @@ export const MainPage: React.FC = () => {
     void syncPendingPredictions()
   }, [])
 
+  const handleChallengePredict = async (challengeId: string, answer: string) => {
+    // Optimistic update
+    setChallenges(prev => prev.map(c =>
+      c.id === challengeId
+        ? { ...c, my_prediction: { challenge_id: challengeId, answer, points_earned: 0 } }
+        : c
+    ))
+    try {
+      await challengesApi.predict(challengeId, answer)
+    } catch (error: any) {
+      const detail = error?.response?.data?.detail
+      if (detail === 'Betting closed — match has started') {
+        setToastMessage('&#128274; Betting closed — match has started')
+        setShowToast(true)
+        setTimeout(() => setShowToast(false), 3000)
+        // Revert
+        setChallenges(prev => prev.map(c =>
+          c.id === challengeId ? { ...c, my_prediction: null } : c
+        ))
+        return
+      }
+      console.error('Challenge predict failed, will retry on reload:', detail || error)
+    }
+  }
+
   const handlePredict = async (matchId: string, outcome: string, score: string) => {
     // Save to localStorage immediately (optimistic)
     const updated = { ...predictions, [matchId]: { outcome, score } }
@@ -243,7 +274,20 @@ export const MainPage: React.FC = () => {
   // people back on a date with nothing waiting for them, and spends their second
   // visit as well as their first. So: name a date only when there is a published
   // week to read it off, and otherwise say plainly that we don't have one yet.
-  if (matches.length === 0) {
+  // Unified card list: challenges first (the fun stuff), then match score cards.
+  // Each item is tagged so the carousel knows which component to render.
+  type CardItem =
+    | { kind: 'challenge'; challenge: Challenge }
+    | { kind: 'match'; match: typeof currentMatch }
+
+  const cards: CardItem[] = [
+    ...challenges.map((c): CardItem => ({ kind: 'challenge', challenge: c })),
+    ...matches.map((m): CardItem => ({ kind: 'match', match: m })),
+  ]
+
+  const totalCards = cards.length
+
+  if (totalCards === 0) {
     return (
       <div className="main-page">
         <div className="page-header">{weekHeader}</div>
@@ -267,6 +311,13 @@ export const MainPage: React.FC = () => {
     )
   }
 
+  const currentCard = cards[currentIndex]
+  const progressLabel = challenges.length > 0 && matches.length > 0
+    ? `${currentIndex + 1} of ${totalCards}`
+    : challenges.length > 0
+      ? `Challenge ${currentIndex + 1} of ${totalCards}`
+      : `Match ${currentIndex + 1} of ${totalCards}`
+
   return (
     <div className="main-page">
       <div className="page-header">
@@ -274,21 +325,27 @@ export const MainPage: React.FC = () => {
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${((currentIndex + 1) / matches.length) * 100}%` }}
+            style={{ width: `${((currentIndex + 1) / totalCards) * 100}%` }}
           />
         </div>
-        <p className="progress-text">
-          Match {currentIndex + 1} of {matches.length}
-        </p>
+        <p className="progress-text">{progressLabel}</p>
       </div>
 
       <div className="card-area">
-        <MatchCard
-          key={currentMatch.id}
-          match={currentMatch}
-          prediction={predictions[currentMatch.id] || null}
-          onPredict={handlePredict}
-        />
+        {currentCard.kind === 'challenge' ? (
+          <ChallengeCard
+            key={currentCard.challenge.id}
+            challenge={currentCard.challenge}
+            onPredict={handleChallengePredict}
+          />
+        ) : (
+          <MatchCard
+            key={currentCard.match.id}
+            match={currentCard.match}
+            prediction={predictions[currentCard.match.id] || null}
+            onPredict={handlePredict}
+          />
+        )}
       </div>
 
       <div className="card-nav">
@@ -300,18 +357,24 @@ export const MainPage: React.FC = () => {
           &#8592; Prev
         </button>
         <span className="card-nav-dots">
-          {matches.map((m, i) => (
-            <span
-              key={m.id}
-              className={`dot ${i === currentIndex ? 'dot--current' : ''} ${predictions[m.id]?.score ? 'dot--done' : predictions[m.id] ? 'dot--partial' : ''}`}
-              onClick={() => setCurrentIndex(i)}
-            />
-          ))}
+          {cards.map((card, i) => {
+            const id = card.kind === 'challenge' ? card.challenge.id : card.match.id
+            const isDone = card.kind === 'challenge'
+              ? !!card.challenge.my_prediction
+              : !!predictions[card.match.id]?.score
+            return (
+              <span
+                key={id}
+                className={`dot ${i === currentIndex ? 'dot--current' : ''} ${isDone ? 'dot--done' : ''}`}
+                onClick={() => setCurrentIndex(i)}
+              />
+            )
+          })}
         </span>
         <button
           className="card-nav-btn"
-          onClick={() => setCurrentIndex(Math.min(matches.length - 1, currentIndex + 1))}
-          disabled={currentIndex === matches.length - 1}
+          onClick={() => setCurrentIndex(Math.min(totalCards - 1, currentIndex + 1))}
+          disabled={currentIndex === totalCards - 1}
         >
           Next &#8594;
         </button>
