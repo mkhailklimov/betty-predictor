@@ -696,7 +696,7 @@ export default {
         const weekId = url.searchParams.get('week');
         const q = weekId
           ? env.DB.prepare('SELECT * FROM weekly_prizes WHERE week_id = ? ORDER BY rank').bind(weekId)
-          : env.DB.prepare('SELECT * FROM weekly_prizes ORDER BY week_id DESC, rank');
+          : env.DB.prepare('SELECT * FROM weekly_prizes ORDER BY stars DESC, week_id DESC, rank');
         const { results } = await q.all();
         return json(results);
       }
