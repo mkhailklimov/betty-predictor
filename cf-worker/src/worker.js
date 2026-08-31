@@ -1657,7 +1657,7 @@ async function ingestFixtures(env, { days = 21, leagues = LEAGUES } = {}) {
       const away = (comp.competitors || []).find((c) => c.homeAway === 'away');
       if (!home || !away) continue;
       const st = ((ev.status || {}).type || {}).name || '';
-      const status = st === 'STATUS_FINAL' ? 'finished'
+      const status = st === 'STATUS_FINAL' || st === 'STATUS_FULL_TIME' ? 'finished'
         : st === 'STATUS_IN_PROGRESS' || st === 'STATUS_HALFTIME' ? 'live'
           : 'scheduled';
       stmts.push(env.DB.prepare(
@@ -1672,6 +1672,20 @@ async function ingestFixtures(env, { days = 21, leagues = LEAGUES } = {}) {
         home.team.logo || null, away.team.logo || null,
         status, fetchedAt
       ));
+      // Write finished matches with scores into bronze_match_results
+      // so reconcileResults() can pick them up.
+      if (status === 'finished' && home.score != null && away.score != null) {
+        stmts.push(env.DB.prepare(
+          `INSERT OR REPLACE INTO bronze_match_results
+           (source,source_id,date_utc,home_team,away_team,home_score,away_score,status,fetched_at)
+           VALUES (?,?,?,?,?,?,?,?,?)`
+        ).bind(
+          FIXTURE_SOURCE, String(ev.id), ev.date,
+          home.team.displayName, away.team.displayName,
+          Number(home.score), Number(away.score),
+          'finished', fetchedAt
+        ));
+      }
       n++;
     }
     perLeague[league] = n;
