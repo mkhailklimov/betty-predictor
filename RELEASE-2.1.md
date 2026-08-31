@@ -239,7 +239,7 @@ that make each card feel alive and shareable.
 | # | Player | Club | Jersey | Kit colors | Visual |
 |---|--------|------|--------|------------|--------|
 | 1 | Erling Haaland | Man City | #9 | Sky blue | Celebrating, arms wide, ball in net |
-| 2 | Mohamed Salah | Liverpool | #11 | Red | Running with ball, one arm raised |
+| 2 | Dominik Szoboszlai | Liverpool | #8 | Red | Striking the ball with power, dramatic shooting pose |
 | 3 | Bukayo Saka | Arsenal | #7 | Red & white | Dribbling past defender |
 | 4 | Cole Palmer | Chelsea | #20 | Blue | Cool celebration, finger wag |
 | 5 | Alexander Isak | Newcastle | #14 | Black & white stripes | Heading the ball |
