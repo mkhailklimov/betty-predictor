@@ -1375,7 +1375,7 @@ async function rebuildMarts(env) {
   const champAgg = {}; // key week|user
   for (const s of factScore) {
     const u = userById[s.user_id];
-    if (!u || u.is_internal) continue;
+    if (!u || u.is_internal || String(u.tg_id).startsWith('guest:')) continue;
     const k = `${s.week_id}|${s.user_id}`;
     if (!champAgg[k]) champAgg[k] = {
       week_id: s.week_id, user_id: s.user_id, username: u.username,
