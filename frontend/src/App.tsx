@@ -3,7 +3,7 @@ import WebApp from '@twa-dev/sdk'
 import './styles/App.css'
 import { useTelegram } from './hooks/useTelegram'
 import { userApi, guestApi, predictionsApi } from './services/api'
-import { MainPage, syncPendingPredictions } from './pages/MainPage'
+import { MainPage } from './pages/MainPage'
 import { Navigation } from './components/Navigation'
 import { ChampionsPage } from './pages/ChampionsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
@@ -112,7 +112,6 @@ function App() {
         console.error('User init error:', error)
       } finally {
         setIsLoading(false)
-        void syncPendingPredictions()
       }
     }
 

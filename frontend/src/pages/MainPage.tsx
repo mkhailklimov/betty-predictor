@@ -1,111 +1,33 @@
 import React from 'react'
-import { MatchCard } from '../components/MatchCard'
 import { ChallengeCard } from '../components/ChallengeCard'
-import { isMatchLocked, toWeekMatches } from '../data/matches'
-import { predictionsApi, weeksApi, challengesApi } from '../services/api'
-import { WeekResponse, Challenge } from '../types'
+import { challengesApi } from '../services/api'
+import { Challenge } from '../types'
 import '../styles/MainPage.css'
 
-const STORAGE_KEY = 'betty_predictions_v3'
-
-type PredictionMap = Record<string, { outcome: string; score: string }>
-
-function loadPredictions(): PredictionMap {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')
-  } catch {
-    return {}
-  }
-}
-
-function savePredictionsLocal(preds: PredictionMap) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(preds))
-}
-
-function parseScore(score: string): { home: number; away: number } | null {
-  if (!score) return null
-  const [h, a] = score.split(':').map(Number)
-  if (Number.isNaN(h) || Number.isNaN(a)) return null
-  return { home: h, away: a }
-}
-
-let syncInFlight = false
-export async function syncPendingPredictions(): Promise<void> {
-  if (syncInFlight) return
-  syncInFlight = true
-  try {
-    const preds = loadPredictions()
-    for (const matchId of Object.keys(preds)) {
-      const p = preds[matchId]
-      if (!p || !p.outcome) continue
-      try {
-        await predictionsApi.create({
-          match_id: matchId,
-          prediction_type: p.outcome as '1' | 'X' | '2',
-          predicted_score: parseScore(p.score),
-        })
-      } catch {
-        // Leave it in localStorage; the next load (or submit) retries.
-      }
-    }
-  } finally {
-    syncInFlight = false
-  }
-}
-
 export const MainPage: React.FC = () => {
-  const [predictions, setPredictions] = React.useState(loadPredictions)
   const [showToast, setShowToast] = React.useState(false)
   const [toastMessage, setToastMessage] = React.useState('')
 
-  const [week, setWeek] = React.useState<WeekResponse | null>(null)
   const [challenges, setChallenges] = React.useState<Challenge[]>([])
   const [loadError, setLoadError] = React.useState(false)
   const [currentIndex, setCurrentIndex] = React.useState(0)
+  const [isLoading, setIsLoading] = React.useState(true)
 
   const loadData = React.useCallback(async () => {
     setLoadError(false)
+    setIsLoading(true)
     try {
-      const [w, ch] = await Promise.allSettled([
-        weeksApi.getCurrent(), challengesApi.getCurrent(),
-      ])
-      const wk = w.status === 'fulfilled' ? w.value.data : null
-      const chs = ch.status === 'fulfilled' ? ch.value.data.challenges : []
-      if (!wk && chs.length === 0) { setLoadError(true); return }
-      setWeek(wk)
-      setChallenges(chs)
+      const { data } = await challengesApi.getCurrent()
+      setChallenges(data.challenges)
       setCurrentIndex(0)
     } catch {
       setLoadError(true)
+    } finally {
+      setIsLoading(false)
     }
   }, [])
 
   React.useEffect(() => { void loadData() }, [loadData])
-
-  const matches = React.useMemo(() => toWeekMatches(week), [week])
-
-  // Auto-save 0:0 for open matches the player hasn't touched yet.
-  React.useEffect(() => {
-    if (!week) return
-    const current = loadPredictions()
-    let changed = false
-    const updated = { ...current }
-    for (const m of matches) {
-      if (isMatchLocked(m)) continue
-      if (updated[m.id]?.score) continue
-      updated[m.id] = { outcome: 'X', score: '0:0' }
-      changed = true
-    }
-    if (changed) {
-      setPredictions(updated)
-      savePredictionsLocal(updated)
-      void syncPendingPredictions()
-    }
-  }, [week, matches])
-
-  React.useEffect(() => {
-    void syncPendingPredictions()
-  }, [])
 
   const handleChallengePredict = async (challengeId: string, answer: string) => {
     setChallenges(prev => prev.map(c =>
@@ -130,37 +52,9 @@ export const MainPage: React.FC = () => {
     }
   }
 
-  const handlePredict = async (matchId: string, outcome: string, score: string) => {
-    const updated = { ...predictions, [matchId]: { outcome, score } }
-    setPredictions(updated)
-    savePredictionsLocal(updated)
-
-    try {
-      await predictionsApi.create({
-        match_id: matchId,
-        prediction_type: outcome as '1' | 'X' | '2',
-        predicted_score: parseScore(score),
-      })
-    } catch (error: any) {
-      const detail = error?.response?.data?.detail
-      if (detail === 'Betting closed — match has started') {
-        setToastMessage('&#128274; Betting closed — match has started')
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
-        const reverted = { ...predictions }
-        delete reverted[matchId]
-        setPredictions(reverted)
-        savePredictionsLocal(reverted)
-        return
-      }
-      console.error('Backend save failed, will retry:', detail || error)
-      setTimeout(() => { void syncPendingPredictions() }, 1500)
-    }
-  }
-
   // --- Render states ---
 
-  if (!week && challenges.length === 0 && !loadError) {
+  if (isLoading) {
     return (
       <div className="main-page">
         <div className="all-done all-done--full">
@@ -185,17 +79,7 @@ export const MainPage: React.FC = () => {
     )
   }
 
-  // Unified card list: challenges first, then match score cards.
-  type CardItem =
-    | { kind: 'challenge'; challenge: Challenge }
-    | { kind: 'match'; match: ReturnType<typeof toWeekMatches>[number] }
-
-  const cards: CardItem[] = [
-    ...challenges.map((c): CardItem => ({ kind: 'challenge', challenge: c })),
-    ...matches.map((m): CardItem => ({ kind: 'match', match: m })),
-  ]
-
-  const totalCards = cards.length
+  const totalCards = challenges.length
 
   if (totalCards === 0) {
     return (
@@ -211,7 +95,7 @@ export const MainPage: React.FC = () => {
     )
   }
 
-  const currentCard = cards[currentIndex]
+  const currentChallenge = challenges[currentIndex]
   const progressLabel = `${currentIndex + 1} of ${totalCards}`
 
   return (
@@ -227,20 +111,11 @@ export const MainPage: React.FC = () => {
       </div>
 
       <div className="card-area">
-        {currentCard.kind === 'challenge' ? (
-          <ChallengeCard
-            key={currentCard.challenge.id}
-            challenge={currentCard.challenge}
-            onPredict={handleChallengePredict}
-          />
-        ) : (
-          <MatchCard
-            key={currentCard.match.id}
-            match={currentCard.match}
-            prediction={predictions[currentCard.match.id] || null}
-            onPredict={handlePredict}
-          />
-        )}
+        <ChallengeCard
+          key={currentChallenge.id}
+          challenge={currentChallenge}
+          onPredict={handleChallengePredict}
+        />
       </div>
 
       <div className="card-nav">
@@ -252,14 +127,11 @@ export const MainPage: React.FC = () => {
           &#8592; Prev
         </button>
         <span className="card-nav-dots">
-          {cards.map((card, i) => {
-            const id = card.kind === 'challenge' ? card.challenge.id : card.match.id
-            const isDone = card.kind === 'challenge'
-              ? !!card.challenge.my_prediction
-              : !!predictions[card.match.id]?.score
+          {challenges.map((challenge, i) => {
+            const isDone = !!challenge.my_prediction
             return (
               <span
-                key={id}
+                key={challenge.id}
                 className={`dot ${i === currentIndex ? 'dot--current' : ''} ${isDone ? 'dot--done' : ''}`}
                 onClick={() => setCurrentIndex(i)}
               />

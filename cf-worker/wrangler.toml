@@ -37,6 +37,8 @@ name = "betty-api-dev"
 
 [env.dev.vars]
 ALLOW_LEGACY_AUTH = "0"
+# Temporary Release 2.1 preview: serve the October 5–11 launch week on dev only.
+DEV_PREVIEW_WEEK = "2026_41"
 
 [env.dev.triggers]
 crons = []

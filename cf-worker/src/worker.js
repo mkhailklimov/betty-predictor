@@ -72,8 +72,12 @@ export default {
           console.log('closeWeek:', JSON.stringify(await closeWeek(env, lastWeek.week_id)));
         } catch (e) { console.error('closeWeek failed', e); }
         try {
-          console.log('publishWeek:', JSON.stringify(await publishWeekFromSheet(env)));
-        } catch (e) { console.error('publishWeek failed', e); }
+          const nextWeek = weekBounds(new Date(Date.now() + 7 * 86400000)).week_id;
+          console.log('publishWeek:', JSON.stringify(await publishWeekFromSheet(env, { weekId: nextWeek })));
+          console.log('publishChallenges:', JSON.stringify(
+            await publishChallengesFromSheet(env, { weekId: nextWeek })
+          ));
+        } catch (e) { console.error('weekly publish failed', e); }
       })());
       return;
     }
@@ -105,6 +109,8 @@ export default {
           ['Bets', syncBetsToSheet],
           ['Marts', exportMartsToSheet],
           ['Prizes', syncPrizesToSheet],
+          ['Challenge Predictions', syncChallengePredictionsToSheet],
+          ['Challenge Results', syncChallengeResultsToSheet],
         ]) {
           try { console.log(tab, 'sync:', JSON.stringify(await fn(env))); }
           catch (e) { console.error(tab, 'sync failed', e); }
@@ -820,7 +826,7 @@ export default {
 
       // GET /api/challenges/current — this week's challenges + caller's predictions.
       if (method === 'GET' && path === '/api/challenges/current') {
-        const bounds = weekBounds(new Date());
+        const bounds = challengeWeekBounds(env);
         const { results: challenges } = await env.DB.prepare(
           'SELECT * FROM challenges WHERE week_id = ? ORDER BY created_at'
         ).bind(bounds.week_id).all();
@@ -1233,15 +1239,7 @@ async function syncUsersToSheet(env) {
   const accessToken = await getGoogleAccessToken(sa);
   const sid = env.SHEETS_SPREADSHEET_ID;
 
-  // Clear the Users tab, then write the full snapshot.
-  await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Users!A:Z:clear`,
-    accessToken, 'POST', {}
-  );
-  await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Users!A1?valueInputOption=RAW`,
-    accessToken, 'PUT', { range: 'Users!A1', majorDimension: 'ROWS', values: rows }
-  );
+  await appendSheetSnapshot(env, 'Users', USERS_HEADER, rows.slice(1));
 
   return { ok: true, synced: users.length, at: new Date().toISOString() };
 }
@@ -1280,16 +1278,7 @@ async function syncBetsToSheet(env) {
   const accessToken = await getGoogleAccessToken(sa);
   const sid = env.SHEETS_SPREADSHEET_ID;
 
-  // Clear the Bets tab, then write the full snapshot (same full-replace shape as
-  // Users). Predictions only grow; revisit if a weekly clear+rewrite gets slow.
-  await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Bets!A:Z:clear`,
-    accessToken, 'POST', {}
-  );
-  await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Bets!A1?valueInputOption=RAW`,
-    accessToken, 'PUT', { range: 'Bets!A1', majorDimension: 'ROWS', values: rows }
-  );
+  await appendSheetSnapshot(env, 'Bets', BETS_HEADER, rows.slice(1));
 
   return { ok: true, synced: bets.length, at: new Date().toISOString() };
 }
@@ -1302,12 +1291,18 @@ async function syncBetsToSheet(env) {
 async function rebuildMarts(env) {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
-  const [{ results: users }, { results: predictions }, { results: matches }, { results: adjustments }] =
+  const [{ results: users }, { results: predictions }, { results: matches }, { results: adjustments }, { results: challengePredictions }] =
     await Promise.all([
       env.DB.prepare('SELECT * FROM users WHERE merged_into IS NULL').all(),
       env.DB.prepare('SELECT * FROM predictions').all(),
       env.DB.prepare('SELECT * FROM matches').all(),
       env.DB.prepare('SELECT * FROM bronze_adjustments').all(),
+      env.DB.prepare(`
+        SELECT cp.user_id, cp.points_earned
+        FROM challenge_predictions cp
+        JOIN challenges c ON c.id = cp.challenge_id
+        WHERE cp.points_earned IS NOT NULL
+      `).all(),
     ]);
 
   const matchById = {};
@@ -1424,6 +1419,25 @@ async function rebuildMarts(env) {
     l.correct_scores += c.correct_scores;
     l.weeks_played += 1;
     if (c.rank === 1) l.weeks_won += 1;
+  }
+
+  // Challenge points are part of the 2.1 leaderboard and must be included in
+  // the same gold mart as legacy match-prediction points.
+  for (const prediction of challengePredictions) {
+    const u = userById[prediction.user_id];
+    if (!u) continue;
+    if (!lbAgg[prediction.user_id]) lbAgg[prediction.user_id] = {
+      user_id: prediction.user_id,
+      username: u.username,
+      is_premium: u.is_premium,
+      fav_team: u.fav_team,
+      total_points: 0,
+      correct_outcomes: 0,
+      correct_scores: 0,
+      weeks_played: 0,
+      weeks_won: 0,
+    };
+    lbAgg[prediction.user_id].total_points += Number(prediction.points_earned) || 0;
   }
 
   // ---- write all layers atomically (delete + insert) ----
@@ -1719,6 +1733,15 @@ async function ensureSheetTab(sid, token, title, header) {
 
 const CANDIDATES_HEADER = ['Week ID', 'Source ID', 'League', 'Kickoff UTC', 'Home', 'Away'];
 const CHALLENGES_HEADER = ['Week ID', 'Match Source ID', 'Type', 'Question Text', 'Options', 'Points', 'Correct Answer'];
+const RELEASE21_HEADER = ['Week_start', '#', 'Fixture', 'Challenge', 'Points'];
+const RELEASE21_TAB = 'Release2.1';
+
+function challengeWeekBounds(env) {
+  const previewWeek = String(env.DEV_PREVIEW_WEEK || '').trim();
+  return previewWeek && weekBoundsFor(previewWeek)
+    ? weekBoundsFor(previewWeek)
+    : weekBounds(new Date());
+}
 
 // Publish challenges from the "Challenges" sheet tab → D1.
 // Each row: Week ID | Match Source ID | Type | Question Text | Options | Points | Correct Answer
@@ -1731,38 +1754,42 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
   const token = await getGoogleAccessToken(sa);
   const sid = env.SHEETS_SPREADSHEET_ID;
 
-  await ensureSheetTab(sid, token, 'Challenges', CHALLENGES_HEADER);
+  const sourceTab = RELEASE21_TAB;
+  await ensureSheetTab(sid, token, sourceTab, RELEASE21_HEADER);
   const res = await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Challenges!A2:G`, token, 'GET');
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sourceTab}!A2:E`, token, 'GET');
   const allRows = res.values || [];
 
-  const target = weekId || (allRows.find((r) => (r[0] || '').trim()) || [])[0]?.trim()
-    || weekBounds(new Date()).week_id;
+  const target = weekId || weekBounds(new Date()).week_id;
   const bounds = weekBoundsFor(target);
   if (!bounds) {
     return { ok: false, week_id: target, errors: [`unknown week id ${target}`], published: 0 };
   }
 
-  const rows = allRows.filter((r) => (r[0] || '').trim() === bounds.week_id);
+  const rows = allRows.filter((r) => {
+    const value = (r[0] || '').trim();
+    return value === bounds.week_id || weekIdForSheetValue(value) === bounds.week_id;
+  });
   const errors = [];
 
   if (rows.length < 1) {
     errors.push(`no challenge rows for ${bounds.week_id}`);
   }
-  if (rows.length > 10) {
-    errors.push(`too many challenges for ${bounds.week_id}: ${rows.length} (max 10)`);
+  if (rows.length > 6) {
+    errors.push(`too many challenges for ${bounds.week_id}: ${rows.length} (max 6)`);
   }
 
   const VALID_TYPES = new Set(['exact_score', 'will_score', 'over_under', 'clean_sheet', 'first_to_score']);
   const challenges = [];
   for (const r of rows) {
-    const type = (r[2] || '').trim();
+    const fixture = (r[2] || '').trim();
     const question = (r[3] || '').trim();
-    const optionsStr = (r[4] || '').trim();
-    const points = Number(r[5]) || 0;
-    const matchSourceId = (r[1] || '').trim();
+    const points = Number(r[4]) || 0;
+    const type = inferChallengeType(question, points);
+    const optionsStr = challengeOptions(type);
+    const matchSourceId = fixture;
 
-    if (!type || !question || !optionsStr || !points) {
+    if (!type || !question || !optionsStr || !points || !fixture) {
       errors.push(`incomplete row: ${JSON.stringify(r)}`);
       continue;
     }
@@ -1770,20 +1797,76 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
       errors.push(`invalid type "${type}" for question "${question}"`);
       continue;
     }
+    const expectedPoints = type === 'exact_score' || type === 'first_to_score' ? 3 : 1;
+    if (points !== expectedPoints) {
+      errors.push(`invalid points ${points} for ${type}; expected ${expectedPoints}`);
+      continue;
+    }
 
-    // Resolve match_id from source_id if provided.
+    // Release2.1 stores a fixture label instead of a source ID. Resolve it
+    // against the published schedule by week and normalized team names.
     let matchId = null;
     if (matchSourceId) {
       const match = await env.DB.prepare(
-        'SELECT id FROM matches WHERE id = ? OR source_id = ?'
-      ).bind(matchSourceId, matchSourceId).first();
+        `SELECT id FROM matches
+         WHERE week_id = ? AND (
+           id = ? OR source_id = ? OR
+           lower(home_team || ' vs ' || away_team) = lower(?)
+         ) LIMIT 1`
+      ).bind(bounds.week_id, matchSourceId, matchSourceId, matchSourceId).first();
       if (match) matchId = match.id;
-      // Not an error if match not found — challenge might reference a match not yet published.
+      if (!matchId) {
+        const parsedFixture = parseFixtureLabel(matchSourceId);
+        if (parsedFixture) {
+          const candidates = await env.DB.prepare(
+            `SELECT id, home_team, away_team FROM matches WHERE week_id = ?`
+          ).bind(bounds.week_id).all();
+          const found = candidates.results.find((candidate) =>
+            normalizeTeam(candidate.home_team) === normalizeTeam(parsedFixture.home) &&
+            normalizeTeam(candidate.away_team) === normalizeTeam(parsedFixture.away)
+          );
+          if (found) matchId = found.id;
+        }
+      }
+      if (!matchId) errors.push(`fixture "${matchSourceId}" not found for ${bounds.week_id}`);
     }
 
     const options = optionsStr === 'reels' ? '["reels"]' : JSON.stringify(optionsStr.split(',').map(s => s.trim()));
 
     challenges.push({ type, question, options, points, matchId, matchSourceId });
+  }
+
+  function inferChallengeType(question, points) {
+    const text = String(question || '').toLowerCase();
+    if (text.includes('exact score')) return 'exact_score';
+    if (text.includes('scores first')) return 'first_to_score';
+    if (text.includes('over or under')) return 'over_under';
+    if (text.includes('clean sheet')) return 'clean_sheet';
+    if (text.includes('will ') || text.includes('win')) return 'will_score';
+    return points === 3 ? 'exact_score' : 'will_score';
+  }
+
+  function challengeOptions(type) {
+    if (type === 'exact_score') return 'reels';
+    if (type === 'over_under') return 'Over,Under';
+    if (type === 'first_to_score') return 'Home,Away,Nobody';
+    return 'Yes,No';
+  }
+
+  function parseFixtureLabel(label) {
+    const match = String(label).match(/^\s*(.+?)\s+vs\s+(.+?)\s*$/i);
+    return match ? { home: match[1], away: match[2] } : null;
+  }
+
+  function normalizeTeam(name) {
+    return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+
+  function weekIdForSheetValue(value) {
+    if (!value) return null;
+    if (/^\d{4}_\d{2}$/.test(value)) return value;
+    const parsed = new Date(value.includes('T') ? value : `${value}T00:00:00Z`);
+    return Number.isNaN(parsed.getTime()) ? null : weekBounds(parsed).week_id;
   }
 
   if (errors.length) {
@@ -1877,8 +1960,7 @@ async function publishWeekFromSheet(env, { weekId, dryRun = false } = {}) {
 
   // Which week are we publishing? Explicit arg wins; otherwise the week the
   // sheet is filled for, which on the Monday cron is the one starting now.
-  const target = weekId || (allRows.find((r) => (r[0] || '').trim()) || [])[0]?.trim()
-    || weekBounds(new Date()).week_id;
+  const target = weekId || weekBounds(new Date(Date.now() + 7 * 86400000)).week_id;
   const bounds = weekBoundsFor(target);
   const errors = [];
   if (!bounds) {
@@ -2058,10 +2140,7 @@ async function exportMartsToSheet(env) {
   ].map(v => v == null ? '' : String(v)))];
 
   for (const [tab, rows] of [['Champions', champRows], ['Leaderboard', lbRows]]) {
-    await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${tab}!A:Z:clear`,
-      token, 'POST', {});
-    await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${tab}!A1?valueInputOption=RAW`,
-      token, 'PUT', { range: `${tab}!A1`, majorDimension: 'ROWS', values: rows });
+    await appendSheetSnapshot(env, tab, rows[0], rows.slice(1));
   }
   return { ok: true, champions: champ.length, leaderboard: lb.length };
 }
@@ -2089,12 +2168,66 @@ async function syncPrizesToSheet(env) {
   ].map(v => v == null ? '' : String(v)))];
 
   await ensureSheetTab(sid, token, 'Prizes', PRIZES_HEADER);
-  await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Prizes!A:Z:clear`,
-    token, 'POST', {});
-  await sheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/Prizes!A1?valueInputOption=RAW`,
-    token, 'PUT', { range: 'Prizes!A1', majorDimension: 'ROWS', values: rows });
+  await appendSheetSnapshot(env, 'Prizes', PRIZES_HEADER, rows.slice(1));
 
   return { ok: true, synced: prizes.length, at: new Date().toISOString() };
+}
+
+const CHALLENGE_PREDICTIONS_HEADER = [
+  'Sync Week', 'Week ID', 'Challenge ID', 'User ID', 'Username', 'Provider',
+  'Answer', 'Points Earned', 'Submitted At',
+];
+const CHALLENGE_RESULTS_HEADER = [
+  'Sync Week', 'Week ID', 'Challenge ID', 'Match ID', 'Type', 'Question',
+  'Points', 'Correct Answer', 'Resolved At',
+];
+
+async function appendSheetSnapshot(env, tab, header, rows) {
+  if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
+    throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
+  }
+  const sa = JSON.parse(env.GOOGLE_SA_JSON);
+  const token = await getGoogleAccessToken(sa);
+  const sid = env.SHEETS_SPREADSHEET_ID;
+  await ensureSheetTab(sid, token, tab, header);
+  if (rows.length) {
+    await sheetsFetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodeURIComponent(tab + '!A:Z')}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+      token, 'POST', { majorDimension: 'ROWS', values: rows }
+    );
+  }
+  return { ok: true, tab, appended: rows.length, at: new Date().toISOString() };
+}
+
+async function syncChallengePredictionsToSheet(env) {
+  const syncWeek = weekBounds(new Date()).week_id;
+  const { results } = await env.DB.prepare(
+    `SELECT cp.*, c.week_id, u.username, u.provider
+     FROM challenge_predictions cp
+     JOIN challenges c ON c.id = cp.challenge_id
+     LEFT JOIN users u ON u.id = cp.user_id
+     ORDER BY c.week_id, cp.created_at, cp.id`
+  ).all();
+  const rows = results.map(p => [
+    syncWeek, p.week_id, p.challenge_id, p.user_id, p.username || '',
+    p.provider || '', p.answer, p.points_earned ?? 0, p.created_at || '',
+  ].map(v => v == null ? '' : String(v)));
+  return appendSheetSnapshot(env, 'Challenge Predictions', CHALLENGE_PREDICTIONS_HEADER, rows);
+}
+
+async function syncChallengeResultsToSheet(env) {
+  const syncWeek = weekBounds(new Date()).week_id;
+  const { results } = await env.DB.prepare(
+    `SELECT c.*, m.id AS linked_match_id
+     FROM challenges c
+     LEFT JOIN matches m ON m.id = c.match_id
+     ORDER BY c.week_id, c.id`
+  ).all();
+  const rows = results.map(c => [
+    syncWeek, c.week_id, c.id, c.linked_match_id || '', c.type, c.question,
+    c.points, c.correct_answer || '', c.resolved_at || '',
+  ].map(v => v == null ? '' : String(v)));
+  return appendSheetSnapshot(env, 'Challenge Results', CHALLENGE_RESULTS_HEADER, rows);
 }
 
 async function sheetsFetch(url, token, method, body) {

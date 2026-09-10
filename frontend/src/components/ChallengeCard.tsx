@@ -28,12 +28,35 @@ const TYPE_ICON: Record<string, string> = {
   exact_score: '\u{1F3B0}',
 }
 
+const DEV_ENGLAND_CROATIA_IMAGE =
+  'https://lh3.googleusercontent.com/u/0/d/1a4RkNbkrLxlu_9FI9dtnxNyATsUieNWe=w900'
+const DEV_RAYA_IMAGE =
+  'https://lh3.googleusercontent.com/u/0/d/1KK7YCHBypFhZkapEr36trLIVoM6wrp-R=w900'
+const DEV_MUN_TOT_IMAGE =
+  'https://lh3.googleusercontent.com/u/0/d/1DouPIoMgnvchSk4BtCK99tW1v49AwwPG=w900'
+
 export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredict }) => {
   const isReels = challenge.options.length === 1 && challenge.options[0] === 'reels'
   const resolved = !!challenge.correct_answer
   const myAnswer = challenge.my_prediction?.answer ?? null
   const pointsEarned = challenge.my_prediction?.points_earned ?? 0
   const m = challenge.match
+  const isDevPreview = typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.endsWith('.pages.dev'))
+  const questionText = challenge.question.toLowerCase()
+  const fixtureText = m ? `${m.home_team} ${m.away_team}`.toLowerCase() : ''
+  const illustration = isDevPreview && (
+    (questionText.includes('england') && questionText.includes('croatia')) ||
+    (fixtureText.includes('england') && fixtureText.includes('croatia'))
+  )
+    ? DEV_ENGLAND_CROATIA_IMAGE
+    : isDevPreview && questionText.includes('arsenal') && questionText.includes('clean sheet')
+      ? DEV_RAYA_IMAGE
+      : isDevPreview && questionText.includes('manchester united') && questionText.includes('tottenham')
+        ? DEV_MUN_TOT_IMAGE
+      : null
 
   const parsed = myAnswer ? parseScore(myAnswer) : null
   const [home, setHome] = React.useState(parsed?.home ?? 0)
@@ -61,6 +84,20 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
       <div className="cc__points-badge">
         {challenge.points} {challenge.points === 1 ? 'pt' : 'pts'}
       </div>
+
+      {illustration && (
+        <img
+          className="cc__illustration"
+          src={illustration}
+          alt={
+            illustration === DEV_RAYA_IMAGE
+              ? 'David Raya'
+              : illustration === DEV_MUN_TOT_IMAGE
+                ? 'Manchester United versus Tottenham'
+                : 'England versus Croatia'
+          }
+        />
+      )}
 
       {/* Match illustration: crests + league, or big type icon */}
       {m ? (
