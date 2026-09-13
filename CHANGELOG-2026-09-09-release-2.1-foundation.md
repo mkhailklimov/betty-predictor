@@ -15,6 +15,13 @@
 - Challenge cards now use one consistent sticker-first layout: sticker, question, then answer controls.
 - Added the `MCI_LIV`, `ARS_LUN`, and `CHE_BRE` sticker assets for the launch challenge carousel.
 - Removed legacy crest, team-header, and match-card visuals from the active challenge card.
+- Bundled six standalone launch illustrations in `frontend/public/stickers/` so card images
+  do not depend on Google Drive delivery.
+- Updated the displayed launch questions to identify the relevant opponent or match:
+  `Raya vs Leeds`, `Red Devils vs Spurs`, Liverpool vs Manchester City over/under,
+  Chelsea vs Brentford, and both exact-score fixtures.
+- Updated visible answer labels to `Red Devils`, `Spurs`, `Nobody`, `Over 2.5`, and
+  `Under 2.5` while preserving the existing backend answer values.
 
 ## Leaderboard
 

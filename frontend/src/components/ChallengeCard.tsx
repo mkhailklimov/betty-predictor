@@ -25,16 +25,32 @@ const TYPE_ICON: Record<string, string> = {
   exact_score: '\u{1F3B0}',
 }
 
-const DEV_ENGLAND_CROATIA_IMAGE =
-  'https://lh3.googleusercontent.com/u/0/d/1a4RkNbkrLxlu_9FI9dtnxNyATsUieNWe=w900'
-const DEV_MUN_TOT_IMAGE =
-  'https://lh3.googleusercontent.com/u/0/d/1DouPIoMgnvchSk4BtCK99tW1v49AwwPG=w900'
-const DEV_MCI_LIV_IMAGE =
-  'https://drive.google.com/uc?export=view&id=10wylMGnHUyB6--4nN_ksuwpCHzg8_zyw'
-const DEV_ARS_LUN_IMAGE =
-  'https://drive.google.com/uc?export=view&id=1RLdfw-brMyNJtobOFANTlB6PRJFDHURg'
-const DEV_CHE_BRE_IMAGE =
-  'https://drive.google.com/uc?export=view&id=1G0FtRHVS58yKFvv7ogFCHJEmjqgjMvRS'
+const RELEASE21_STICKERS: Record<string, { src: string; alt: string }> = {
+  '1': {
+    src: '/stickers/england-croatia.jpg',
+    alt: 'England versus Croatia',
+  },
+  '2': {
+    src: '/stickers/arsenal-clean-sheet.jpg',
+    alt: 'Arsenal versus Leeds United',
+  },
+  '3': {
+    src: '/stickers/manchester-united-tottenham.jpg',
+    alt: 'Manchester United versus Tottenham Hotspur',
+  },
+  '4': {
+    src: '/stickers/arsenal-leeds-exact-score.jpg',
+    alt: 'Arsenal versus Leeds United exact score',
+  },
+  '5': {
+    src: '/stickers/liverpool-manchester-city.jpg',
+    alt: 'Liverpool versus Manchester City',
+  },
+  '6': {
+    src: '/stickers/chelsea-brentford.jpg',
+    alt: 'Chelsea versus Brentford',
+  },
+}
 
 export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredict }) => {
   const isReels = challenge.options.length === 1 && challenge.options[0] === 'reels'
@@ -42,31 +58,35 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
   const myAnswer = challenge.my_prediction?.answer ?? null
   const pointsEarned = challenge.my_prediction?.points_earned ?? 0
   const m = challenge.match
-  const questionText = challenge.question.toLowerCase()
   const fixtureText = m ? `${m.home_team} ${m.away_team}`.toLowerCase() : ''
-  const illustration = (
-    (questionText.includes('england') && questionText.includes('croatia')) ||
-    (fixtureText.includes('england') && fixtureText.includes('croatia'))
-  )
-    ? DEV_ENGLAND_CROATIA_IMAGE
-    : questionText.includes('arsenal') || fixtureText.includes('arsenal')
-      ? DEV_ARS_LUN_IMAGE
-      : (
-          (questionText.includes('manchester united') && questionText.includes('tottenham')) ||
-          (fixtureText.includes('manchester united') && fixtureText.includes('tottenham'))
-        )
-        ? DEV_MUN_TOT_IMAGE
-        : (
-            (questionText.includes('liverpool') && questionText.includes('manchester city')) ||
-            (fixtureText.includes('liverpool') && fixtureText.includes('manchester city'))
-          )
-          ? DEV_MCI_LIV_IMAGE
-          : (
-              (questionText.includes('chelsea') && questionText.includes('brentford')) ||
-              (fixtureText.includes('chelsea') && fixtureText.includes('brentford'))
-            )
-            ? DEV_CHE_BRE_IMAGE
-            : null
+  const questionText = challenge.question.toLowerCase()
+  const stickerKey =
+    (fixtureText.includes('england') && fixtureText.includes('croatia') ? '1' :
+      fixtureText.includes('arsenal') && challenge.type === 'clean_sheet' ? '2' :
+        fixtureText.includes('manchester united') && fixtureText.includes('tottenham') ? '3' :
+          fixtureText.includes('arsenal') && challenge.type === 'exact_score' ? '4' :
+            fixtureText.includes('liverpool') && fixtureText.includes('manchester city') ? '5' :
+              fixtureText.includes('chelsea') && fixtureText.includes('brentford') ? '6' :
+                questionText.includes('england') && questionText.includes('croatia') ? '1' :
+                  questionText.includes('arsenal') && challenge.type === 'clean_sheet' ? '2' :
+                    questionText.includes('manchester united') && questionText.includes('tottenham') ? '3' :
+                      questionText.includes('arsenal') && challenge.type === 'exact_score' ? '4' :
+                        questionText.includes('liverpool') && questionText.includes('manchester city') ? '5' :
+                          questionText.includes('chelsea') && questionText.includes('brentford') ? '6' : null)
+  const sticker = stickerKey ? RELEASE21_STICKERS[stickerKey] : null
+  const displayQuestion = stickerKey === '1'
+    ? 'What will be the final score: England vs Croatia?'
+    : stickerKey === '2'
+      ? 'Will Raya keep a clean sheet against Leeds?'
+      : stickerKey === '3'
+        ? 'Who scores first: Red Devils, Spurs, or nobody?'
+        : stickerKey === '4'
+          ? 'What will be the final score: Arsenal vs Leeds?'
+          : stickerKey === '5'
+            ? 'Will Liverpool vs Manchester City finish over or under 2.5 total goals?'
+            : stickerKey === '6'
+              ? 'Will Chelsea beat Brentford?'
+              : challenge.question
 
   const parsed = myAnswer ? parseScore(myAnswer) : null
   const [home, setHome] = React.useState(parsed?.home ?? 0)
@@ -86,6 +106,18 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
     onPredict(challenge.id, `${h}:${a}`)
   }
 
+  const optionLabel = (option: string): string => {
+    if (challenge.type === 'first_to_score') {
+      if (option === 'Home') return 'Red Devils'
+      if (option === 'Away') return 'Spurs'
+    }
+    if (challenge.type === 'over_under') {
+      if (option === 'Over') return 'Over 2.5'
+      if (option === 'Under') return 'Under 2.5'
+    }
+    return option
+  }
+
   const icon = TYPE_ICON[challenge.type] || '\u2753'
 
   return (
@@ -95,25 +127,15 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
         {challenge.points} {challenge.points === 1 ? 'pt' : 'pts'}
       </div>
 
-      {illustration && (
+      {sticker && (
         <img
           className="cc__illustration"
-          src={illustration}
-          alt={
-            illustration === DEV_MUN_TOT_IMAGE
-                ? 'Manchester United versus Tottenham'
-                : illustration === DEV_MCI_LIV_IMAGE
-                  ? 'Manchester City versus Liverpool'
-                  : illustration === DEV_ARS_LUN_IMAGE
-                    ? 'Arsenal challenge sticker'
-                    : illustration === DEV_CHE_BRE_IMAGE
-                      ? 'Chelsea versus Brentford'
-                      : 'England versus Croatia'
-          }
+          src={sticker.src}
+          alt={sticker.alt}
         />
       )}
 
-      {!illustration && (
+      {!sticker && (
         <div className="cc__icon-hero">
           <span className="cc__icon-large">{icon}</span>
         </div>
@@ -121,7 +143,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
 
       {/* Question */}
       <div className="cc__question">
-        <span className="cc__question-text">{challenge.question}</span>
+        <span className="cc__question-text">{displayQuestion}</span>
       </div>
 
       {/* Answer area */}
@@ -154,7 +176,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
                 onClick={() => handleOption(opt)}
                 disabled={resolved}
               >
-                {opt}
+                {optionLabel(opt)}
               </button>
             )
           })}
