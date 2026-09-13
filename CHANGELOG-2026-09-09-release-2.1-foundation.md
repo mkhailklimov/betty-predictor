@@ -12,6 +12,9 @@
 - Removed legacy match-card rendering and local legacy prediction synchronization from the active page.
 - Preserved challenge progress, dot navigation, optimistic answer state, kickoff lockout, and resolution states.
 - Empty challenge weeks now show the empty-state message after loading instead of an indefinite spinner.
+- Challenge cards now use one consistent sticker-first layout: sticker, question, then answer controls.
+- Added the `MCI_LIV`, `ARS_LUN`, and `CHE_BRE` sticker assets for the launch challenge carousel.
+- Removed legacy crest, team-header, and match-card visuals from the active challenge card.
 
 ## Leaderboard
 

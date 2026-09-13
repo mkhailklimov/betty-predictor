@@ -15,11 +15,8 @@ function parseScore(s: string): { home: number; away: number } | null {
   return { home: h, away: a }
 }
 
-function initials(name: string): string {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
-}
-
-// Type-specific illustration icons (large, sticker-style)
+// Type-specific fallback icons keep the card usable while a fixture sticker is
+// being added to the illustration library.
 const TYPE_ICON: Record<string, string> = {
   will_score: '\u26BD',
   over_under: '\u{1F4CA}',
@@ -30,10 +27,14 @@ const TYPE_ICON: Record<string, string> = {
 
 const DEV_ENGLAND_CROATIA_IMAGE =
   'https://lh3.googleusercontent.com/u/0/d/1a4RkNbkrLxlu_9FI9dtnxNyATsUieNWe=w900'
-const DEV_RAYA_IMAGE =
-  'https://lh3.googleusercontent.com/u/0/d/1KK7YCHBypFhZkapEr36trLIVoM6wrp-R=w900'
 const DEV_MUN_TOT_IMAGE =
   'https://lh3.googleusercontent.com/u/0/d/1DouPIoMgnvchSk4BtCK99tW1v49AwwPG=w900'
+const DEV_MCI_LIV_IMAGE =
+  'https://drive.google.com/uc?export=view&id=10wylMGnHUyB6--4nN_ksuwpCHzg8_zyw'
+const DEV_ARS_LUN_IMAGE =
+  'https://drive.google.com/uc?export=view&id=1RLdfw-brMyNJtobOFANTlB6PRJFDHURg'
+const DEV_CHE_BRE_IMAGE =
+  'https://drive.google.com/uc?export=view&id=1G0FtRHVS58yKFvv7ogFCHJEmjqgjMvRS'
 
 export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredict }) => {
   const isReels = challenge.options.length === 1 && challenge.options[0] === 'reels'
@@ -41,22 +42,31 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
   const myAnswer = challenge.my_prediction?.answer ?? null
   const pointsEarned = challenge.my_prediction?.points_earned ?? 0
   const m = challenge.match
-  const isDevPreview = typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1' ||
-      window.location.hostname.endsWith('.pages.dev'))
   const questionText = challenge.question.toLowerCase()
   const fixtureText = m ? `${m.home_team} ${m.away_team}`.toLowerCase() : ''
-  const illustration = isDevPreview && (
+  const illustration = (
     (questionText.includes('england') && questionText.includes('croatia')) ||
     (fixtureText.includes('england') && fixtureText.includes('croatia'))
   )
     ? DEV_ENGLAND_CROATIA_IMAGE
-    : isDevPreview && questionText.includes('arsenal') && questionText.includes('clean sheet')
-      ? DEV_RAYA_IMAGE
-      : isDevPreview && questionText.includes('manchester united') && questionText.includes('tottenham')
+    : questionText.includes('arsenal') || fixtureText.includes('arsenal')
+      ? DEV_ARS_LUN_IMAGE
+      : (
+          (questionText.includes('manchester united') && questionText.includes('tottenham')) ||
+          (fixtureText.includes('manchester united') && fixtureText.includes('tottenham'))
+        )
         ? DEV_MUN_TOT_IMAGE
-      : null
+        : (
+            (questionText.includes('liverpool') && questionText.includes('manchester city')) ||
+            (fixtureText.includes('liverpool') && fixtureText.includes('manchester city'))
+          )
+          ? DEV_MCI_LIV_IMAGE
+          : (
+              (questionText.includes('chelsea') && questionText.includes('brentford')) ||
+              (fixtureText.includes('chelsea') && fixtureText.includes('brentford'))
+            )
+            ? DEV_CHE_BRE_IMAGE
+            : null
 
   const parsed = myAnswer ? parseScore(myAnswer) : null
   const [home, setHome] = React.useState(parsed?.home ?? 0)
@@ -90,36 +100,20 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
           className="cc__illustration"
           src={illustration}
           alt={
-            illustration === DEV_RAYA_IMAGE
-              ? 'David Raya'
-              : illustration === DEV_MUN_TOT_IMAGE
+            illustration === DEV_MUN_TOT_IMAGE
                 ? 'Manchester United versus Tottenham'
-                : 'England versus Croatia'
+                : illustration === DEV_MCI_LIV_IMAGE
+                  ? 'Manchester City versus Liverpool'
+                  : illustration === DEV_ARS_LUN_IMAGE
+                    ? 'Arsenal challenge sticker'
+                    : illustration === DEV_CHE_BRE_IMAGE
+                      ? 'Chelsea versus Brentford'
+                      : 'England versus Croatia'
           }
         />
       )}
 
-      {/* Match illustration: crests + league, or big type icon */}
-      {m ? (
-        <div className="cc__match-header">
-          <div className="cc__team">
-            {m.crest_home
-              ? <img src={m.crest_home} alt={m.home_team} className="cc__crest" />
-              : <span className="cc__team-initials">{initials(m.home_team)}</span>}
-            <span className="cc__team-name">{m.home_team}</span>
-          </div>
-          <div className="cc__vs">
-            <span className="cc__type-icon">{icon}</span>
-            {m.league && <span className="cc__league">{m.league}</span>}
-          </div>
-          <div className="cc__team">
-            {m.crest_away
-              ? <img src={m.crest_away} alt={m.away_team} className="cc__crest" />
-              : <span className="cc__team-initials">{initials(m.away_team)}</span>}
-            <span className="cc__team-name">{m.away_team}</span>
-          </div>
-        </div>
-      ) : (
+      {!illustration && (
         <div className="cc__icon-hero">
           <span className="cc__icon-large">{icon}</span>
         </div>
