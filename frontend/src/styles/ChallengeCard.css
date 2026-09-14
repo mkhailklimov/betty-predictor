@@ -1,4 +1,4 @@
-/* Challenge cards use one sticker-first layout for every challenge type. */
+/* Challenge cards keep the fixture, sticker, and challenge visually ordered. */
 .cc {
   background: #31572C;
   border: 2px solid rgba(236, 243, 158, 0.28);
@@ -31,8 +31,16 @@
   width: 100%;
   max-height: 230px;
   object-fit: contain;
-  border-radius: 18px;
-  margin-bottom: 1.1rem;
+  margin: 0 auto 1.1rem;
+}
+
+.cc__fixture {
+  color: #ECF39E;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  margin: 0.15rem 2.5rem 0.75rem;
 }
 
 /* Hero icon when no match is linked */

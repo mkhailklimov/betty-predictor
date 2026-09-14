@@ -15,6 +15,10 @@
 - Challenge cards now use one consistent sticker-first layout: sticker, question, then answer controls.
 - Added the authoritative `ENG_CRO`, `RAYA`, `MUN_TOT`, `HAALAND`, `CHE_BRE`, and
   `ARS_LEE` sticker assets for the launch challenge carousel.
+- Added the fixture name as a separate line above each sticker and kept the
+  challenge question below the artwork.
+- Converted the launch artwork to transparent PNG stickers so the source
+  checkers background is not displayed in the game card.
 - Removed legacy crest, team-header, and match-card visuals from the active challenge card.
 - Bundled six standalone launch illustrations in `frontend/public/stickers/` so card images
   do not depend on Google Drive delivery.

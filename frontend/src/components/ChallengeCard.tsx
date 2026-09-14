@@ -27,27 +27,27 @@ const TYPE_ICON: Record<string, string> = {
 
 const RELEASE21_STICKERS: Record<string, { src: string; alt: string }> = {
   '1': {
-    src: '/stickers/ENG_CRO.jpg',
+    src: '/stickers/ENG_CRO.png',
     alt: 'England versus Croatia',
   },
   '2': {
-    src: '/stickers/RAYA.jpg',
+    src: '/stickers/RAYA.png',
     alt: 'Raya making a save against Leeds United',
   },
   '3': {
-    src: '/stickers/MUN_TOT.jpg',
+    src: '/stickers/MUN_TOT.png',
     alt: 'Manchester United versus Tottenham Hotspur',
   },
   '4': {
-    src: '/stickers/HAALAND.jpg',
+    src: '/stickers/HAALAND.png',
     alt: 'Haaland celebrating a goal',
   },
   '5': {
-    src: '/stickers/CHE_BRE.jpg',
+    src: '/stickers/CHE_BRE.png',
     alt: 'Chelsea versus Brentford',
   },
   '6': {
-    src: '/stickers/ARS_LEE.jpg',
+    src: '/stickers/ARS_LEE.png',
     alt: 'Arsenal versus Leeds United exact score',
   },
 }
@@ -80,6 +80,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
                         questionText.includes('chelsea') && questionText.includes('brentford') ? '5' :
                           questionText.includes('arsenal') && challenge.type === 'exact_score' ? '6' : null)
   const sticker = stickerKey ? RELEASE21_STICKERS[stickerKey] : null
+  const fixture = m ? `${m.home_team} vs ${m.away_team}` : null
   const displayQuestion = stickerKey === '1'
     ? 'What will be the final score: England vs Croatia?'
     : stickerKey === '2'
@@ -132,6 +133,10 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
       <div className="cc__points-badge">
         {challenge.points} {challenge.points === 1 ? 'pt' : 'pts'}
       </div>
+
+      {fixture && (
+        <div className="cc__fixture">{fixture}</div>
+      )}
 
       {sticker && (
         <img
