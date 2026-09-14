@@ -19,6 +19,10 @@
   challenge question below the artwork.
 - Converted the launch artwork to transparent PNG stickers so the source
   checkers background is not displayed in the game card.
+- Removed the replacement Haaland artwork's outer white background so the
+  Betty card background fills the space around the sticker.
+- Added an explicit `All predictions saved!` confirmation after every
+  challenge has a saved prediction.
 - Removed legacy crest, team-header, and match-card visuals from the active challenge card.
 - Bundled six standalone launch illustrations in `frontend/public/stickers/` so card images
   do not depend on Google Drive delivery.

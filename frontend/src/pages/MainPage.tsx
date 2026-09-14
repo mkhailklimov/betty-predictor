@@ -97,6 +97,8 @@ export const MainPage: React.FC = () => {
 
   const currentChallenge = challenges[currentIndex]
   const progressLabel = `${currentIndex + 1} of ${totalCards}`
+  const allPredictionsSaved = challenges.length > 0 &&
+    challenges.every(challenge => !!challenge.my_prediction)
 
   return (
     <div className="main-page">
@@ -146,6 +148,17 @@ export const MainPage: React.FC = () => {
           Next &#8594;
         </button>
       </div>
+
+      {allPredictionsSaved && (
+        <div className="all-done">
+          <div className="all-done-icon">&#9989;</div>
+          <div className="all-done-title">All predictions saved!</div>
+          <div className="all-done-text">
+            Your picks for all {totalCards} challenges are locked in.
+          </div>
+          <div className="all-done-hint">You can review any card using the dots above.</div>
+        </div>
+      )}
 
       {showToast && (
         <div className="toast" dangerouslySetInnerHTML={{ __html: toastMessage }}></div>
