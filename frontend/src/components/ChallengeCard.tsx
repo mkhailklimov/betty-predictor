@@ -27,28 +27,28 @@ const TYPE_ICON: Record<string, string> = {
 
 const RELEASE21_STICKERS: Record<string, { src: string; alt: string }> = {
   '1': {
-    src: '/stickers/england-croatia.jpg',
+    src: '/stickers/ENG_CRO.jpg',
     alt: 'England versus Croatia',
   },
   '2': {
-    src: '/stickers/arsenal-clean-sheet.jpg',
-    alt: 'Arsenal versus Leeds United',
+    src: '/stickers/RAYA.jpg',
+    alt: 'Raya making a save against Leeds United',
   },
   '3': {
-    src: '/stickers/manchester-united-tottenham.jpg',
+    src: '/stickers/MUN_TOT.jpg',
     alt: 'Manchester United versus Tottenham Hotspur',
   },
   '4': {
-    src: '/stickers/arsenal-leeds-exact-score.jpg',
-    alt: 'Arsenal versus Leeds United exact score',
+    src: '/stickers/HAALAND.jpg',
+    alt: 'Haaland celebrating a goal',
   },
   '5': {
-    src: '/stickers/liverpool-manchester-city.jpg',
-    alt: 'Liverpool versus Manchester City',
+    src: '/stickers/CHE_BRE.jpg',
+    alt: 'Chelsea versus Brentford',
   },
   '6': {
-    src: '/stickers/chelsea-brentford.jpg',
-    alt: 'Chelsea versus Brentford',
+    src: '/stickers/ARS_LEE.jpg',
+    alt: 'Arsenal versus Leeds United exact score',
   },
 }
 
@@ -58,21 +58,27 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
   const myAnswer = challenge.my_prediction?.answer ?? null
   const pointsEarned = challenge.my_prediction?.points_earned ?? 0
   const m = challenge.match
+  const challengeNumberMatch = challenge.id.match(/(?:^|[-_])(?:ch[-_])?(\d+)$/i)
+  const challengeNumber = challengeNumberMatch
+    ? String(Number(challengeNumberMatch[1]))
+    : null
   const fixtureText = m ? `${m.home_team} ${m.away_team}`.toLowerCase() : ''
   const questionText = challenge.question.toLowerCase()
-  const stickerKey =
+  const stickerKey = challengeNumber ||
     (fixtureText.includes('england') && fixtureText.includes('croatia') ? '1' :
       fixtureText.includes('arsenal') && challenge.type === 'clean_sheet' ? '2' :
         fixtureText.includes('manchester united') && fixtureText.includes('tottenham') ? '3' :
-          fixtureText.includes('arsenal') && challenge.type === 'exact_score' ? '4' :
-            fixtureText.includes('liverpool') && fixtureText.includes('manchester city') ? '5' :
-              fixtureText.includes('chelsea') && fixtureText.includes('brentford') ? '6' :
+          fixtureText.includes('liverpool') && fixtureText.includes('manchester city') &&
+            challenge.type === 'will_score' ? '4' :
+            fixtureText.includes('chelsea') && fixtureText.includes('brentford') ? '5' :
+              fixtureText.includes('arsenal') && challenge.type === 'exact_score' ? '6' :
                 questionText.includes('england') && questionText.includes('croatia') ? '1' :
                   questionText.includes('arsenal') && challenge.type === 'clean_sheet' ? '2' :
                     questionText.includes('manchester united') && questionText.includes('tottenham') ? '3' :
-                      questionText.includes('arsenal') && challenge.type === 'exact_score' ? '4' :
-                        questionText.includes('liverpool') && questionText.includes('manchester city') ? '5' :
-                          questionText.includes('chelsea') && questionText.includes('brentford') ? '6' : null)
+                      questionText.includes('liverpool') && questionText.includes('manchester city') &&
+                        challenge.type === 'will_score' ? '4' :
+                        questionText.includes('chelsea') && questionText.includes('brentford') ? '5' :
+                          questionText.includes('arsenal') && challenge.type === 'exact_score' ? '6' : null)
   const sticker = stickerKey ? RELEASE21_STICKERS[stickerKey] : null
   const displayQuestion = stickerKey === '1'
     ? 'What will be the final score: England vs Croatia?'
@@ -81,11 +87,11 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
       : stickerKey === '3'
         ? 'Who scores first: Red Devils, Spurs, or nobody?'
         : stickerKey === '4'
-          ? 'What will be the final score: Arsenal vs Leeds?'
+            ? 'Will Haaland score a goal?'
           : stickerKey === '5'
-            ? 'Will Liverpool vs Manchester City finish over or under 2.5 total goals?'
+        ? 'Will Chelsea beat Brentford?'
             : stickerKey === '6'
-              ? 'Will Chelsea beat Brentford?'
+          ? 'What will be the final score: Arsenal vs Leeds?'
               : challenge.question
 
   const parsed = myAnswer ? parseScore(myAnswer) : null

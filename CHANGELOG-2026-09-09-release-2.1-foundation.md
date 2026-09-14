@@ -13,15 +13,17 @@
 - Preserved challenge progress, dot navigation, optimistic answer state, kickoff lockout, and resolution states.
 - Empty challenge weeks now show the empty-state message after loading instead of an indefinite spinner.
 - Challenge cards now use one consistent sticker-first layout: sticker, question, then answer controls.
-- Added the `MCI_LIV`, `ARS_LUN`, and `CHE_BRE` sticker assets for the launch challenge carousel.
+- Added the authoritative `ENG_CRO`, `RAYA`, `MUN_TOT`, `HAALAND`, `CHE_BRE`, and
+  `ARS_LEE` sticker assets for the launch challenge carousel.
 - Removed legacy crest, team-header, and match-card visuals from the active challenge card.
 - Bundled six standalone launch illustrations in `frontend/public/stickers/` so card images
   do not depend on Google Drive delivery.
-- Updated the displayed launch questions to identify the relevant opponent or match:
-  `Raya vs Leeds`, `Red Devils vs Spurs`, Liverpool vs Manchester City over/under,
-  Chelsea vs Brentford, and both exact-score fixtures.
-- Updated visible answer labels to `Red Devils`, `Spurs`, `Nobody`, `Over 2.5`, and
-  `Under 2.5` while preserving the existing backend answer values.
+- Updated the displayed launch questions to match the authoritative worksheet:
+  England vs Croatia exact score, Raya clean sheet against Leeds, first scorer in
+  Manchester United vs Tottenham, Haaland to score against Manchester City,
+  Chelsea to beat Brentford, and Arsenal vs Leeds exact score.
+- Updated visible answer labels to `Red Devils`, `Spurs`, and `Nobody` while
+  preserving the existing backend answer values.
 
 ## Leaderboard
 
@@ -60,10 +62,10 @@ The `Release2.1` worksheet currently contains six proposed launch challenges:
 | # | Fixture | Challenge | Points |
 |---:|---|---|---:|
 | 1 | England vs Croatia | Predict the exact score | 3 |
-| 2 | Arsenal vs Leeds | Will Arsenal keep a clean sheet? | 1 |
-| 3 | Manchester United vs Tottenham | Who scores first — United, Spurs or nobody? | 3 |
-| 4 | Liverpool vs Manchester City | Over or under 2.5 total goals? | 1 |
-| 5 | Chelsea vs Brentford | Will Chelsea win? | 1 |
+| 2 | Arsenal vs Leeds | Will Raya keep a clean sheet? | 1 |
+| 3 | Manchester United vs Tottenham | Who scores first: Red Devils, Spurs, or nobody? | 3 |
+| 4 | Liverpool vs Manchester City | Will Haaland score a goal? | 1 |
+| 5 | Chelsea vs Brentford | Will Chelsea beat Brentford? | 1 |
 | 6 | Arsenal vs Leeds | Predict the exact score | 3 |
 
 Final fixture/source-ID verification is still required before the October weekly publish.
