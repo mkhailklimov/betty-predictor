@@ -440,7 +440,7 @@ export default {
            FROM gold_leaderboard gl
            LEFT JOIN (SELECT user_id, SUM(stars) AS total_stars FROM weekly_prizes GROUP BY user_id) wp
              ON gl.user_id = wp.user_id
-           ORDER BY gl.total_points DESC, gl.username ASC`
+           ORDER BY COALESCE(wp.total_stars, 0) DESC, gl.total_points DESC, gl.username ASC`
         ).all();
         const leaderboard = results.map((l, i) => ({
           rank: i + 1,

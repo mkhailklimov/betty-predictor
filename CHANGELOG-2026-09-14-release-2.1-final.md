@@ -66,3 +66,8 @@
 - Verify the real October fixture source IDs and kickoff times.
 - Replace the public demo preview configuration with the verified production
   challenge publish configuration.
+
+## Hall of Fame
+
+- Hall of Fame ranking now sorts by total Stars earned first, then total points
+  and username for deterministic ties.
