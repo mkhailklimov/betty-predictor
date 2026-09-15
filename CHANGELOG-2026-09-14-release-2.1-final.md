@@ -53,14 +53,16 @@
   `https://app.bettyscores.com/`.
 - Production API health endpoint is healthy:
   `https://betty-api.mihel-klimm.workers.dev/health`.
-- Production currently requests the calendar week `2026_38`, which has no
-  published challenge rows in D1, so the public web app correctly displays
-  `No challenges yet`.
-- The `2026_41` preview challenges remain dev-only until verified fixture IDs
-  and an explicit production data-publishing decision are made.
+- Production is configured to serve the validated `2026_41` challenge preview
+  for the public Release 2.1 demo.
+- The production Worker still has no cron triggers changed by this demo
+  configuration.
+- The six preview rows remain explicitly scoped to the reserved `preview-*`
+  records and must be replaced by verified fixture/source records before the
+  October launch.
 
 ## Next release action
 
 - Verify the real October fixture source IDs and kickoff times.
-- Publish the validated `Release2.1` worksheet challenges for production week
-  `2026_41` when the launch decision is made.
+- Replace the public demo preview configuration with the verified production
+  challenge publish configuration.
