@@ -51,6 +51,9 @@
 
 - Production frontend:
   `https://app.bettyscores.com/`.
+- The apex domains `https://bettyscores.com/` and
+  `https://www.bettyscores.com/` now use the same Release 2.1 frontend bundle
+  and production API routing as the benchmark app.
 - Production API health endpoint is healthy:
   `https://betty-api.mihel-klimm.workers.dev/health`.
 - Production is configured to serve the validated `2026_41` challenge preview

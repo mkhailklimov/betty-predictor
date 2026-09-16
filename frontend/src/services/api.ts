@@ -7,7 +7,11 @@ import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse, WeekRespo
 function resolveApiBase(): string {
   if (typeof window === 'undefined') return 'http://localhost:8000'
   const host = window.location.hostname
-  if (host === 'app.bettyscores.com') return 'https://api.bettyscores.com'
+  if (
+    host === 'app.bettyscores.com' ||
+    host === 'bettyscores.com' ||
+    host === 'www.bettyscores.com'
+  ) return 'https://api.bettyscores.com'
   if (host.endsWith('.pages.dev')) return 'https://betty-api-dev.mihel-klimm.workers.dev'
   return import.meta.env.VITE_API_URL || 'http://localhost:8000'
 }
