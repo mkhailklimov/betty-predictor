@@ -28,8 +28,8 @@
 
 .cc__illustration {
   display: block;
-  width: 100%;
-  max-height: 230px;
+  width: 88%;
+  max-height: 150px;
   object-fit: contain;
   margin: 0 auto 1.1rem;
 }

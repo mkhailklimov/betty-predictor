@@ -9,6 +9,9 @@ compatibility_date = "2024-12-01"
 #         confirmed working in a real Telegram client, so the old header is refused.
 [vars]
 ALLOW_LEGACY_AUTH = "0"
+# Temporary Release 2.1 public demo: serve the validated October 5–11
+# challenge carousel while production fixture publishing is pending.
+DEV_PREVIEW_WEEK = "2026_41"
 
 [[d1_databases]]
 binding = "DB"
