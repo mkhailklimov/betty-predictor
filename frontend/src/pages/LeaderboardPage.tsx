@@ -32,6 +32,12 @@ export const LeaderboardPage: React.FC = () => {
   }, [])
 
   const isPremium = !!me?.is_premium
+  const scorecard = leaderboard
+    .filter((entry) => {
+      const username = entry.username?.trim() || ''
+      return username !== '' && !/^(guest|user_\d+)$/i.test(username)
+    })
+    .map((entry, index) => ({ ...entry, rank: index + 1 }))
 
   const handleBuyPremium = async () => {
     setPremiumStatus('loading')
@@ -71,11 +77,11 @@ export const LeaderboardPage: React.FC = () => {
         <h1>Hall of Fame</h1>
       </div>
 
-      {leaderboard.length === 0 ? (
+      {scorecard.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">&#11088;</div>
-          <p className="empty-title">No results yet</p>
-          <p className="empty-text">Scores appear here once the first week&apos;s matches are played.</p>
+          <p className="empty-title">No named players yet</p>
+          <p className="empty-text">Players with a nickname will appear here once matches are scored.</p>
         </div>
       ) : (
         <div className="leaderboard-table">
@@ -87,7 +93,7 @@ export const LeaderboardPage: React.FC = () => {
             <div className="col stars">&#11088;</div>
           </div>
           <div className="table-body">
-            {leaderboard.map((entry) => (
+            {scorecard.map((entry) => (
               <div key={entry.user_id} className={`table-row ${entry.rank <= 3 ? 'top-' + entry.rank : ''}`}>
                 <div className="col rank">
                   {entry.rank === 1 && <span className="medal">&#129351;</span>}
