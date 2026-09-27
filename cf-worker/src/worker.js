@@ -53,7 +53,7 @@ export default {
   // Cron triggers — v2 schedule (§5.6):
   //   "0 0 * * 1" / "0 0 * * MON"  — Monday 00:00: close week → award prizes → publish next week
   //   "0 3 * * *"                    — Daily 03:00: ingest fixtures + results, refresh Candidates
-  //   "0 * * * *"                    — Hourly: match status (live/finished) + adjustments + rebuild marts
+  //   "0 * * * *"                    — Hourly: lock matches at kickoff
   //   "0 6 * * 5" / "0 6 * * FRI"  — Friday 06:00: sheet mirrors (Users / Bets / Marts / Prizes)
   //
   // Every new schedule must accept BOTH the named and numeric day-of-week forms.
@@ -83,7 +83,7 @@ export default {
     }
 
     if (DAILY_INGEST.has(event.cron)) {
-      // Daily 03:00: ingest ESPN fixtures + results, refresh Candidates tab.
+      // Daily 03:00: ingest fixtures/results, sync adjustments, and refresh marts.
       ctx.waitUntil((async () => {
         try { console.log('ingest:', JSON.stringify(await ingestFixtures(env))); }
         catch (e) { console.error('ingestFixtures failed', e); }
@@ -93,8 +93,12 @@ export default {
         try { await ingestFifaResults(env); } catch (e) { console.error('ingestFifa failed', e); }
         try {
           const rec = await reconcileResults(env, { apply: true });
-          if (rec.changed) await rebuildMarts(env);
+          console.log('reconcile:', JSON.stringify(rec));
         } catch (e) { console.error('reconcile failed', e); }
+        try { console.log('adjustments:', JSON.stringify(await syncAdjustmentsFromSheet(env))); }
+        catch (e) { console.error('adj sync failed', e); }
+        try { console.log('marts:', JSON.stringify(await rebuildMartsIfChanged(env))); }
+        catch (e) { console.error('mart refresh failed', e); }
       })());
       return;
     }
@@ -103,7 +107,7 @@ export default {
       // Friday: refresh marts, then mirror everything OUT to the sheet.
       ctx.waitUntil((async () => {
         try { await syncAdjustmentsFromSheet(env); } catch (e) { console.error('adj sync failed', e); }
-        await rebuildMarts(env);
+        await rebuildMartsIfChanged(env);
         for (const [tab, fn] of [
           ['Users', syncUsersToSheet],
           ['Bets', syncBetsToSheet],
@@ -119,41 +123,29 @@ export default {
       return;
     }
 
-    // Default: hourly match-status update.
+    // Hourly: lock each match once when its kickoff has passed.
     const now = new Date();
-    const { results: matches } = await env.DB.prepare('SELECT * FROM matches').all();
+    const { results: matches } = await env.DB.prepare(
+      'SELECT id, time, match_date_utc FROM matches WHERE is_active = 1'
+    ).all();
+    const updates = [];
 
     for (const match of matches) {
       const timeStr = match.time || match.match_date_utc;
       if (!timeStr) continue;
 
-      const kickoff = new Date(timeStr.includes('T') ? timeStr : timeStr.replace(' ', 'T') + 'Z');
-      const endEstimate = new Date(kickoff.getTime() + 3 * 60 * 60 * 1000);
+      let kickoffTime = timeStr.includes('T') ? timeStr : timeStr.replace(' ', 'T');
+      if (!/[Zz]|[+-]\d{2}:?\d{2}$/.test(kickoffTime)) kickoffTime += 'Z';
+      const kickoff = new Date(kickoffTime);
+      if (Number.isNaN(kickoff.getTime()) || now < kickoff) continue;
 
-      let newStatus = match.is_active;
-
-      if (now >= endEstimate) {
-        newStatus = 3;
-      } else if (now >= kickoff) {
-        newStatus = 2;
-      }
-
-      if (newStatus !== match.is_active) {
-        await env.DB.prepare(
-          'UPDATE matches SET is_active = ?, status = ?, updated_at = datetime("now") WHERE id = ?'
-        ).bind(
-          newStatus,
-          newStatus === 2 ? 'live' : newStatus === 3 ? 'finished' : match.status,
-          match.id
-        ).run();
-      }
+      updates.push(env.DB.prepare(
+        `UPDATE matches SET is_active = 2, status = 'live', updated_at = datetime('now')
+         WHERE id = ? AND is_active = 1`
+      ).bind(match.id));
     }
 
-    // Pull manual adjustments, then refresh marts.
-    ctx.waitUntil((async () => {
-      try { await syncAdjustmentsFromSheet(env); } catch (e) { console.error('adj sync failed', e); }
-      await rebuildMarts(env);
-    })());
+    if (updates.length) await env.DB.batch(updates);
   },
 
   async fetch(request, env) {
@@ -1215,13 +1207,29 @@ async function syncAdjustmentsFromSheet(env, { dryRun = false } = {}) {
 
   if (dryRun) return { ok: true, dry: true, parsed, skipped };
 
+  const { results: current } = await env.DB.prepare(
+    'SELECT week_id, user_id, points_delta, reason FROM bronze_adjustments'
+  ).all();
+  const rowKey = row => JSON.stringify([
+    row.week_id,
+    row.user_id,
+    Number(row.points_delta),
+    row.reason == null ? null : row.reason,
+  ]);
+  const currentKeys = current.map(rowKey).sort();
+  const parsedKeys = parsed.map(rowKey).sort();
+  if (currentKeys.length === parsedKeys.length &&
+      currentKeys.every((key, index) => key === parsedKeys[index])) {
+    return { ok: true, written: 0, unchanged: true, skipped };
+  }
+
   const stmts = [env.DB.prepare('DELETE FROM bronze_adjustments')];
   for (const a of parsed) stmts.push(env.DB.prepare(
     'INSERT INTO bronze_adjustments (id, week_id, user_id, points_delta, reason) VALUES (?,?,?,?,?)'
   ).bind(uuid(), a.week_id, a.user_id, a.points_delta, a.reason));
   await env.DB.batch(stmts);
 
-  return { ok: true, written: parsed.length, skipped };
+  return { ok: true, written: parsed.length, unchanged: false, skipped };
 }
 
 async function syncUsersToSheet(env) {
@@ -1471,6 +1479,58 @@ async function rebuildMarts(env) {
 
   await env.DB.batch(stmts);
   return { ok: true, at: now, champions: champions.length, leaderboard: Object.keys(lbAgg).length, scored_bets: factScore.length };
+}
+
+async function getMartsSourceSignature(env) {
+  const [
+    users,
+    predictions,
+    matches,
+    adjustments,
+    challengePredictions,
+    challenges,
+  ] = await Promise.all([
+    env.DB.prepare(
+      'SELECT COUNT(*) AS count, MAX(updated_at) AS latest FROM users WHERE merged_into IS NULL'
+    ).first(),
+    env.DB.prepare(
+      'SELECT COUNT(*) AS count, MAX(updated_at) AS latest, COALESCE(SUM(points_earned), 0) AS points FROM predictions'
+    ).first(),
+    env.DB.prepare(
+      'SELECT COUNT(*) AS count, MAX(updated_at) AS latest, COALESCE(SUM(home_score), 0) AS home_score, COALESCE(SUM(away_score), 0) AS away_score FROM matches'
+    ).first(),
+    env.DB.prepare(
+      'SELECT COUNT(*) AS count, MAX(created_at) AS latest, COALESCE(SUM(points_delta), 0) AS points FROM bronze_adjustments'
+    ).first(),
+    env.DB.prepare(
+      'SELECT COUNT(*) AS count, MAX(created_at) AS latest, COALESCE(SUM(points_earned), 0) AS points FROM challenge_predictions'
+    ).first(),
+    env.DB.prepare(
+      'SELECT COUNT(*) AS count, MAX(resolved_at) AS latest FROM challenges'
+    ).first(),
+  ]);
+
+  return JSON.stringify({ users, predictions, matches, adjustments, challengePredictions, challenges });
+}
+
+async function rebuildMartsIfChanged(env) {
+  const signature = await getMartsSourceSignature(env);
+  const state = await env.DB.prepare(
+    "SELECT value FROM worker_state WHERE key = 'marts_source_signature'"
+  ).first();
+
+  if (state && state.value === signature) {
+    return { ok: true, skipped: true, reason: 'source data unchanged' };
+  }
+
+  const result = await rebuildMarts(env);
+  await env.DB.prepare(
+    `INSERT INTO worker_state (key, value, updated_at)
+     VALUES ('marts_source_signature', ?, datetime('now'))
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
+  ).bind(signature).run();
+
+  return { ...result, skipped: false };
 }
 
 // Normalize a team name for cross-source matching: strip accents + punctuation,
