@@ -43,7 +43,7 @@ const RELEASE21_STICKERS: Record<string, { src: string; alt: string }> = {
     alt: 'Haaland celebrating a goal',
   },
   '5': {
-    src: '/stickers/CHE_BOR.png',
+    src: '/stickers/CHE_BOR-transparent.png',
     alt: 'Chelsea versus Bournemouth',
   },
   '6': {
