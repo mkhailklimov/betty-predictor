@@ -43,8 +43,8 @@ const RELEASE21_STICKERS: Record<string, { src: string; alt: string }> = {
     alt: 'Haaland celebrating a goal',
   },
   '5': {
-    src: '/stickers/CHE_BRE.png',
-    alt: 'Chelsea versus Brentford',
+    src: '/stickers/CHE_BOR.png',
+    alt: 'Chelsea versus Bournemouth',
   },
   '6': {
     src: '/stickers/ARS_LEE.png',
@@ -70,17 +70,21 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
         fixtureText.includes('manchester united') && fixtureText.includes('tottenham') ? '3' :
           fixtureText.includes('liverpool') && fixtureText.includes('manchester city') &&
             challenge.type === 'will_score' ? '4' :
-            fixtureText.includes('chelsea') && fixtureText.includes('brentford') ? '5' :
+            fixtureText.includes('chelsea') &&
+              (fixtureText.includes('bournemouth') || fixtureText.includes('brentford')) ? '5' :
               fixtureText.includes('arsenal') && challenge.type === 'exact_score' ? '6' :
                 questionText.includes('england') && questionText.includes('croatia') ? '1' :
                   questionText.includes('arsenal') && challenge.type === 'clean_sheet' ? '2' :
                     questionText.includes('manchester united') && questionText.includes('tottenham') ? '3' :
                       questionText.includes('liverpool') && questionText.includes('manchester city') &&
                         challenge.type === 'will_score' ? '4' :
-                        questionText.includes('chelsea') && questionText.includes('brentford') ? '5' :
+                        questionText.includes('chelsea') &&
+                          (questionText.includes('bournemouth') || questionText.includes('brentford')) ? '5' :
                           questionText.includes('arsenal') && challenge.type === 'exact_score' ? '6' : null)
   const sticker = stickerKey ? RELEASE21_STICKERS[stickerKey] : null
-  const fixture = m ? `${m.home_team} vs ${m.away_team}` : null
+  const fixture = stickerKey === '5'
+    ? 'Chelsea vs Bournemouth'
+    : m ? `${m.home_team} vs ${m.away_team}` : null
   const displayQuestion = stickerKey === '1'
     ? 'What will be the final score: England vs Croatia?'
     : stickerKey === '2'
@@ -90,7 +94,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
         : stickerKey === '4'
             ? 'Will Haaland score a goal?'
           : stickerKey === '5'
-        ? 'Will Chelsea beat Brentford?'
+        ? 'Will Chelsea beat Bournemouth?'
             : stickerKey === '6'
           ? 'What will be the final score: Arsenal vs Leeds?'
               : challenge.question
