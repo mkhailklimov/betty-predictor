@@ -1815,11 +1815,13 @@ function challengeWeekBounds(env) {
 }
 
 // Parse a kickoff string as UTC. Accepts ISO ("2026-10-17T11:30:00Z"),
-// "2026-10-17 11:30" and "2026-10-17T11:30" (no zone → UTC). Null if unusable.
+// "2026-10-17 11:30", "2026-10-17T11:30" (no zone → UTC) and date-only
+// "2026-10-17" (→ 00:00 UTC, locks at the start of the day). Null if unusable.
 function parseKickoffUtc(value) {
   const s = String(value || '').trim();
   if (!s) return null;
   let t = s.includes('T') ? s : s.replace(' ', 'T');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(t)) t += 'T00:00:00';
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(t)) t += ':00';
   if (!/[Zz]|[+-]\d{2}:?\d{2}$/.test(t)) t += 'Z';
   const d = new Date(t);

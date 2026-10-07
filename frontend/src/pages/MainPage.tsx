@@ -77,6 +77,20 @@ export const MainPage: React.FC = () => {
     return () => window.clearInterval(id)
   }, [])
 
+  // Also wake exactly at the next kickoff, so the card switches the moment
+  // the match starts rather than on the next tick.
+  React.useEffect(() => {
+    const upcoming = challenges
+      .map(kickoffMs)
+      .filter((k): k is number => k !== null && k > now)
+    if (!upcoming.length) return
+    const delay = Math.min(...upcoming) - now
+    if (delay > LOCK_TICK_MS) return
+    const id = window.setTimeout(() => setNow(serverNow()), delay + 50)
+    return () => window.clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [challenges, now])
+
   // New week (Monday 00:00 UTC) while the app is open: fetch it — once per
   // ended week, so a server still serving the old week can't cause a reload loop.
   const reloadedForWeekEnd = React.useRef<number | null>(null)

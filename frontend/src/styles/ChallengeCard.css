@@ -116,10 +116,11 @@
   color: #4CAF50;
 }
 
+/* The player's pick when it didn't come in: shown softly, never as an error. */
 .cc__option--wrong {
-  background: rgba(244, 67, 54, 0.15);
-  border-color: #f44336;
-  color: #f44336;
+  background: rgba(236, 243, 158, 0.08);
+  border-color: rgba(236, 243, 158, 0.35);
+  color: rgba(236, 243, 158, 0.8);
 }
 
 .cc__option:disabled {
@@ -147,8 +148,8 @@
 }
 
 .cc__result--loss {
-  background: rgba(244, 67, 54, 0.1);
-  color: #f44336;
+  background: rgba(236, 243, 158, 0.08);
+  color: rgba(236, 243, 158, 0.85);
 }
 
 .cc__result--missed {

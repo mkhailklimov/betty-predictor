@@ -231,7 +231,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
         <div className={`cc__result ${pointsEarned > 0 ? 'cc__result--win' : 'cc__result--loss'}`}>
           {pointsEarned > 0
             ? `\u2705 Correct! +${pointsEarned} pts`
-            : `\u274C Wrong \u2014 answer was: ${challenge.correct_answer}`}
+            : `Result: ${optionLabel(challenge.correct_answer!)} \u00B7 Your pick: ${optionLabel(myAnswer)} \u2014 next one's yours!`}
         </div>
       )}
       {resolved && !myAnswer && (
