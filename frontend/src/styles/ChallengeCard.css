@@ -34,6 +34,15 @@
   margin: 0 auto 1.1rem;
 }
 
+/* Kick-off time under the fixture, in the player's local time. */
+.cc__kickoff {
+  color: rgba(236, 243, 158, 0.7);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  margin: -0.5rem 2.5rem 0.75rem;
+}
+
 .cc__fixture {
   color: #ECF39E;
   font-size: 0.95rem;
@@ -166,4 +175,30 @@
     font-size: 0.85rem;
     padding: 0.65rem 0.4rem;
   }
+}
+
+/* Kick-off has passed: read-only, reachable with Prev but never the default card. */
+.cc--locked .cc__illustration,
+.cc--locked .cc__icon-hero,
+.cc--locked .cc__options,
+.cc--locked .cc__reels {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+.cc__locked {
+  text-align: center;
+  background: rgba(20, 44, 18, 0.55);
+  border: 1px solid rgba(236, 243, 158, 0.25);
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  margin-top: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ECF39E;
+}
+
+.cc__locked-pick {
+  font-weight: 600;
+  color: rgba(236, 243, 158, 0.75);
 }

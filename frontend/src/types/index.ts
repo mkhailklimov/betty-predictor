@@ -111,6 +111,14 @@ export interface Challenge {
   resolved_at: string | null
   created_at: string
   my_prediction: { challenge_id: string; answer: string; points_earned: number } | null
+  /** UTC kickoff; predictions close at this moment. Null for legacy rows with no time. */
+  kickoff_utc: string | null
+  /** Server's view of the lock at response time; the client re-checks on a timer. */
+  locked: boolean
+  /** "Home vs Away" label, independent of a linked match row. */
+  fixture: string | null
+  home_team?: string | null
+  away_team?: string | null
   match: {
     home_team: string
     away_team: string
@@ -126,5 +134,7 @@ export interface ChallengesResponse {
   week_id: string
   starts_at: string
   ends_at: string
+  /** Server clock at response time, used to correct a skewed device clock. */
+  server_time?: string
   challenges: Challenge[]
 }

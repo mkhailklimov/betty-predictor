@@ -125,6 +125,16 @@
   background: #ECF39E;
 }
 
+/* Kick-off passed: a dimmed square so locked cards read differently at a glance. */
+.dot--locked {
+  border-radius: 2px;
+  background: rgba(144, 169, 85, 0.12);
+}
+
+.dot--locked.dot--current {
+  background: #ECF39E;
+}
+
 /* Outcome saved, exact score still open — a ring rather than a filled dot. */
 .dot--partial {
   background: transparent;

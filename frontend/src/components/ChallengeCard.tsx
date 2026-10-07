@@ -5,7 +5,23 @@ import '../styles/ChallengeCard.css'
 
 interface ChallengeCardProps {
   challenge: Challenge
+  /** True once kickoff has passed: the card is read-only. */
+  locked: boolean
   onPredict: (challengeId: string, answer: string) => void
+}
+
+// The six hand-made launch stickers and copy belong to the 2026_41 preview
+// week only. Matching them by keyword in later weeks mislabels real fixtures
+// (e.g. any Arsenal exact-score card would show the Arsenal vs Leeds sticker).
+const LAUNCH_WEEK = '2026_41'
+
+function formatKickoff(iso: string | null): string | null {
+  if (!iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toLocaleString(undefined, {
+    weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+  })
 }
 
 function parseScore(s: string): { home: number; away: number } | null {
@@ -52,9 +68,11 @@ const RELEASE21_STICKERS: Record<string, { src: string; alt: string }> = {
   },
 }
 
-export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredict }) => {
+export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked, onPredict }) => {
   const isReels = challenge.options.length === 1 && challenge.options[0] === 'reels'
   const resolved = !!challenge.correct_answer
+  const readOnly = resolved || locked
+  const isLaunchWeek = challenge.week_id === LAUNCH_WEEK
   const myAnswer = challenge.my_prediction?.answer ?? null
   const pointsEarned = challenge.my_prediction?.points_earned ?? 0
   const m = challenge.match
@@ -64,7 +82,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
     : null
   const fixtureText = m ? `${m.home_team} ${m.away_team}`.toLowerCase() : ''
   const questionText = challenge.question.toLowerCase()
-  const stickerKey = challengeNumber ||
+  const stickerKey = !isLaunchWeek ? null : challengeNumber ||
     (fixtureText.includes('england') && fixtureText.includes('croatia') ? '1' :
       fixtureText.includes('arsenal') && challenge.type === 'clean_sheet' ? '2' :
         fixtureText.includes('manchester united') && fixtureText.includes('tottenham') ? '3' :
@@ -82,9 +100,12 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
                           (questionText.includes('bournemouth') || questionText.includes('brentford')) ? '5' :
                           questionText.includes('arsenal') && challenge.type === 'exact_score' ? '6' : null)
   const sticker = stickerKey ? RELEASE21_STICKERS[stickerKey] : null
+  const homeName = challenge.home_team || m?.home_team || null
+  const awayName = challenge.away_team || m?.away_team || null
   const fixture = stickerKey === '5'
     ? 'Chelsea vs Bournemouth'
-    : m ? `${m.home_team} vs ${m.away_team}` : null
+    : challenge.fixture || (m ? `${m.home_team} vs ${m.away_team}` : null)
+  const kickoffLabel = formatKickoff(challenge.kickoff_utc)
   const displayQuestion = stickerKey === '1'
     ? 'What will be the final score: England vs Croatia?'
     : stickerKey === '2'
@@ -105,12 +126,12 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
   const [touched, setTouched] = React.useState(!!myAnswer)
 
   const handleOption = (answer: string) => {
-    if (resolved) return
+    if (readOnly) return
     onPredict(challenge.id, answer)
   }
 
   const handleReels = (h: number, a: number) => {
-    if (resolved) return
+    if (readOnly) return
     setHome(h)
     setAway(a)
     setTouched(true)
@@ -119,8 +140,12 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
 
   const optionLabel = (option: string): string => {
     if (challenge.type === 'first_to_score') {
-      if (option === 'Home') return 'Red Devils'
-      if (option === 'Away') return 'Spurs'
+      if (isLaunchWeek) {
+        if (option === 'Home') return 'Red Devils'
+        if (option === 'Away') return 'Spurs'
+      }
+      if (option === 'Home' && homeName) return homeName
+      if (option === 'Away' && awayName) return awayName
     }
     if (challenge.type === 'over_under') {
       if (option === 'Over') return 'Over 2.5'
@@ -132,7 +157,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
   const icon = TYPE_ICON[challenge.type] || '\u2753'
 
   return (
-    <div className={`cc ${resolved ? 'cc--resolved' : ''}`}>
+    <div className={`cc ${resolved ? 'cc--resolved' : ''} ${locked && !resolved ? 'cc--locked' : ''}`}>
       {/* Points badge */}
       <div className="cc__points-badge">
         {challenge.points} {challenge.points === 1 ? 'pt' : 'pts'}
@@ -140,6 +165,9 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
 
       {fixture && (
         <div className="cc__fixture">{fixture}</div>
+      )}
+      {kickoffLabel && (
+        <div className="cc__kickoff">Kick-off {kickoffLabel}</div>
       )}
 
       {sticker && (
@@ -168,10 +196,10 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
             home={home}
             away={away}
             onChange={handleReels}
-            disabled={resolved}
+            disabled={readOnly}
             touched={touched}
-            homeName={m?.home_team || 'Home'}
-            awayName={m?.away_team || 'Away'}
+            homeName={homeName || 'Home'}
+            awayName={awayName || 'Away'}
           />
         </div>
       ) : (
@@ -189,7 +217,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
                 key={opt}
                 className={cls}
                 onClick={() => handleOption(opt)}
-                disabled={resolved}
+                disabled={readOnly}
               >
                 {optionLabel(opt)}
               </button>
@@ -211,7 +239,13 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, onPredi
           Answer: {challenge.correct_answer}
         </div>
       )}
-      {!resolved && myAnswer && (
+      {locked && !resolved && (
+        <div className="cc__locked" role="status">
+          &#128274; The event is locked
+          {myAnswer ? <span className="cc__locked-pick"> &middot; Your pick: {myAnswer}</span> : null}
+        </div>
+      )}
+      {!locked && !resolved && myAnswer && (
         <div className="cc__saved">
           Your pick: {myAnswer}
         </div>

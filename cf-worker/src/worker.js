@@ -847,24 +847,41 @@ export default {
           for (const m of ms) matchMap[m.id] = m;
         }
 
+        // Each challenge locks at its own kickoff (challenge.kickoff_utc, else
+        // the linked match). Cards are ordered by kickoff so locked ones sit
+        // first and the client can default to the first open card.
+        const nowMs = Date.now();
+        const enriched = challenges.map(c => {
+          const m = c.match_id ? matchMap[c.match_id] : null;
+          const kickoff = challengeKickoff(c, m);
+          const home = c.home_team || (m && m.home_team) || null;
+          const away = c.away_team || (m && m.away_team) || null;
+          return {
+            ...c,
+            options: JSON.parse(c.options),
+            my_prediction: myPredictions[c.id] || null,
+            kickoff_utc: kickoff ? kickoff.toISOString() : null,
+            locked: !!kickoff && nowMs >= kickoff.getTime(),
+            fixture: home && away ? `${home} vs ${away}` : null,
+            match: m ? {
+              home_team: m.home_team, away_team: m.away_team,
+              crest_home: m.crest_home, crest_away: m.crest_away,
+              code_home: m.code_home, code_away: m.code_away,
+              league: m.league,
+            } : null,
+          };
+        });
+        enriched.sort((a, b) => {
+          const ka = a.kickoff_utc || '9999', kb = b.kickoff_utc || '9999';
+          return ka === kb ? String(a.created_at).localeCompare(String(b.created_at)) : ka.localeCompare(kb);
+        });
+
         return json({
           week_id: bounds.week_id,
           starts_at: bounds.starts_at,
           ends_at: bounds.ends_at,
-          challenges: challenges.map(c => {
-            const m = c.match_id ? matchMap[c.match_id] : null;
-            return {
-              ...c,
-              options: JSON.parse(c.options),
-              my_prediction: myPredictions[c.id] || null,
-              match: m ? {
-                home_team: m.home_team, away_team: m.away_team,
-                crest_home: m.crest_home, crest_away: m.crest_away,
-                code_home: m.code_home, code_away: m.code_away,
-                league: m.league,
-              } : null,
-            };
-          }),
+          server_time: new Date(nowMs).toISOString(),
+          challenges: enriched,
         });
       }
 
@@ -881,20 +898,14 @@ export default {
         if (!challenge) return json({ detail: 'Challenge not found' }, 404);
         if (challenge.correct_answer) return json({ detail: 'Challenge already resolved' }, 400);
 
-        // Lockout: if challenge is tied to a match, check kickoff.
-        if (challenge.match_id) {
-          const match = await env.DB.prepare('SELECT time, match_date_utc FROM matches WHERE id = ?').bind(challenge.match_id).first();
-          if (match) {
-            const timeStr = match.time || match.match_date_utc;
-            if (timeStr) {
-              let t = timeStr.includes('T') ? timeStr : timeStr.replace(' ', 'T');
-              if (!/[Zz]|[+-]\d{2}:?\d{2}$/.test(t)) t += 'Z';
-              const kickoff = new Date(t);
-              if (!isNaN(kickoff.getTime()) && new Date() >= kickoff) {
-                return json({ detail: 'Betting closed — match has started' }, 403);
-              }
-            }
-          }
+        // Lockout at kickoff: the challenge's own kickoff_utc wins; a linked
+        // match is the fallback for rows published before migration 0008.
+        const lockMatch = challenge.match_id
+          ? await env.DB.prepare('SELECT time, match_date_utc FROM matches WHERE id = ?').bind(challenge.match_id).first()
+          : null;
+        const kickoff = challengeKickoff(challenge, lockMatch);
+        if (kickoff && Date.now() >= kickoff.getTime()) {
+          return json({ detail: 'Betting closed — match has started', locked: true }, 403);
         }
 
         const body = await request.json();
@@ -1801,6 +1812,24 @@ function challengeWeekBounds(env) {
   return previewWeek && weekBoundsFor(previewWeek)
     ? weekBoundsFor(previewWeek)
     : weekBounds(new Date());
+}
+
+// Parse a kickoff string as UTC. Accepts ISO ("2026-10-17T11:30:00Z"),
+// "2026-10-17 11:30" and "2026-10-17T11:30" (no zone → UTC). Null if unusable.
+function parseKickoffUtc(value) {
+  const s = String(value || '').trim();
+  if (!s) return null;
+  let t = s.includes('T') ? s : s.replace(' ', 'T');
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(t)) t += ':00';
+  if (!/[Zz]|[+-]\d{2}:?\d{2}$/.test(t)) t += 'Z';
+  const d = new Date(t);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+// The moment a challenge locks: its own kickoff_utc, else the linked match.
+function challengeKickoff(challenge, match) {
+  return parseKickoffUtc(challenge && challenge.kickoff_utc) ||
+    (match ? parseKickoffUtc(match.match_date_utc || match.time) : null);
 }
 
 // Publish challenges from the "Challenges" sheet tab → D1.
