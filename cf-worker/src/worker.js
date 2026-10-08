@@ -1663,21 +1663,17 @@ const FIXTURE_SOURCE = 'espn';
 // no Frauen-Bundesliga or Liga MX Femenil scoreboard), `ukr.1`, `kor.1`.
 // Re-probe before adding: a bad slug returns 200 with an empty body, so a typo
 // degrades silently into "that league just has no games".
+//
+// Budget (2026-10-08): the Worker is on Workers Free — 50 outgoing requests
+// per invocation. ingestFixtures makes one request per league per calendar
+// month in its window (usually 2), and the same daily cron also calls Google
+// Sheets. Keep LEAGUES × 2 well under 50, so the list is limited to what Betty
+// actually plays: UK clubs, the European cups and national teams. The wider
+// July list (Americas, Asia, other European leagues, women's) is in git history.
 const LEAGUES = [
-  // Europe — the core, but note these are OFF-SEASON in July/August.
-  'eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1', 'por.1', 'ned.1', 'tur.1',
-  'bel.1', 'sco.1', 'eng.2',
+  'eng.1', 'eng.2', 'sco.1',
   'uefa.champions', 'uefa.europa', 'uefa.europa.conf',
-  // Summer cover — these run through the European off-season and are what a
-  // late-July launch week actually has to draw on.
-  'usa.1', 'mex.1', 'bra.1', 'arg.1', 'col.1', 'chi.1', 'jpn.1', 'ksa.1',
-  'conmebol.libertadores', 'conmebol.sudamericana', 'concacaf.champions',
-  // National teams.
   'fifa.world', 'uefa.nations', 'uefa.euro',
-  // Women's. Coverage is real but thinner than the men's game, and ESPN loads
-  // new-season schedules late — an empty pull here is usually the calendar,
-  // not a broken slug.
-  'usa.nwsl', 'eng.w.1', 'esp.w.1', 'fra.w.1', 'aus.w.1', 'uefa.wchampions',
 ];
 
 // ISO-8601 week id, 'YYYY_WW' — the convention already carried by
