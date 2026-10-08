@@ -1831,7 +1831,7 @@ async function ensureSheetTab(sid, token, title, header) {
 
 const CANDIDATES_HEADER = ['Week ID', 'Source ID', 'League', 'Kickoff UTC', 'Home', 'Away'];
 const CHALLENGES_HEADER = ['Week ID', 'Match Source ID', 'Type', 'Question Text', 'Options', 'Points', 'Correct Answer'];
-const RELEASE21_HEADER = ['Week_start', '#', 'Fixture', 'Challenge', 'Points', 'Kickoff UTC', 'Source ID'];
+const RELEASE21_HEADER = ['Week_start', '#', 'Fixture', 'Challenge', 'Points', 'Picture_name', 'Kickoff UTC', 'Source ID'];
 const RELEASE21_TAB = 'Release2.1';
 
 function challengeWeekBounds(env) {
@@ -1862,7 +1862,8 @@ function challengeKickoff(challenge, match) {
 }
 
 // Publish challenges from the "Release2.1" sheet tab → D1.
-// Each row: Week_start | # | Fixture | Challenge | Points | Kickoff UTC | Source ID
+// Each row: Week_start | # | Fixture | Challenge | Points | Picture_name | Kickoff UTC | Source ID
+// (Picture_name, column F, is a human note for the sticker; not read here.)
 // Source ID is the ESPN event id; bronze_fixtures is then the source of truth
 // for teams and kickoff (the sheet's Kickoff UTC is only a cross-check). Rows
 // without a Source ID fall back to the sheet kickoff and the matches table.
@@ -1879,7 +1880,7 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false, force =
   const sourceTab = RELEASE21_TAB;
   await ensureSheetTab(sid, token, sourceTab, RELEASE21_HEADER);
   const res = await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sourceTab}!A2:G`, token, 'GET');
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sourceTab}!A2:H`, token, 'GET');
   const allRows = res.values || [];
 
   const target = weekId || weekBounds(new Date()).week_id;
@@ -1911,8 +1912,8 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false, force =
     const fixture = (r[2] || '').trim();
     const question = (r[3] || '').trim();
     const points = Number(r[4]) || 0;
-    const sheetKickoff = parseKickoffUtc(r[5]);
-    const sourceId = String(r[6] || '').trim();
+    const sheetKickoff = parseKickoffUtc(r[6]);
+    const sourceId = String(r[7] || '').trim();
     const type = inferChallengeType(question, points);
     const optionsStr = challengeOptions(type);
     const matchSourceId = fixture;
