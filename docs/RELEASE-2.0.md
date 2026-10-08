@@ -10,7 +10,7 @@ close-out.
 
 v1 was built for exactly one thing: a single fixed-length tournament. That
 shipped and finished — 48/48 matches scored, champion crowned
-(`docs/TOURNAMENT-CLOSEOUT.md`, `CHANGELOG-2026-07-20.md`). What's left is an
+(`docs/TOURNAMENT-CLOSEOUT.md`, `changelogs/CHANGELOG-2026-07-20.md`). What's left is an
 app with no fixtures to serve and three structural limits baked in:
 
 - **Fixtures are hardcoded in the frontend.** `frontend/src/data/matches.ts`

@@ -39,7 +39,7 @@ as **Next** the **Monday before that**. Every Monday performs **both** transitio
      making the week vanish from the landing; (b) `Weekstart` is the **Friday**
      anchor even for knockout weeks whose matches fall later. Verify the live
      gviz exports the new week and the landing shows **Current + Next**.
-     (See `CHANGELOG-2026-06-29.md` for the gotcha.)
+     (See `changelogs/CHANGELOG-2026-06-29.md` for the gotcha.)
 
 ## 🟡 Friday 06:00 UTC — close out the finishing week (data / admin only)
 
@@ -60,7 +60,7 @@ the sheet **and** D1 before the cron runs, or the week scores as zeros.
 > while the handler matched `0 6 * * 5`, and Cloudflare echoes `event.cron` back
 > **verbatim**. The unmatched event fell through to the *hourly* handler, which
 > marks matches `finished` on wall-clock **without writing scores** — so it failed
-> loudly in effect and silently in logs. See `CHANGELOG-2026-07-17.md`.
+> loudly in effect and silently in logs. See `changelogs/CHANGELOG-2026-07-17.md`.
 > **If a tab looks stale, check `event.cron` dispatch first.**
 
 **On-demand admin endpoints** (all `POST`, `Authorization: Bearer $ADMIN_TOKEN`,

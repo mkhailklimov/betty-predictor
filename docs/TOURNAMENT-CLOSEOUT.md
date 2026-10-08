@@ -4,7 +4,7 @@
 > All **48/48** matches scored and closed; champion **`ippolitovdenis`** (26 pts).
 > Final recorded **0-0 `X`** (Spain's winner came at 106'), 3rd place **4-6**.
 > What actually happened, including where this document was wrong:
-> **`CHANGELOG-2026-07-20.md`**.
+> **`changelogs/CHANGELOG-2026-07-20.md`**.
 >
 > Kept as the reference procedure for a future tournament — **do not re-run it
 > against WC2026.** Steps 3-4 would rewrite settled results.
@@ -73,7 +73,7 @@ for k in json.load(sys.stdin).get('keyEvents',[]):
 Set `Result` (1/X/2), `Score_1`, `Score_2`, and `Is active = 3` for rows `47`, `48`.
 Use `value_input_option='USER_ENTERED'` (never RAW — see the gviz gotcha in
 `reference_google_sheets`). Script pattern: see the 2026-07-17 fill in
-`CHANGELOG-2026-07-17.md`; SA key `/home/misha/Ilya/cf-worker/.betty-sa.json`,
+`changelogs/CHANGELOG-2026-07-17.md`; SA key `/home/misha/Ilya/cf-worker/.betty-sa.json`,
 gspread venv `/home/misha/Ilya/backend/venv`. Scopes needed: **spreadsheets +
 drive** (`open_by_key` reads Drive metadata; spreadsheets-only 403s).
 
@@ -139,7 +139,7 @@ Then confirm the champion against the **rebuilt leaderboard**, never against a
 table in a document.
 
 **Outcome (2026-07-20): `ippolitovdenis`, 26 pts** — ahead of Mishanna45 (22) and
-islavutin (2). See `CHANGELOG-2026-07-20.md`.
+islavutin (2). See `changelogs/CHANGELOG-2026-07-20.md`.
 
 ### 7. Prizes — ✅ nothing to do
 
