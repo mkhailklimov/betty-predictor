@@ -74,3 +74,6 @@ Thumbs.db
 
 # Database backups (tracked — release snapshots belong in git)
 # backups/
+
+# Claude Code personal settings (local permissions)
+.claude/settings.local.json

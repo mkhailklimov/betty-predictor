@@ -936,8 +936,9 @@ export default {
         return json({ ok: true, challenge_id: challengeId, answer });
       }
 
-      // --- Admin: publish challenges from the Challenges sheet tab → D1 ---
+      // --- Admin: publish challenges from the Release2.1 sheet tab → D1 ---
       // POST /api/admin/publish-challenges?dry=1&week=2026_37
+      //   force=1  replace a week that already has predictions (deletes them)
       if (method === 'POST' && path === '/api/admin/publish-challenges') {
         const adminToken = getToken(request);
         if (!env.ADMIN_TOKEN || adminToken !== env.ADMIN_TOKEN) {
@@ -946,6 +947,7 @@ export default {
         const result = await publishChallengesFromSheet(env, {
           weekId: url.searchParams.get('week') || undefined,
           dryRun: url.searchParams.get('dry') === '1',
+          force: url.searchParams.get('force') === '1',
         });
         return json(result, result.ok ? 200 : 422);
       }
@@ -1661,21 +1663,17 @@ const FIXTURE_SOURCE = 'espn';
 // no Frauen-Bundesliga or Liga MX Femenil scoreboard), `ukr.1`, `kor.1`.
 // Re-probe before adding: a bad slug returns 200 with an empty body, so a typo
 // degrades silently into "that league just has no games".
+//
+// Budget (2026-10-08): the Worker is on Workers Free — 50 outgoing requests
+// per invocation. ingestFixtures makes one request per league per calendar
+// month in its window (usually 2), and the same daily cron also calls Google
+// Sheets. Keep LEAGUES × 2 well under 50, so the list is limited to what Betty
+// actually plays: UK clubs, the European cups and national teams. The wider
+// July list (Americas, Asia, other European leagues, women's) is in git history.
 const LEAGUES = [
-  // Europe — the core, but note these are OFF-SEASON in July/August.
-  'eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1', 'por.1', 'ned.1', 'tur.1',
-  'bel.1', 'sco.1', 'eng.2',
+  'eng.1', 'eng.2', 'sco.1',
   'uefa.champions', 'uefa.europa', 'uefa.europa.conf',
-  // Summer cover — these run through the European off-season and are what a
-  // late-July launch week actually has to draw on.
-  'usa.1', 'mex.1', 'bra.1', 'arg.1', 'col.1', 'chi.1', 'jpn.1', 'ksa.1',
-  'conmebol.libertadores', 'conmebol.sudamericana', 'concacaf.champions',
-  // National teams.
   'fifa.world', 'uefa.nations', 'uefa.euro',
-  // Women's. Coverage is real but thinner than the men's game, and ESPN loads
-  // new-season schedules late — an empty pull here is usually the calendar,
-  // not a broken slug.
-  'usa.nwsl', 'eng.w.1', 'esp.w.1', 'fra.w.1', 'aus.w.1', 'uefa.wchampions',
 ];
 
 // ISO-8601 week id, 'YYYY_WW' — the convention already carried by
@@ -1709,33 +1707,58 @@ function weekBoundsFor(weekId, from = new Date()) {
 
 // Pull scheduled fixtures for every league into bronze_fixtures.
 // Modelled on ingestFifaResults: land raw, transform later.
+//
+// ESPN stopped answering date ranges (`dates=YYYYMMDD-YYYYMMDD` returns zero
+// events for any range — bronze went silently stale from 2026-07-31). Month
+// queries (`dates=YYYYMM`) still work, so fetch each month the window touches
+// and keep only events inside it. `limit` lifts ESPN's default 100-event cap.
+// The window starts LOOKBACK_DAYS back so recent results still land in
+// bronze_match_results for reconcileResults().
 async function ingestFixtures(env, { days = 21, leagues = LEAGUES } = {}) {
+  const LOOKBACK_DAYS = 3;
   const now = new Date();
   const fetchedAt = now.toISOString().replace('T', ' ').slice(0, 19);
-  const ymd = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
-  const range = `${ymd(now)}-${ymd(new Date(now.getTime() + days * 86400000))}`;
+  const from = new Date(now.getTime() - LOOKBACK_DAYS * 86400000);
+  const to = new Date(now.getTime() + days * 86400000);
+  const range = `${from.toISOString().slice(0, 10)}..${to.toISOString().slice(0, 10)}`;
+  const months = [];
+  for (let d = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), 1)); d <= to;
+    d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1))) {
+    months.push(d.toISOString().slice(0, 7).replace('-', ''));
+  }
 
   const stmts = [];
   const perLeague = {};
   const failed = [];
 
   for (const league of leagues) {
-    const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${range}`;
-    let data;
-    try {
-      const r = await fetch(url, { headers: { 'User-Agent': 'betty-predictor' } });
-      if (!r.ok) throw new Error(`ESPN ${r.status}`);
-      data = await r.json();
-    } catch (e) {
-      // One dead league must not starve the other thirty.
-      failed.push({ league, why: String(e) });
-      continue;
+    const events = new Map();
+    let leagueName = null;
+    let ok = false;
+    for (const month of months) {
+      const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${month}&limit=1000`;
+      let data;
+      try {
+        const r = await fetch(url, { headers: { 'User-Agent': 'betty-predictor' } });
+        if (!r.ok) throw new Error(`ESPN ${r.status}`);
+        data = await r.json();
+      } catch (e) {
+        // One dead league must not starve the other thirty.
+        failed.push({ league, month, why: String(e) });
+        continue;
+      }
+      ok = true;
+      leagueName = leagueName || (data.leagues || [{}])[0].name || null;
+      for (const ev of data.events || []) {
+        const t = Date.parse(ev.date);
+        if (t >= from.getTime() && t <= to.getTime()) events.set(String(ev.id), ev);
+      }
     }
-    const leagueName = (data.leagues || [{}])[0].name || null;
+    if (!ok) continue;
     if (!leagueName) failed.push({ league, why: 'unknown slug — feed returned no league' });
 
     let n = 0;
-    for (const ev of data.events || []) {
+    for (const ev of events.values()) {
       const comp = (ev.competitions || [])[0];
       if (!comp) continue;
       const home = (comp.competitors || []).find((c) => c.homeAway === 'home');
@@ -1779,7 +1802,11 @@ async function ingestFixtures(env, { days = 21, leagues = LEAGUES } = {}) {
   // D1 caps a batch; chunk so a busy 30-league pull still lands.
   for (let i = 0; i < stmts.length; i += 100) await env.DB.batch(stmts.slice(i, i + 100));
 
-  return { ok: true, source: FIXTURE_SOURCE, range, landed: stmts.length, perLeague, failed };
+  // Zero events across every league means the feed changed again, not that
+  // nobody plays football — say so instead of returning a quiet ok.
+  const total = Object.values(perLeague).reduce((a, b) => a + b, 0);
+  if (!total) console.error('ingestFixtures: ESPN returned no events for any league', range);
+  return { ok: total > 0, source: FIXTURE_SOURCE, range, months, landed: stmts.length, perLeague, failed };
 }
 
 // Create a tab if it isn't there yet. Sheets answers a range on a missing tab
@@ -1804,7 +1831,7 @@ async function ensureSheetTab(sid, token, title, header) {
 
 const CANDIDATES_HEADER = ['Week ID', 'Source ID', 'League', 'Kickoff UTC', 'Home', 'Away'];
 const CHALLENGES_HEADER = ['Week ID', 'Match Source ID', 'Type', 'Question Text', 'Options', 'Points', 'Correct Answer'];
-const RELEASE21_HEADER = ['Week_start', '#', 'Fixture', 'Challenge', 'Points'];
+const RELEASE21_HEADER = ['Week_start', '#', 'Fixture', 'Challenge', 'Points', 'Picture_name', 'Kickoff UTC', 'Source ID'];
 const RELEASE21_TAB = 'Release2.1';
 
 function challengeWeekBounds(env) {
@@ -1834,10 +1861,15 @@ function challengeKickoff(challenge, match) {
     (match ? parseKickoffUtc(match.match_date_utc || match.time) : null);
 }
 
-// Publish challenges from the "Challenges" sheet tab → D1.
-// Each row: Week ID | Match Source ID | Type | Question Text | Options | Points | Correct Answer
-// Options is comma-separated: "Yes,No" or "Over,Under" or "reels" for exact_score.
-async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) {
+// Publish challenges from the "Release2.1" sheet tab → D1.
+// Each row: Week_start | # | Fixture | Challenge | Points | Picture_name | Kickoff UTC | Source ID
+// (Picture_name, column F, is a human note for the sticker; not read here.)
+// Source ID is the ESPN event id; bronze_fixtures is then the source of truth
+// for teams and kickoff (the sheet's Kickoff UTC is only a cross-check). Rows
+// without a Source ID fall back to the sheet kickoff and the matches table.
+// Refuses: a row with no kickoff, kicking off outside the week or already
+// started, and replacing a week that has predictions unless `force`.
+async function publishChallengesFromSheet(env, { weekId, dryRun = false, force = false } = {}) {
   if (!env.GOOGLE_SA_JSON || !env.SHEETS_SPREADSHEET_ID) {
     throw new Error('Missing GOOGLE_SA_JSON or SHEETS_SPREADSHEET_ID secret');
   }
@@ -1848,7 +1880,7 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
   const sourceTab = RELEASE21_TAB;
   await ensureSheetTab(sid, token, sourceTab, RELEASE21_HEADER);
   const res = await sheetsFetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sourceTab}!A2:E`, token, 'GET');
+    `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${sourceTab}!A2:H`, token, 'GET');
   const allRows = res.values || [];
 
   const target = weekId || weekBounds(new Date()).week_id;
@@ -1862,6 +1894,10 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
     return value === bounds.week_id || weekIdForSheetValue(value) === bounds.week_id;
   });
   const errors = [];
+  const warnings = [];
+  const nowMs = Date.now();
+  const weekStartMs = Date.parse(bounds.starts_at);
+  const weekEndMs = Date.parse(bounds.ends_at);
 
   if (rows.length < 1) {
     errors.push(`no challenge rows for ${bounds.week_id}`);
@@ -1876,9 +1912,12 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
     const fixture = (r[2] || '').trim();
     const question = (r[3] || '').trim();
     const points = Number(r[4]) || 0;
+    const sheetKickoff = parseKickoffUtc(r[6]);
+    const sourceId = String(r[7] || '').trim();
     const type = inferChallengeType(question, points);
     const optionsStr = challengeOptions(type);
     const matchSourceId = fixture;
+    const label = `#${(r[1] || '').trim() || '?'} ${fixture}`;
 
     if (!type || !question || !optionsStr || !points || !fixture) {
       errors.push(`incomplete row: ${JSON.stringify(r)}`);
@@ -1894,10 +1933,34 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
       continue;
     }
 
-    // Release2.1 stores a fixture label instead of a source ID. Resolve it
-    // against the published schedule by week and normalized team names.
     let matchId = null;
-    if (matchSourceId) {
+    let kickoff = sheetKickoff;
+    let homeTeam = null;
+    let awayTeam = null;
+    const parsedLabel = parseFixtureLabel(fixture);
+    if (sourceId) {
+      // ESPN event id → bronze_fixtures: real teams and kickoff.
+      const f = await env.DB.prepare(
+        'SELECT * FROM bronze_fixtures WHERE source = ? AND source_id = ?'
+      ).bind(FIXTURE_SOURCE, sourceId).first();
+      if (!f) {
+        errors.push(`${label}: source id ${sourceId} not in bronze_fixtures (run ingest-fixtures first)`);
+        continue;
+      }
+      homeTeam = f.home_team;
+      awayTeam = f.away_team;
+      kickoff = parseKickoffUtc(f.kickoff_utc);
+      if (parsedLabel && !(sameTeam(parsedLabel.home, homeTeam) && sameTeam(parsedLabel.away, awayTeam))) {
+        errors.push(`${label}: source id ${sourceId} is ${homeTeam} vs ${awayTeam}`);
+        continue;
+      }
+      if (sheetKickoff && kickoff && sheetKickoff.getTime() !== kickoff.getTime()) {
+        warnings.push(`${label}: sheet kickoff ${sheetKickoff.toISOString()} differs from ESPN ` +
+          `${kickoff.toISOString()}; using ESPN`);
+      }
+    } else if (matchSourceId) {
+      // Legacy rows (no Source ID): resolve the fixture label against the
+      // published schedule by week and normalized team names.
       const match = await env.DB.prepare(
         `SELECT id FROM matches
          WHERE week_id = ? AND (
@@ -1920,11 +1983,49 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
         }
       }
       if (!matchId) errors.push(`fixture "${matchSourceId}" not found for ${bounds.week_id}`);
+      if (parsedLabel) { homeTeam = parsedLabel.home; awayTeam = parsedLabel.away; }
+    }
+
+    // Every challenge must lock at a known moment inside its week.
+    if (!kickoff) {
+      errors.push(`${label}: no kickoff (fill Kickoff UTC or Source ID)`);
+      continue;
+    }
+    if (kickoff.getTime() < weekStartMs || kickoff.getTime() > weekEndMs) {
+      errors.push(`${label}: kickoff ${kickoff.toISOString()} is outside ${bounds.week_id}`);
+      continue;
+    }
+    if (kickoff.getTime() <= nowMs) {
+      errors.push(`${label}: already kicked off (${kickoff.toISOString()})`);
+      continue;
     }
 
     const options = optionsStr === 'reels' ? '["reels"]' : JSON.stringify(optionsStr.split(',').map(s => s.trim()));
 
-    challenges.push({ type, question, options, points, matchId, matchSourceId });
+    challenges.push({
+      type, question, options, points, matchId, matchSourceId,
+      kickoff_utc: kickoff.toISOString(), home_team: homeTeam, away_team: awayTeam,
+      source_id: sourceId || null,
+    });
+  }
+
+  // Re-publishing replaces the week's challenges and deletes their
+  // predictions; never do that to a live week by accident.
+  const { results: oldChallenges } = await env.DB.prepare(
+    'SELECT id FROM challenges WHERE week_id = ?'
+  ).bind(bounds.week_id).all();
+  if (oldChallenges.length) {
+    const p = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM challenge_predictions
+       WHERE challenge_id IN (SELECT id FROM challenges WHERE week_id = ?)`
+    ).bind(bounds.week_id).first();
+    if (p && p.n > 0) {
+      if (force) {
+        warnings.push(`force: replacing ${oldChallenges.length} challenges and deleting ${p.n} predictions`);
+      } else {
+        errors.push(`${bounds.week_id} already has ${p.n} predictions; re-publish with force=1 to replace them`);
+      }
+    }
   }
 
   function inferChallengeType(question, points) {
@@ -1953,6 +2054,12 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
     return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   }
 
+  // Sheet labels may shorten ESPN names ("Brighton" for "Brighton & Hove Albion").
+  function sameTeam(a, b) {
+    const x = normalizeTeam(a), y = normalizeTeam(b);
+    return !!x && !!y && (x === y || x.includes(y) || y.includes(x));
+  }
+
   function weekIdForSheetValue(value) {
     if (!value) return null;
     if (/^\d{4}_\d{2}$/.test(value)) return value;
@@ -1962,17 +2069,21 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
 
   if (errors.length) {
     console.error('publishChallengesFromSheet REFUSED', bounds.week_id, JSON.stringify(errors));
-    return { ok: false, week_id: bounds.week_id, errors, valid: challenges.length, published: 0 };
+    return { ok: false, week_id: bounds.week_id, errors, warnings, valid: challenges.length, published: 0 };
   }
 
-  if (dryRun) return { ok: true, dry: true, week_id: bounds.week_id, challenges };
+  if (dryRun) return { ok: true, dry: true, week_id: bounds.week_id, warnings, challenges };
 
-  // Delete existing challenges for this week (re-publish replaces them).
-  // Also delete any predictions for the old challenges to avoid orphans.
-  const { results: oldChallenges } = await env.DB.prepare(
-    'SELECT id FROM challenges WHERE week_id = ?'
-  ).bind(bounds.week_id).all();
-  const stmts = [];
+  // The week row must exist for closeWeek(); create it if missing but never
+  // change the status of one that's already there.
+  const stmts = [env.DB.prepare(
+    `INSERT INTO weeks (week_id, starts_at, ends_at, status, published_at)
+     VALUES (?,?,?,'published',datetime('now'))
+     ON CONFLICT(week_id) DO NOTHING`
+  ).bind(bounds.week_id, bounds.starts_at, bounds.ends_at)];
+
+  // Replace existing challenges for this week, and their predictions so none
+  // are orphaned (only reachable here when there are none, or with force).
   for (const old of oldChallenges) {
     stmts.push(env.DB.prepare('DELETE FROM challenge_predictions WHERE challenge_id = ?').bind(old.id));
   }
@@ -1981,13 +2092,15 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false } = {}) 
   for (const c of challenges) {
     const id = uuid();
     stmts.push(env.DB.prepare(
-      `INSERT INTO challenges (id, week_id, match_id, type, question, options, points)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
-    ).bind(id, bounds.week_id, c.matchId, c.type, c.question, c.options, c.points));
+      `INSERT INTO challenges
+       (id, week_id, match_id, type, question, options, points, kickoff_utc, home_team, away_team, source_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, bounds.week_id, c.matchId, c.type, c.question, c.options, c.points,
+      c.kickoff_utc, c.home_team, c.away_team, c.source_id));
   }
   await env.DB.batch(stmts);
 
-  return { ok: true, week_id: bounds.week_id, published: challenges.length, challenges };
+  return { ok: true, week_id: bounds.week_id, published: challenges.length, warnings, challenges };
 }
 
 // Rewrite the "Candidates" tab from bronze for the week being curated.
