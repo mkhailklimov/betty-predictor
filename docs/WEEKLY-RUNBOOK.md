@@ -76,7 +76,22 @@ base `https://api.bettyscores.com`) — use these to close out off-cadence:
 
 `ADMIN_TOKEN` is a **write-only** CF secret — it cannot be read back. Rotate it
 rather than hunt for it: `printf '%s' "$(openssl rand -hex 24)" | npx wrangler
-secret put ADMIN_TOKEN`.
+secret put ADMIN_TOKEN`. Keep the current value in `cf-worker/.admin-token`
+(git-ignored).
+
+**Weekly challenges (Release 2.1, from 2026_42)** — `scripts/betty-admin.sh`
+wraps the routine steps and reads the token from `cf-worker/.admin-token`:
+
+1. Pick six fixtures; fill the `Release2.1` tab: Week_start | # | Fixture |
+   Challenge | Points | Picture_name | **Kickoff UTC** | **Source ID** (ESPN
+   event id; teams and kickoff are taken from `bronze_fixtures` by this id).
+2. `bash scripts/betty-admin.sh ingest` — make sure the fixtures are in bronze.
+3. `bash scripts/betty-admin.sh publish 2026_43 --dry`, then without `--dry`.
+   Publish **before Monday 00:00 UTC** of that week (the Monday cron publishes
+   the *following* week). Re-publishing a week with predictions needs `--force`.
+4. Stickers: PNG in `frontend/public/stickers/`, mapped by Source ID in
+   `FIXTURE_STICKERS` (`ChallengeCard.tsx`), then
+   `bash scripts/betty-admin.sh deploy-frontend`.
 
 6. **Finalize results** in the sheet (rolling-filled during the week, see below):
    confirm `Result` (1/X/2), `Score_1`/`Score_2`, set `Is active = 3` (ended).
