@@ -68,6 +68,20 @@ const RELEASE21_STICKERS: Record<string, { src: string; alt: string }> = {
   },
 }
 
+// From week 42 on, stickers are keyed by the challenge's ESPN source_id: one
+// event, one sticker, so a sticker can never land on another fixture. Add a
+// row per new sticker (file in public/stickers/, name noted in the sheet's
+// Picture_name column).
+const FIXTURE_STICKERS: Record<string, { src: string; alt: string }> = {
+  // 2026_42
+  '401878771': { src: '/stickers/PICKFORD.png', alt: 'Pickford diving to save' },
+  '401879262': { src: '/stickers/BRE_LIV.png', alt: 'Brentford versus Liverpool, over or under 2.5' },
+  '401879259': { src: '/stickers/MCI_IPS.png', alt: 'Manchester City versus Ipswich Town' },
+  '401879261': { src: '/stickers/BHA_CRY.png', alt: 'Brighton versus Crystal Palace, M23 derby' },
+  '401879260': { src: '/stickers/LEE_MUN.png', alt: 'Leeds United versus Manchester United, who scores first' },
+  '401878769': { src: '/stickers/NFO_ARS.png', alt: 'Nottingham Forest versus Arsenal' },
+}
+
 export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked, onPredict }) => {
   const isReels = challenge.options.length === 1 && challenge.options[0] === 'reels'
   const resolved = !!challenge.correct_answer
@@ -99,7 +113,9 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
                         questionText.includes('chelsea') &&
                           (questionText.includes('bournemouth') || questionText.includes('brentford')) ? '5' :
                           questionText.includes('arsenal') && challenge.type === 'exact_score' ? '6' : null)
-  const sticker = stickerKey ? RELEASE21_STICKERS[stickerKey] : null
+  const sticker = stickerKey
+    ? RELEASE21_STICKERS[stickerKey]
+    : (challenge.source_id && FIXTURE_STICKERS[challenge.source_id]) || null
   const homeName = challenge.home_team || m?.home_team || null
   const awayName = challenge.away_team || m?.away_team || null
   const fixture = stickerKey === '5'

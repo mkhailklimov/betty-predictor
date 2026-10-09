@@ -119,6 +119,8 @@ export interface Challenge {
   fixture: string | null
   home_team?: string | null
   away_team?: string | null
+  /** ESPN event id for challenges published from bronze_fixtures (week 42 on). */
+  source_id?: string | null
   match: {
     home_team: string
     away_team: string
