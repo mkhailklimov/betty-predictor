@@ -62,3 +62,18 @@ calling `/api/admin/resolve-challenges`; safe to re-run.
    the dry run). Tuesday's form check can still re-publish: nobody can predict
    week 43 before week 42's last kickoff.
 3. Week 42 results after 17–18 Oct, before Monday 19 Oct 00:00 UTC.
+
+## Tomorrow (Monday 12 October)
+
+1. **Morning check (Claude, read-only):** the 00:00 UTC cron closed week 41,
+   `weekly_prizes` has 1st Mishanna45 100 Stars and 2nd "........" 50 Stars,
+   Champions shows week 41, Hall of Fame includes the week-41 points, and week 43
+   was auto-published from the sheet.
+2. **Send the Stars (you):** gift 100 Stars to Mishanna45 and 50 to "........" in
+   Telegram, then Claude marks both prizes paid.
+3. **Post the results (you):** the week-41 post drafted today, once step 1 is confirmed.
+4. **Tue 13 Oct:** re-check form for week 43 and re-publish if anything changes;
+   week-43 stickers when ready (prompts in CHANGELOG-2026-10-09).
+5. **Sat 17 – Sun 18 Oct:** week 42 matches; resolve them after Sunday's last game,
+   before Monday 19 Oct 00:00 UTC.
+
