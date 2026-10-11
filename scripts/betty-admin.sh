@@ -9,6 +9,7 @@
 #   bash scripts/betty-admin.sh publish 2026_43 --dry  validate a week from the Release2.1 tab, change nothing
 #   bash scripts/betty-admin.sh publish 2026_43        publish the week's challenges
 #   bash scripts/betty-admin.sh publish 2026_43 --force  replace a week that already has predictions (deletes them)
+#   bash scripts/betty-admin.sh resolve 2026_42 <challenge_id>=<answer> ...   set results and award points
 #   bash scripts/betty-admin.sh deploy-worker          npx wrangler deploy (cf-worker)
 #   bash scripts/betty-admin.sh deploy-frontend        build + wrangler pages deploy to app.bettyscores.com
 set -euo pipefail
@@ -17,7 +18,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 API="https://api.bettyscores.com"
 TOKEN_FILE="$ROOT/cf-worker/.admin-token"
 
-usage() { sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
 admin_post() {  # admin_post <path?query>
   [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
@@ -58,6 +59,23 @@ case "$cmd" in
       esac
     done
     admin_post "/api/admin/publish-challenges?$q" | summarize
+    ;;
+  resolve)
+    # Answers must match the stored options exactly: Yes/No, Over/Under,
+    # Home/Away/Nobody, or a score as home:away (e.g. 2:1). Re-running is safe:
+    # it overwrites the answer and re-scores every prediction.
+    week="${1:-}"; shift || true
+    [[ "$week" =~ ^[0-9]{4}_[0-9]{2}$ ]] || { echo "week must look like 2026_42" >&2; exit 2; }
+    [ $# -ge 1 ] || { echo "give at least one <challenge_id>=<answer>" >&2; exit 2; }
+    for pair in "$@"; do
+      [[ "$pair" =~ ^[A-Za-z0-9_-]+=(Yes|No|Over|Under|Home|Away|Nobody|[0-9]{1,2}:[0-9]{1,2})$ ]] \
+        || { echo "bad answer '$pair' (use id=Yes|No|Over|Under|Home|Away|Nobody|H:A)" >&2; exit 2; }
+    done
+    body="$(node -e 'const a={};for(const p of process.argv.slice(1)){const i=p.indexOf("=");a[p.slice(0,i)]=p.slice(i+1)}console.log(JSON.stringify({answers:a}))' "$@")"
+    [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
+    curl -sS -X POST -H "Authorization: Bearer $(tr -d '\r\n' < "$TOKEN_FILE")" \
+      -H "Content-Type: application/json" -d "$body" "$API/api/admin/resolve-challenges?week=$week"
+    echo
     ;;
   deploy-worker)
     (cd "$ROOT/cf-worker" && npx wrangler deploy)
