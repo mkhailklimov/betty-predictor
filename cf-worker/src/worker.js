@@ -26,8 +26,9 @@ const ALLOWED_TEAMS = new Set([
 ]);
 
 // Internal/test accounts — excluded from gold marts (Champions/Leaderboard).
-// MikeKlimov, bettyscores bot, bet_monitoring, TestUser. See project_betty_user_account.
-const INTERNAL_TG_IDS = new Set(['1056798742', '8513208258', '7653593987', 'test_123']);
+// MikeKlimov, bettyscores bot, bet_monitoring, TestUser, Illyria30_ad (added
+// 2026-10-11). Not ranked, so never awarded a Stars prize.
+const INTERNAL_TG_IDS = new Set(['1056798742', '8513208258', '7653593987', 'test_123', '8995334871']);
 
 // Canonical scoring — the ONE place scoring is defined.
 //   correct outcome (1/X/2)            → 1 point
@@ -462,7 +463,7 @@ export default {
         }
         if (!week) return json({ week_id: null, results: [] });
         const { results } = await env.DB.prepare(
-          'SELECT * FROM gold_champions WHERE week_id = ? ORDER BY rank'
+          'SELECT * FROM gold_champions WHERE week_id = ? ORDER BY rank IS NULL, rank'
         ).bind(week).all();
         const PRIZE_STARS = { 1: 100, 2: 50 };
         return json({
@@ -818,7 +819,7 @@ export default {
 
       // GET /api/challenges/current — this week's challenges + caller's predictions.
       if (method === 'GET' && path === '/api/challenges/current') {
-        const bounds = challengeWeekBounds(env);
+        const bounds = await servingWeek(env);
         const { results: challenges } = await env.DB.prepare(
           'SELECT * FROM challenges WHERE week_id = ? ORDER BY created_at'
         ).bind(bounds.week_id).all();
@@ -1319,7 +1320,7 @@ async function rebuildMarts(env) {
       env.DB.prepare('SELECT * FROM matches').all(),
       env.DB.prepare('SELECT * FROM bronze_adjustments').all(),
       env.DB.prepare(`
-        SELECT cp.user_id, cp.points_earned
+        SELECT cp.user_id, cp.points_earned, cp.created_at, c.week_id
         FROM challenge_predictions cp
         JOIN challenges c ON c.id = cp.challenge_id
         WHERE cp.points_earned IS NOT NULL
@@ -1388,21 +1389,35 @@ async function rebuildMarts(env) {
     adjByKey[k] = (adjByKey[k] || 0) + (Number(a.points_delta) || 0);
   }
 
+  // Weekly champions: legacy match points plus Release 2.1 challenge points.
+  // Guests (cannot receive Stars) and internal accounts are left out, so neither
+  // can be ranked or awarded a prize.
   const champAgg = {}; // key week|user
-  for (const s of factScore) {
-    const u = userById[s.user_id];
-    if (!u || u.is_internal || String(u.tg_id).startsWith('guest:')) continue;
-    const k = `${s.week_id}|${s.user_id}`;
+  const champRow = (weekId, userId) => {
+    const u = userById[userId];
+    if (!u || !weekId || u.is_internal || String(u.tg_id).startsWith('guest:')) return null;
+    const k = `${weekId}|${userId}`;
     if (!champAgg[k]) champAgg[k] = {
-      week_id: s.week_id, user_id: s.user_id, username: u.username,
+      week_id: weekId, user_id: userId, username: u.username,
       total_points: 0, correct_outcomes: 0, correct_scores: 0, matches_predicted: 0,
       last_bet_at: null,
     };
-    const c = champAgg[k];
+    return champAgg[k];
+  };
+  for (const s of factScore) {
+    const c = champRow(s.week_id, s.user_id);
+    if (!c) continue;
     c.total_points += s.points_base;
     c.correct_outcomes += s.is_correct_outcome;
     c.correct_scores += s.is_correct_score;
     c.matches_predicted += 1;
+  }
+  for (const cp of challengePredictions) {
+    const c = champRow(cp.week_id, cp.user_id);
+    if (!c) continue;
+    c.total_points += Number(cp.points_earned) || 0;
+    // tie-break: the earlier last pick wins, across bets and challenge picks alike
+    if (cp.created_at && (!c.last_bet_at || cp.created_at > c.last_bet_at)) c.last_bet_at = cp.created_at;
   }
   // last_bet_at = MAX(updated_at) per user/week (tiebreak: earliest wins)
   for (const b of factBet) {
@@ -1442,11 +1457,13 @@ async function rebuildMarts(env) {
     if (c.rank === 1) l.weeks_won += 1;
   }
 
-  // Challenge points are part of the 2.1 leaderboard and must be included in
-  // the same gold mart as legacy match-prediction points.
+  // Challenge points are part of the 2.1 leaderboard. Registered users already
+  // have them through their weekly champion rows above; guests and internal
+  // accounts have no champion rows, so their challenge points are added here
+  // (as before this fix).
   for (const prediction of challengePredictions) {
     const u = userById[prediction.user_id];
-    if (!u) continue;
+    if (!u || !(u.is_internal || String(u.tg_id).startsWith('guest:'))) continue;
     if (!lbAgg[prediction.user_id]) lbAgg[prediction.user_id] = {
       user_id: prediction.user_id,
       username: u.username,
@@ -1833,6 +1850,30 @@ const CANDIDATES_HEADER = ['Week ID', 'Source ID', 'League', 'Kickoff UTC', 'Hom
 const CHALLENGES_HEADER = ['Week ID', 'Match Source ID', 'Type', 'Question Text', 'Options', 'Points', 'Correct Answer'];
 const RELEASE21_HEADER = ['Week_start', '#', 'Fixture', 'Challenge', 'Points', 'Picture_name', 'Kickoff UTC', 'Source ID'];
 const RELEASE21_TAB = 'Release2.1';
+
+// The week the app shows. Normally the calendar week; but once every challenge
+// of that week has kicked off and the next week is already published, players
+// move on to the next week straight away. Scoring and prizes are unaffected:
+// the Monday 00:00 cron still closes the calendar week.
+async function servingWeek(env) {
+  const bounds = challengeWeekBounds(env);
+  if (String(env.DEV_PREVIEW_WEEK || '').trim()) return bounds;
+  const { results: chs } = await env.DB.prepare(
+    'SELECT kickoff_utc, match_id FROM challenges WHERE week_id = ?').bind(bounds.week_id).all();
+  if (!chs.length) return bounds;
+  const now = Date.now();
+  for (const c of chs) {
+    const m = c.match_id
+      ? await env.DB.prepare('SELECT time, match_date_utc FROM matches WHERE id = ?').bind(c.match_id).first()
+      : null;
+    const k = challengeKickoff(c, m);
+    if (!k || now < k.getTime()) return bounds;  // something is still open (or has no time)
+  }
+  const next = weekBounds(new Date(Date.parse(bounds.starts_at) + 7 * 86400000));
+  const published = await env.DB.prepare('SELECT COUNT(*) AS n FROM challenges WHERE week_id = ?')
+    .bind(next.week_id).first();
+  return published && published.n > 0 ? { ...next, early: true } : bounds;
+}
 
 function challengeWeekBounds(env) {
   const previewWeek = String(env.DEV_PREVIEW_WEEK || '').trim();
@@ -2330,7 +2371,7 @@ async function exportMartsToSheet(env) {
   const sid = env.SHEETS_SPREADSHEET_ID;
 
   const { results: champ } = await env.DB.prepare(
-    'SELECT * FROM gold_champions ORDER BY week_id DESC, rank').all();
+    'SELECT * FROM gold_champions ORDER BY week_id DESC, rank IS NULL, rank').all();
   const { results: lb } = await env.DB.prepare(
     'SELECT * FROM gold_leaderboard ORDER BY total_points DESC, username').all();
 
