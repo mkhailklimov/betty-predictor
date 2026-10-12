@@ -63,6 +63,53 @@ through the app yet**. MikeKlimov and islavutin were set PRO by hand.
 - `bash scripts/betty-admin.sh rebuild` — rebuilds silver + gold marts via
   `/api/admin/rebuild`.
 
+## Challenge type: match winner (`11bacc8`)
+
+Type inference labelled any question with "will " or "win" as `will_score`
+(a player to score), so "Will Manchester City beat Ipswich Town?" carried the
+scorer label and a ⚽ icon. New type `will_win` for "Will X beat/win …"
+questions, 🏆 icon, Yes/No options, 1 pt. Relabelled in D1 (3 rows):
+Chelsea–Bournemouth (2026_41), City–Ipswich (2026_42), United–Bournemouth
+(2026_43). Scoring and existing picks unchanged.
+
+## Week 42 review
+
+- All six kickoffs match the ESPN fixtures (17–18 Oct; last Forest vs Arsenal,
+  Sun 15:30 UTC).
+- M23 derby (exact score): Brighton home, Crystal Palace away — enter the
+  answer as Brighton:Palace (the sticker shows home left).
+- Challenges are not linked to fixture rows (`match_id` empty): results are
+  entered by hand with `betty-admin.sh resolve`, as in week 41. No effect on
+  players.
+- 2 picks per challenge so far; a YouTube reel will go out closer to the games.
+
+## Rule: weekly close and event selection
+
+`closeWeek` (Mon 00:00 UTC) awards prizes from the points present at that
+moment and marks the week closed; it does not check that every challenge is
+resolved. Example on today's data: unresolved at the close, everyone has 0 pts
+and the tie-break would give Th7Tezar 100 ⭐. **Rule (decided 12 Oct): never
+pick challenge events that finish after Sunday midnight UTC, and resolve on
+Sunday evening.** No code guard added.
+
+## Times: stored vs shown
+
+- **Stored in UTC** (`kickoff_utc`, e.g. `2026-10-17T11:30:00Z`). Pick locking
+  and the weekly close run on the server in UTC — the same moment for everyone.
+- **Shown in each player's device time zone and language** (`toLocaleString`
+  in `ChallengeCard.tsx`): Everton vs Chelsea is 12:30 in London (BST until
+  25 Oct), 14:30 in Moscow, 18:30 in Bangkok. The card shows no zone label;
+  adding one ("12:30 BST") is a one-line change if wanted.
+
+## Git and repo
+
+- `main` fast-forwarded to `fix/task1-kickoff-lock` and both pushed to GitHub
+  at `11bacc8`. The `Bash(git push:*)` rule is in
+  `betty-predictor/.claude/settings.local.json`; a push works when run as a
+  single command.
+- `frontend/public/stickers/videoplayback.mp4` (60 MB, 2 min 1080p, unused) was
+  deleted by the owner; frontend deploys no longer need a workaround.
+
 ## Open items
 
 1. **Prizes:** week 41 (Mishanna45 100 ⭐, "........" 50 ⭐) and the manual bonuses
@@ -71,8 +118,9 @@ through the app yet**. MikeKlimov and islavutin were set PRO by hand.
    `POST /api/admin/prizes/<week>/paid?rank=N`.
 2. **Test purchase:** the Stars payment path has never run in production. Do one
    50 ⭐ purchase from a non-PRO account (e.g. @bettyscores); refund afterwards.
-3. **Merge** `fix/task1-kickoff-lock` into `main`.
-4. **`frontend/public/stickers/videoplayback.mp4` (60 MB, untracked)** exceeds the
-   25 MiB Pages file limit and breaks `deploy-frontend`. It was moved aside for
-   each deploy today; compress it or move it out of `public/`.
-5. Week 42: resolve after 17–18 Oct with `betty-admin.sh resolve 2026_42 …`.
+3. ~~Merge into `main`~~ — done, pushed.
+4. ~~60 MB video blocking deploys~~ — deleted.
+5. Week 42: resolve on **Sun 18 Oct evening** (after Forest vs Arsenal) with
+   `betty-admin.sh resolve 2026_42 …`, before the Mon 00:00 UTC close.
+6. New sticker `Наклейка_ футболист «Лидс» в ударе.png` is in
+   `frontend/public/stickers/` but not committed or used yet.
