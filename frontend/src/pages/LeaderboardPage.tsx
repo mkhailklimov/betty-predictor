@@ -11,6 +11,7 @@ export const LeaderboardPage: React.FC = () => {
   const [me, setMe] = useState<User | null>(null)
   const [premiumStatus, setPremiumStatus] = useState<'idle' | 'loading' | 'paid' | 'failed'>('idle')
   const [showFlagPicker, setShowFlagPicker] = useState(false)
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
     const loadLeaderboard = async () => {
@@ -38,6 +39,40 @@ export const LeaderboardPage: React.FC = () => {
       return username !== '' && !/^(guest|user_\d+)$/i.test(username)
     })
     .map((entry, index) => ({ ...entry, rank: index + 1 }))
+
+  // Top 10 by default; the viewer's own row is pinned below if they rank lower.
+  const TOP_N = 10
+  const collapsed = !showAll && scorecard.length > TOP_N
+  const visibleRows = collapsed ? scorecard.slice(0, TOP_N) : scorecard
+  const myRow = collapsed ? scorecard.slice(TOP_N).find((entry) => entry.user_id === me?.id) : undefined
+
+  const renderRow = (entry: (typeof scorecard)[number]) => (
+    <div
+      key={entry.user_id}
+      className={`table-row ${entry.rank <= 3 ? 'top-' + entry.rank : ''} ${entry.user_id === me?.id ? 'is-me' : ''}`}
+    >
+      <div className="col rank">
+        {entry.rank === 1 && <span className="medal">&#129351;</span>}
+        {entry.rank === 2 && <span className="medal">&#129352;</span>}
+        {entry.rank === 3 && <span className="medal">&#129353;</span>}
+        {entry.rank > 3 && <span className="rank-num">{entry.rank}</span>}
+      </div>
+      <div className="col player">
+        {entry.fav_team && (
+          <img
+            className="row-flag"
+            src={`/teams/Cards/${entry.fav_team}.png`}
+            alt={entry.fav_team}
+          />
+        )}
+        {entry.username}
+        {entry.is_premium && <span className="pro-badge">PRO</span>}
+      </div>
+      <div className="col rounds">{entry.weeks_played ?? 0}</div>
+      <div className="col ton">{entry.points}</div>
+      <div className="col stars stars-bold">{entry.stars_earned ?? 0}</div>
+    </div>
+  )
 
   const handleBuyPremium = async () => {
     setPremiumStatus('loading')
@@ -93,31 +128,19 @@ export const LeaderboardPage: React.FC = () => {
             <div className="col stars">&#11088;</div>
           </div>
           <div className="table-body">
-            {scorecard.map((entry) => (
-              <div key={entry.user_id} className={`table-row ${entry.rank <= 3 ? 'top-' + entry.rank : ''}`}>
-                <div className="col rank">
-                  {entry.rank === 1 && <span className="medal">&#129351;</span>}
-                  {entry.rank === 2 && <span className="medal">&#129352;</span>}
-                  {entry.rank === 3 && <span className="medal">&#129353;</span>}
-                  {entry.rank > 3 && <span className="rank-num">{entry.rank}</span>}
-                </div>
-                <div className="col player">
-                  {entry.fav_team && (
-                    <img
-                      className="row-flag"
-                      src={`/teams/Cards/${entry.fav_team}.png`}
-                      alt={entry.fav_team}
-                    />
-                  )}
-                  {entry.username}
-                  {entry.is_premium && <span className="pro-badge">PRO</span>}
-                </div>
-                <div className="col rounds">{entry.weeks_played ?? 0}</div>
-                <div className="col ton">{entry.points}</div>
-                <div className="col stars stars-bold">{entry.stars_earned ?? 0}</div>
-              </div>
-            ))}
+            {visibleRows.map(renderRow)}
+            {myRow && (
+              <>
+                <div className="table-gap">&middot;&middot;&middot;</div>
+                {renderRow(myRow)}
+              </>
+            )}
           </div>
+          {scorecard.length > TOP_N && (
+            <button className="show-all-btn" onClick={() => setShowAll(!showAll)}>
+              {showAll ? 'Show top 10' : `Show all (${scorecard.length})`}
+            </button>
+          )}
         </div>
       )}
 

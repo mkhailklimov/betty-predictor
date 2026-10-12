@@ -66,6 +66,26 @@
 .leaderboard-table .table-row.top-1 { background: rgba(255, 215, 0, 0.08); }
 .leaderboard-table .table-row.top-2 { background: rgba(192, 192, 192, 0.06); }
 .leaderboard-table .table-row.top-3 { background: rgba(205, 127, 50, 0.06); }
+.leaderboard-table .table-row.is-me { box-shadow: inset 3px 0 0 #ECF39E; background: rgba(236, 243, 158, 0.08); }
+.leaderboard-table .table-gap {
+  text-align: center;
+  color: #666;
+  padding: 0.2rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  letter-spacing: 0.2em;
+}
+.leaderboard-table .show-all-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: #ECF39E;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
 
 .leaderboard-table .col.rank { width: 36px; text-align: center; }
 .leaderboard-table .col.player { flex: 1; font-weight: 600; color: #fff; text-align: left; }
