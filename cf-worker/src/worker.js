@@ -459,21 +459,29 @@ export default {
         const weekParam = url.searchParams.get('week');
         let week = weekParam;
         if (!week) {
-          const row = await env.DB.prepare('SELECT MAX(week_id) w FROM gold_champions').first();
+          // Latest finished week: skip weeks that still have unresolved challenges.
+          const row = await env.DB.prepare(
+            `SELECT MAX(week_id) w FROM gold_champions
+             WHERE week_id NOT IN (SELECT week_id FROM challenges WHERE correct_answer IS NULL)`
+          ).first();
           week = row ? row.w : null;
         }
         if (!week) return json({ week_id: null, results: [] });
         const { results } = await env.DB.prepare(
           'SELECT * FROM gold_champions WHERE week_id = ? ORDER BY rank IS NULL, rank'
         ).bind(week).all();
-        const PRIZE_STARS = { 1: 100, 2: 50 };
+        // Stars = prizes actually awarded for this week, not a guess from rank.
+        const { results: prizes } = await env.DB.prepare(
+          'SELECT user_id, SUM(stars) stars FROM weekly_prizes WHERE week_id = ? GROUP BY user_id'
+        ).bind(week).all();
+        const starsByUser = Object.fromEntries(prizes.map(p => [p.user_id, p.stars]));
         return json({
           week_id: week,
           results: results.map(c => ({
             rank: c.rank, user_id: c.user_id, username: c.username, week_id: c.week_id,
             points: c.total_points, correct_predictions: c.correct_outcomes,
             correct_scores: c.correct_scores, matches_predicted: c.matches_predicted,
-            stars_earned: PRIZE_STARS[c.rank] || 0, ton_earned: 0,
+            stars_earned: starsByUser[c.user_id] || 0, ton_earned: 0,
           })),
         });
       }
