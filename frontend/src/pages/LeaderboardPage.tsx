@@ -166,15 +166,12 @@ export const LeaderboardPage: React.FC = () => {
           </>
         ) : (
           <>
-            <p className="premium-hint">
-              Fly your national team flag or Premier League club badge next to your name in the Hall of Fame.
-            </p>
             <button
               className="premium-btn"
               onClick={handleBuyPremium}
               disabled={premiumStatus === 'loading'}
             >
-              {premiumStatus === 'loading' ? 'Opening...' : 'Get fave team avatar  Stars 50'}
+              {premiumStatus === 'loading' ? 'Opening...' : 'Get fave team avatar for 50 ⭐'}
             </button>
             {premiumStatus === 'failed' && (
               <p className="premium-error">Couldn&apos;t start payment. Try again later.</p>
