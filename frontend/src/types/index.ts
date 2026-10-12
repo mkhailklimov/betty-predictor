@@ -98,7 +98,7 @@ export interface WeeklyReward {
 }
 
 // v2.1 Challenges
-export type ChallengeType = 'exact_score' | 'will_score' | 'over_under' | 'clean_sheet' | 'first_to_score'
+export type ChallengeType = 'exact_score' | 'will_score' | 'will_win' | 'over_under' | 'clean_sheet' | 'first_to_score'
 
 export interface Challenge {
   id: string

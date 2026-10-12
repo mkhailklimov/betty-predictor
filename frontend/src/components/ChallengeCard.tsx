@@ -35,6 +35,7 @@ function parseScore(s: string): { home: number; away: number } | null {
 // being added to the illustration library.
 const TYPE_ICON: Record<string, string> = {
   will_score: '\u26BD',
+  will_win: '\u{1F3C6}',
   over_under: '\u{1F4CA}',
   clean_sheet: '\u{1F9E4}',
   first_to_score: '\u{1F3AF}',

@@ -1959,7 +1959,7 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false, force =
     errors.push(`too many challenges for ${bounds.week_id}: ${rows.length} (max 6)`);
   }
 
-  const VALID_TYPES = new Set(['exact_score', 'will_score', 'over_under', 'clean_sheet', 'first_to_score']);
+  const VALID_TYPES = new Set(['exact_score', 'will_score', 'will_win', 'over_under', 'clean_sheet', 'first_to_score']);
   const challenges = [];
   for (const r of rows) {
     const fixture = (r[2] || '').trim();
@@ -2087,7 +2087,9 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false, force =
     if (text.includes('scores first')) return 'first_to_score';
     if (text.includes('over or under')) return 'over_under';
     if (text.includes('clean sheet')) return 'clean_sheet';
-    if (text.includes('will ') || text.includes('win')) return 'will_score';
+    // "Will Chelsea beat Bournemouth?" asks for a match winner, not a scorer.
+    if (/\bbeat\b|\bwin\b/.test(text)) return 'will_win';
+    if (text.includes('will ')) return 'will_score';
     return points === 3 ? 'exact_score' : 'will_score';
   }
 
