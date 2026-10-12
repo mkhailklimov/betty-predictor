@@ -10,6 +10,7 @@
 #   bash scripts/betty-admin.sh publish 2026_43        publish the week's challenges
 #   bash scripts/betty-admin.sh publish 2026_43 --force  replace a week that already has predictions (deletes them)
 #   bash scripts/betty-admin.sh resolve 2026_42 <challenge_id>=<answer> ...   set results and award points
+#   bash scripts/betty-admin.sh rebuild                rebuild silver + gold marts (Champions, Hall of Fame)
 #   bash scripts/betty-admin.sh deploy-worker          npx wrangler deploy (cf-worker)
 #   bash scripts/betty-admin.sh deploy-frontend        build + wrangler pages deploy to app.bettyscores.com
 set -euo pipefail
@@ -18,7 +19,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 API="https://api.bettyscores.com"
 TOKEN_FILE="$ROOT/cf-worker/.admin-token"
 
-usage() { sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
 admin_post() {  # admin_post <path?query>
   [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
@@ -76,6 +77,9 @@ case "$cmd" in
     curl -sS -X POST -H "Authorization: Bearer $(tr -d '\r\n' < "$TOKEN_FILE")" \
       -H "Content-Type: application/json" -d "$body" "$API/api/admin/resolve-challenges?week=$week"
     echo
+    ;;
+  rebuild)
+    admin_post "/api/admin/rebuild"; echo
     ;;
   deploy-worker)
     (cd "$ROOT/cf-worker" && npx wrangler deploy)

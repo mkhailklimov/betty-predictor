@@ -50,9 +50,7 @@ export const ChampionsPage: React.FC = () => {
           <div className="table-header">
             <div className="col rank">#</div>
             <div className="col player">Player</div>
-            <div className="col num">Results</div>
-            <div className="col num">Scores</div>
-            <div className="col num">Total</div>
+            <div className="col num">Pts</div>
             <div className="col num stars-col">&#11088;</div>
           </div>
           <div className="table-body">
@@ -67,8 +65,6 @@ export const ChampionsPage: React.FC = () => {
                 <div className="col player">
                   {entry.username}
                 </div>
-                <div className="col num">{entry.correct_predictions}</div>
-                <div className="col num">{entry.correct_scores}</div>
                 <div className="col num total">{entry.points}</div>
                 <div className="col num stars-col stars-bold">{(entry as any).stars_earned || 0}</div>
               </div>

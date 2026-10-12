@@ -443,6 +443,7 @@ export default {
           correct_predictions: l.correct_outcomes,
           correct_scores: l.correct_scores,
           weeks_won: l.weeks_won,
+          weeks_played: l.weeks_played,
           stars_earned: l.stars_earned,
           grams: l.weeks_won,
           is_premium: l.is_premium === 1,
@@ -1460,7 +1461,8 @@ async function rebuildMarts(env) {
   // Challenge points are part of the 2.1 leaderboard. Registered users already
   // have them through their weekly champion rows above; guests and internal
   // accounts have no champion rows, so their challenge points are added here
-  // (as before this fix).
+  // (as before this fix). Their weeks played = distinct weeks with a pick.
+  const guestWeeks = {};
   for (const prediction of challengePredictions) {
     const u = userById[prediction.user_id];
     if (!u || !(u.is_internal || String(u.tg_id).startsWith('guest:'))) continue;
@@ -1476,7 +1478,9 @@ async function rebuildMarts(env) {
       weeks_won: 0,
     };
     lbAgg[prediction.user_id].total_points += Number(prediction.points_earned) || 0;
+    (guestWeeks[prediction.user_id] ||= new Set()).add(prediction.week_id);
   }
+  for (const [userId, weeks] of Object.entries(guestWeeks)) lbAgg[userId].weeks_played = weeks.size;
 
   // ---- write all layers atomically (delete + insert) ----
   const stmts = [];

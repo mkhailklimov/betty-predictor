@@ -64,6 +64,7 @@ export interface LeaderboardEntry {
   correct_predictions: number
   correct_scores: number
   weeks_won?: number
+  weeks_played?: number
   stars_earned?: number
   grams?: number
   is_premium?: boolean
