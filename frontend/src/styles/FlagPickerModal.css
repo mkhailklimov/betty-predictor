@@ -77,17 +77,63 @@
   opacity: 0.6;
   cursor: default;
 }
+.flag-tile {
+  min-width: 0;
+}
 .flag-tile img {
   width: 100%;
   max-width: 64px;
   aspect-ratio: 1 / 1;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 4px;
 }
 .flag-tile__code {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flag-modal__tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.flag-modal__tab {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid rgba(255, 194, 13, 0.4);
+  border-radius: 8px;
+  background: transparent;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.flag-modal__tab--active {
+  background: #ffc20d;
+  border-color: #ffc20d;
+  color: #1f1c09;
+}
+.flag-modal__search {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  font-size: 16px;
+}
+.flag-modal__empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  opacity: 0.6;
+  margin: 12px 0;
 }
 
 .flag-modal__error {

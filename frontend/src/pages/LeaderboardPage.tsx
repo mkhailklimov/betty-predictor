@@ -3,6 +3,7 @@ import WebApp from '@twa-dev/sdk'
 import { leaderboardApi, userApi, paymentsApi } from '../services/api'
 import { LeaderboardEntry, User } from '../types'
 import { FlagPickerModal } from '../components/FlagPickerModal'
+import { getAvatar } from '../data/avatars'
 import '../styles/LeaderboardPage.css'
 
 export const LeaderboardPage: React.FC = () => {
@@ -58,11 +59,11 @@ export const LeaderboardPage: React.FC = () => {
         {entry.rank > 3 && <span className="rank-num">{entry.rank}</span>}
       </div>
       <div className="col player">
-        {entry.fav_team && (
+        {getAvatar(entry.fav_team) && (
           <img
             className="row-flag"
-            src={`/teams/Cards/${entry.fav_team}.png`}
-            alt={entry.fav_team}
+            src={getAvatar(entry.fav_team)!.src}
+            alt={getAvatar(entry.fav_team)!.name}
           />
         )}
         {entry.username}
@@ -81,11 +82,17 @@ export const LeaderboardPage: React.FC = () => {
       WebApp.openInvoice(data.invoice_url, async (status) => {
         if (status === 'paid') {
           setPremiumStatus('paid')
-          try {
-            const { data: meData } = await userApi.getMe()
-            setMe(meData)
-            setShowFlagPicker(true)
-          } catch {}
+          // Telegram's payment webhook can land a moment after the client
+          // callback; picking before it does would be rejected as non-premium.
+          for (let attempt = 0; attempt < 10; attempt++) {
+            try {
+              const { data: meData } = await userApi.getMe()
+              setMe(meData)
+              if (meData.is_premium) break
+            } catch {}
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+          }
+          setShowFlagPicker(true)
         } else if (status === 'cancelled') {
           setPremiumStatus('idle')
         } else {
@@ -149,18 +156,18 @@ export const LeaderboardPage: React.FC = () => {
           <>
             <p className="premium-hint">
               <span className="pro-badge">PRO</span>
-              {me?.fav_team
-                ? ` You're flying the ${me.fav_team} flag.`
-                : ' Pick your team to fly its flag.'}
+              {getAvatar(me?.fav_team)
+                ? ` Your avatar: ${getAvatar(me?.fav_team)!.name}.`
+                : ' Pick your national team or Premier League club.'}
             </p>
             <button className="premium-btn" onClick={() => setShowFlagPicker(true)}>
-              {me?.fav_team ? 'Change my flag' : 'Pick my flag'}
+              {me?.fav_team ? 'Change my avatar' : 'Pick my avatar'}
             </button>
           </>
         ) : (
           <>
             <p className="premium-hint">
-              Pick your favourite team and fly its flag next to your name on the leaderboard.
+              Fly your national team flag or Premier League club badge next to your name in the Hall of Fame.
             </p>
             <button
               className="premium-btn"

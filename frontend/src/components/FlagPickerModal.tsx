@@ -1,40 +1,9 @@
 import React, { useState } from 'react'
 import { paymentsApi } from '../services/api'
+import { AVATAR_LIST, getAvatar } from '../data/avatars'
 import '../styles/FlagPickerModal.css'
 
-const TEAMS: ReadonlyArray<{ code: string; name: string }> = [
-  { code: 'ALG', name: 'Algeria' },
-  { code: 'ARG', name: 'Argentina' },
-  { code: 'AUS', name: 'Australia' },
-  { code: 'BIH', name: 'Bosnia & Herzegovina' },
-  { code: 'BRA', name: 'Brazil' },
-  { code: 'CAN', name: 'Canada' },
-  { code: 'CRO', name: 'Croatia' },
-  { code: 'CUR', name: 'Curaçao' },
-  { code: 'CVE', name: 'Cape Verde' },
-  { code: 'CZE', name: 'Czechia' },
-  { code: 'ENG', name: 'England' },
-  { code: 'ESP', name: 'Spain' },
-  { code: 'FRA', name: 'France' },
-  { code: 'GER', name: 'Germany' },
-  { code: 'JAP', name: 'Japan' },
-  { code: 'KOR', name: 'South Korea' },
-  { code: 'MEX', name: 'Mexico' },
-  { code: 'MOR', name: 'Morocco' },
-  { code: 'NED', name: 'Netherlands' },
-  { code: 'NOR', name: 'Norway' },
-  { code: 'PAR', name: 'Paraguay' },
-  { code: 'POR', name: 'Portugal' },
-  { code: 'QAT', name: 'Qatar' },
-  { code: 'SAF', name: 'South Africa' },
-  { code: 'SCO', name: 'Scotland' },
-  { code: 'SEN', name: 'Senegal' },
-  { code: 'SWE', name: 'Sweden' },
-  { code: 'SWZ', name: 'Switzerland' },
-  { code: 'TUR', name: 'Turkey' },
-  { code: 'USA', name: 'United States' },
-  { code: 'UZB', name: 'Uzbekistan' },
-]
+type Tab = 'nation' | 'epl'
 
 interface Props {
   current?: string | null
@@ -45,6 +14,13 @@ interface Props {
 export const FlagPickerModal: React.FC<Props> = ({ current, onPicked, onClose }) => {
   const [picking, setPicking] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [tab, setTab] = useState<Tab>(getAvatar(current)?.group ?? 'nation')
+  const [query, setQuery] = useState('')
+
+  const q = query.trim().toLowerCase()
+  const shown = AVATAR_LIST.filter(
+    (a) => a.group === tab && (!q || a.name.toLowerCase().includes(q) || a.code.toLowerCase().includes(q))
+  )
 
   const select = async (code: string) => {
     setPicking(code)
@@ -63,29 +39,53 @@ export const FlagPickerModal: React.FC<Props> = ({ current, onPicked, onClose })
     <div className="flag-modal__backdrop" onClick={onClose}>
       <div className="flag-modal" onClick={(e) => e.stopPropagation()}>
         <div className="flag-modal__header">
-          <h2>Pick your team</h2>
+          <h2>Pick your avatar</h2>
           <button className="flag-modal__close" onClick={onClose} aria-label="Close">×</button>
         </div>
         <p className="flag-modal__hint">
-          Your team's flag will appear next to your name on the leaderboard.
+          Your avatar appears next to your name in the Hall of Fame.
         </p>
+        <div className="flag-modal__tabs">
+          <button
+            className={`flag-modal__tab ${tab === 'nation' ? 'flag-modal__tab--active' : ''}`}
+            onClick={() => setTab('nation')}
+          >
+            Nations
+          </button>
+          <button
+            className={`flag-modal__tab ${tab === 'epl' ? 'flag-modal__tab--active' : ''}`}
+            onClick={() => setTab('epl')}
+          >
+            Premier League
+          </button>
+        </div>
+        {tab === 'nation' && (
+          <input
+            className="flag-modal__search"
+            type="search"
+            placeholder="Search country"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        )}
         <div className="flag-modal__grid">
-          {TEAMS.map((t) => {
-            const isCurrent = t.code === current
-            const isLoading = picking === t.code
+          {shown.map((a) => {
+            const isCurrent = a.code === current
+            const isLoading = picking === a.code
             return (
               <button
-                key={t.code}
+                key={a.code}
                 className={`flag-tile ${isCurrent ? 'flag-tile--current' : ''}`}
-                onClick={() => select(t.code)}
+                onClick={() => select(a.code)}
                 disabled={picking !== null}
-                title={t.name}
+                title={a.name}
               >
-                <img src={`/teams/Cards/${t.code}.png`} alt={t.name} />
-                <span className="flag-tile__code">{isLoading ? '…' : t.code}</span>
+                <img src={a.src} alt={a.name} loading="lazy" />
+                <span className="flag-tile__code">{isLoading ? '…' : a.name}</span>
               </button>
             )
           })}
+          {shown.length === 0 && <p className="flag-modal__empty">No match</p>}
         </div>
         {error && <p className="flag-modal__error">{error}</p>}
       </div>

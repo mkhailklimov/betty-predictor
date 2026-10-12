@@ -1,0 +1,1388 @@
+[
+{
+"code": "AFG",
+"name": "Afghanistan",
+"group": "nation",
+"src": "/avatars/flags/AFG.svg"
+},
+{
+"code": "ALB",
+"name": "Albania",
+"group": "nation",
+"src": "/avatars/flags/ALB.svg"
+},
+{
+"code": "ALG",
+"name": "Algeria",
+"group": "nation",
+"src": "/avatars/cards/ALG.jpg"
+},
+{
+"code": "ASA",
+"name": "American Samoa",
+"group": "nation",
+"src": "/avatars/flags/ASA.svg"
+},
+{
+"code": "AND",
+"name": "Andorra",
+"group": "nation",
+"src": "/avatars/flags/AND.svg"
+},
+{
+"code": "ANG",
+"name": "Angola",
+"group": "nation",
+"src": "/avatars/flags/ANG.svg"
+},
+{
+"code": "AIA",
+"name": "Anguilla",
+"group": "nation",
+"src": "/avatars/flags/AIA.svg"
+},
+{
+"code": "ATG",
+"name": "Antigua and Barbuda",
+"group": "nation",
+"src": "/avatars/flags/ATG.svg"
+},
+{
+"code": "ARG",
+"name": "Argentina",
+"group": "nation",
+"src": "/avatars/cards/ARG.jpg"
+},
+{
+"code": "ARM",
+"name": "Armenia",
+"group": "nation",
+"src": "/avatars/flags/ARM.svg"
+},
+{
+"code": "ARU",
+"name": "Aruba",
+"group": "nation",
+"src": "/avatars/flags/ARU.svg"
+},
+{
+"code": "AUS",
+"name": "Australia",
+"group": "nation",
+"src": "/avatars/cards/AUS.jpg"
+},
+{
+"code": "AUT",
+"name": "Austria",
+"group": "nation",
+"src": "/avatars/cards/AUT.jpg"
+},
+{
+"code": "AZE",
+"name": "Azerbaijan",
+"group": "nation",
+"src": "/avatars/flags/AZE.svg"
+},
+{
+"code": "BAH",
+"name": "Bahamas",
+"group": "nation",
+"src": "/avatars/flags/BAH.svg"
+},
+{
+"code": "BHR",
+"name": "Bahrain",
+"group": "nation",
+"src": "/avatars/flags/BHR.svg"
+},
+{
+"code": "BAN",
+"name": "Bangladesh",
+"group": "nation",
+"src": "/avatars/flags/BAN.svg"
+},
+{
+"code": "BRB",
+"name": "Barbados",
+"group": "nation",
+"src": "/avatars/flags/BRB.svg"
+},
+{
+"code": "BLR",
+"name": "Belarus",
+"group": "nation",
+"src": "/avatars/flags/BLR.svg"
+},
+{
+"code": "BEL",
+"name": "Belgium",
+"group": "nation",
+"src": "/avatars/cards/BEL.jpg"
+},
+{
+"code": "BLZ",
+"name": "Belize",
+"group": "nation",
+"src": "/avatars/flags/BLZ.svg"
+},
+{
+"code": "BEN",
+"name": "Benin",
+"group": "nation",
+"src": "/avatars/flags/BEN.svg"
+},
+{
+"code": "BER",
+"name": "Bermuda",
+"group": "nation",
+"src": "/avatars/flags/BER.svg"
+},
+{
+"code": "BHU",
+"name": "Bhutan",
+"group": "nation",
+"src": "/avatars/flags/BHU.svg"
+},
+{
+"code": "BOL",
+"name": "Bolivia",
+"group": "nation",
+"src": "/avatars/flags/BOL.svg"
+},
+{
+"code": "BIH",
+"name": "Bosnia & Herzegovina",
+"group": "nation",
+"src": "/avatars/cards/BIH.jpg"
+},
+{
+"code": "BOT",
+"name": "Botswana",
+"group": "nation",
+"src": "/avatars/flags/BOT.svg"
+},
+{
+"code": "BRA",
+"name": "Brazil",
+"group": "nation",
+"src": "/avatars/cards/BRA.jpg"
+},
+{
+"code": "VGB",
+"name": "British Virgin Islands",
+"group": "nation",
+"src": "/avatars/flags/VGB.svg"
+},
+{
+"code": "BRU",
+"name": "Brunei",
+"group": "nation",
+"src": "/avatars/flags/BRU.svg"
+},
+{
+"code": "BUL",
+"name": "Bulgaria",
+"group": "nation",
+"src": "/avatars/flags/BUL.svg"
+},
+{
+"code": "BFA",
+"name": "Burkina Faso",
+"group": "nation",
+"src": "/avatars/flags/BFA.svg"
+},
+{
+"code": "BDI",
+"name": "Burundi",
+"group": "nation",
+"src": "/avatars/flags/BDI.svg"
+},
+{
+"code": "CAM",
+"name": "Cambodia",
+"group": "nation",
+"src": "/avatars/flags/CAM.svg"
+},
+{
+"code": "CMR",
+"name": "Cameroon",
+"group": "nation",
+"src": "/avatars/flags/CMR.svg"
+},
+{
+"code": "CAN",
+"name": "Canada",
+"group": "nation",
+"src": "/avatars/cards/CAN.jpg"
+},
+{
+"code": "CVE",
+"name": "Cape Verde",
+"group": "nation",
+"src": "/avatars/cards/CVE.jpg"
+},
+{
+"code": "CAY",
+"name": "Cayman Islands",
+"group": "nation",
+"src": "/avatars/flags/CAY.svg"
+},
+{
+"code": "CTA",
+"name": "Central African Republic",
+"group": "nation",
+"src": "/avatars/flags/CTA.svg"
+},
+{
+"code": "CHA",
+"name": "Chad",
+"group": "nation",
+"src": "/avatars/flags/CHA.svg"
+},
+{
+"code": "CHI",
+"name": "Chile",
+"group": "nation",
+"src": "/avatars/flags/CHI.svg"
+},
+{
+"code": "CHN",
+"name": "China",
+"group": "nation",
+"src": "/avatars/flags/CHN.svg"
+},
+{
+"code": "TPE",
+"name": "Chinese Taipei",
+"group": "nation",
+"src": "/avatars/flags/TPE.svg"
+},
+{
+"code": "COL",
+"name": "Colombia",
+"group": "nation",
+"src": "/avatars/cards/COL.jpg"
+},
+{
+"code": "COM",
+"name": "Comoros",
+"group": "nation",
+"src": "/avatars/flags/COM.svg"
+},
+{
+"code": "CGO",
+"name": "Congo",
+"group": "nation",
+"src": "/avatars/flags/CGO.svg"
+},
+{
+"code": "COD",
+"name": "DR Congo",
+"group": "nation",
+"src": "/avatars/cards/COD.jpg"
+},
+{
+"code": "COK",
+"name": "Cook Islands",
+"group": "nation",
+"src": "/avatars/flags/COK.svg"
+},
+{
+"code": "CRC",
+"name": "Costa Rica",
+"group": "nation",
+"src": "/avatars/flags/CRC.svg"
+},
+{
+"code": "CRO",
+"name": "Croatia",
+"group": "nation",
+"src": "/avatars/cards/CRO.jpg"
+},
+{
+"code": "CUB",
+"name": "Cuba",
+"group": "nation",
+"src": "/avatars/flags/CUB.svg"
+},
+{
+"code": "CUR",
+"name": "Curaçao",
+"group": "nation",
+"src": "/avatars/cards/CUR.jpg"
+},
+{
+"code": "CYP",
+"name": "Cyprus",
+"group": "nation",
+"src": "/avatars/flags/CYP.svg"
+},
+{
+"code": "CZE",
+"name": "Czechia",
+"group": "nation",
+"src": "/avatars/cards/CZE.jpg"
+},
+{
+"code": "DEN",
+"name": "Denmark",
+"group": "nation",
+"src": "/avatars/flags/DEN.svg"
+},
+{
+"code": "DJI",
+"name": "Djibouti",
+"group": "nation",
+"src": "/avatars/flags/DJI.svg"
+},
+{
+"code": "DMA",
+"name": "Dominica",
+"group": "nation",
+"src": "/avatars/flags/DMA.svg"
+},
+{
+"code": "DOM",
+"name": "Dominican Republic",
+"group": "nation",
+"src": "/avatars/flags/DOM.svg"
+},
+{
+"code": "ECU",
+"name": "Ecuador",
+"group": "nation",
+"src": "/avatars/flags/ECU.svg"
+},
+{
+"code": "EGY",
+"name": "Egypt",
+"group": "nation",
+"src": "/avatars/cards/EGY.jpg"
+},
+{
+"code": "SLV",
+"name": "El Salvador",
+"group": "nation",
+"src": "/avatars/flags/SLV.svg"
+},
+{
+"code": "ENG",
+"name": "England",
+"group": "nation",
+"src": "/avatars/cards/ENG.jpg"
+},
+{
+"code": "EQG",
+"name": "Equatorial Guinea",
+"group": "nation",
+"src": "/avatars/flags/EQG.svg"
+},
+{
+"code": "ERI",
+"name": "Eritrea",
+"group": "nation",
+"src": "/avatars/flags/ERI.svg"
+},
+{
+"code": "EST",
+"name": "Estonia",
+"group": "nation",
+"src": "/avatars/flags/EST.svg"
+},
+{
+"code": "ESW",
+"name": "Eswatini",
+"group": "nation",
+"src": "/avatars/flags/ESW.svg"
+},
+{
+"code": "ETH",
+"name": "Ethiopia",
+"group": "nation",
+"src": "/avatars/flags/ETH.svg"
+},
+{
+"code": "FRO",
+"name": "Faroe Islands",
+"group": "nation",
+"src": "/avatars/flags/FRO.svg"
+},
+{
+"code": "FIJ",
+"name": "Fiji",
+"group": "nation",
+"src": "/avatars/flags/FIJ.svg"
+},
+{
+"code": "FIN",
+"name": "Finland",
+"group": "nation",
+"src": "/avatars/flags/FIN.svg"
+},
+{
+"code": "FRA",
+"name": "France",
+"group": "nation",
+"src": "/avatars/cards/FRA.jpg"
+},
+{
+"code": "GAB",
+"name": "Gabon",
+"group": "nation",
+"src": "/avatars/flags/GAB.svg"
+},
+{
+"code": "GAM",
+"name": "Gambia",
+"group": "nation",
+"src": "/avatars/flags/GAM.svg"
+},
+{
+"code": "GEO",
+"name": "Georgia",
+"group": "nation",
+"src": "/avatars/flags/GEO.svg"
+},
+{
+"code": "GER",
+"name": "Germany",
+"group": "nation",
+"src": "/avatars/cards/GER.jpg"
+},
+{
+"code": "GHA",
+"name": "Ghana",
+"group": "nation",
+"src": "/avatars/cards/GHA.jpg"
+},
+{
+"code": "GIB",
+"name": "Gibraltar",
+"group": "nation",
+"src": "/avatars/flags/GIB.svg"
+},
+{
+"code": "GRE",
+"name": "Greece",
+"group": "nation",
+"src": "/avatars/flags/GRE.svg"
+},
+{
+"code": "GRN",
+"name": "Grenada",
+"group": "nation",
+"src": "/avatars/flags/GRN.svg"
+},
+{
+"code": "GUM",
+"name": "Guam",
+"group": "nation",
+"src": "/avatars/flags/GUM.svg"
+},
+{
+"code": "GUA",
+"name": "Guatemala",
+"group": "nation",
+"src": "/avatars/flags/GUA.svg"
+},
+{
+"code": "GUI",
+"name": "Guinea",
+"group": "nation",
+"src": "/avatars/flags/GUI.svg"
+},
+{
+"code": "GNB",
+"name": "Guinea-Bissau",
+"group": "nation",
+"src": "/avatars/flags/GNB.svg"
+},
+{
+"code": "GUY",
+"name": "Guyana",
+"group": "nation",
+"src": "/avatars/flags/GUY.svg"
+},
+{
+"code": "HAI",
+"name": "Haiti",
+"group": "nation",
+"src": "/avatars/flags/HAI.svg"
+},
+{
+"code": "HON",
+"name": "Honduras",
+"group": "nation",
+"src": "/avatars/flags/HON.svg"
+},
+{
+"code": "HKG",
+"name": "Hong Kong",
+"group": "nation",
+"src": "/avatars/flags/HKG.svg"
+},
+{
+"code": "HUN",
+"name": "Hungary",
+"group": "nation",
+"src": "/avatars/flags/HUN.svg"
+},
+{
+"code": "ISL",
+"name": "Iceland",
+"group": "nation",
+"src": "/avatars/flags/ISL.svg"
+},
+{
+"code": "IND",
+"name": "India",
+"group": "nation",
+"src": "/avatars/flags/IND.svg"
+},
+{
+"code": "IDN",
+"name": "Indonesia",
+"group": "nation",
+"src": "/avatars/flags/IDN.svg"
+},
+{
+"code": "IRN",
+"name": "Iran",
+"group": "nation",
+"src": "/avatars/cards/IRN.jpg"
+},
+{
+"code": "IRQ",
+"name": "Iraq",
+"group": "nation",
+"src": "/avatars/flags/IRQ.svg"
+},
+{
+"code": "ISR",
+"name": "Israel",
+"group": "nation",
+"src": "/avatars/flags/ISR.svg"
+},
+{
+"code": "ITA",
+"name": "Italy",
+"group": "nation",
+"src": "/avatars/flags/ITA.svg"
+},
+{
+"code": "CIV",
+"name": "Ivory Coast",
+"group": "nation",
+"src": "/avatars/flags/CIV.svg"
+},
+{
+"code": "JAM",
+"name": "Jamaica",
+"group": "nation",
+"src": "/avatars/flags/JAM.svg"
+},
+{
+"code": "JAP",
+"name": "Japan",
+"group": "nation",
+"src": "/avatars/cards/JAP.jpg"
+},
+{
+"code": "JOR",
+"name": "Jordan",
+"group": "nation",
+"src": "/avatars/cards/JOR.jpg"
+},
+{
+"code": "KAZ",
+"name": "Kazakhstan",
+"group": "nation",
+"src": "/avatars/flags/KAZ.svg"
+},
+{
+"code": "KEN",
+"name": "Kenya",
+"group": "nation",
+"src": "/avatars/flags/KEN.svg"
+},
+{
+"code": "KVX",
+"name": "Kosovo",
+"group": "nation",
+"src": "/avatars/flags/KVX.svg"
+},
+{
+"code": "KUW",
+"name": "Kuwait",
+"group": "nation",
+"src": "/avatars/flags/KUW.svg"
+},
+{
+"code": "KGZ",
+"name": "Kyrgyzstan",
+"group": "nation",
+"src": "/avatars/flags/KGZ.svg"
+},
+{
+"code": "LAO",
+"name": "Laos",
+"group": "nation",
+"src": "/avatars/flags/LAO.svg"
+},
+{
+"code": "LVA",
+"name": "Latvia",
+"group": "nation",
+"src": "/avatars/flags/LVA.svg"
+},
+{
+"code": "LIB",
+"name": "Lebanon",
+"group": "nation",
+"src": "/avatars/flags/LIB.svg"
+},
+{
+"code": "LES",
+"name": "Lesotho",
+"group": "nation",
+"src": "/avatars/flags/LES.svg"
+},
+{
+"code": "LBR",
+"name": "Liberia",
+"group": "nation",
+"src": "/avatars/flags/LBR.svg"
+},
+{
+"code": "LBY",
+"name": "Libya",
+"group": "nation",
+"src": "/avatars/flags/LBY.svg"
+},
+{
+"code": "LIE",
+"name": "Liechtenstein",
+"group": "nation",
+"src": "/avatars/flags/LIE.svg"
+},
+{
+"code": "LTU",
+"name": "Lithuania",
+"group": "nation",
+"src": "/avatars/flags/LTU.svg"
+},
+{
+"code": "LUX",
+"name": "Luxembourg",
+"group": "nation",
+"src": "/avatars/flags/LUX.svg"
+},
+{
+"code": "MAC",
+"name": "Macau",
+"group": "nation",
+"src": "/avatars/flags/MAC.svg"
+},
+{
+"code": "MAD",
+"name": "Madagascar",
+"group": "nation",
+"src": "/avatars/flags/MAD.svg"
+},
+{
+"code": "MWI",
+"name": "Malawi",
+"group": "nation",
+"src": "/avatars/flags/MWI.svg"
+},
+{
+"code": "MAS",
+"name": "Malaysia",
+"group": "nation",
+"src": "/avatars/flags/MAS.svg"
+},
+{
+"code": "MDV",
+"name": "Maldives",
+"group": "nation",
+"src": "/avatars/flags/MDV.svg"
+},
+{
+"code": "MLI",
+"name": "Mali",
+"group": "nation",
+"src": "/avatars/flags/MLI.svg"
+},
+{
+"code": "MLT",
+"name": "Malta",
+"group": "nation",
+"src": "/avatars/flags/MLT.svg"
+},
+{
+"code": "MTN",
+"name": "Mauritania",
+"group": "nation",
+"src": "/avatars/flags/MTN.svg"
+},
+{
+"code": "MRI",
+"name": "Mauritius",
+"group": "nation",
+"src": "/avatars/flags/MRI.svg"
+},
+{
+"code": "MEX",
+"name": "Mexico",
+"group": "nation",
+"src": "/avatars/cards/MEX.jpg"
+},
+{
+"code": "MDA",
+"name": "Moldova",
+"group": "nation",
+"src": "/avatars/flags/MDA.svg"
+},
+{
+"code": "MNG",
+"name": "Mongolia",
+"group": "nation",
+"src": "/avatars/flags/MNG.svg"
+},
+{
+"code": "MNE",
+"name": "Montenegro",
+"group": "nation",
+"src": "/avatars/flags/MNE.svg"
+},
+{
+"code": "MSR",
+"name": "Montserrat",
+"group": "nation",
+"src": "/avatars/flags/MSR.svg"
+},
+{
+"code": "MOR",
+"name": "Morocco",
+"group": "nation",
+"src": "/avatars/cards/MOR.jpg"
+},
+{
+"code": "MOZ",
+"name": "Mozambique",
+"group": "nation",
+"src": "/avatars/flags/MOZ.svg"
+},
+{
+"code": "MYA",
+"name": "Myanmar",
+"group": "nation",
+"src": "/avatars/flags/MYA.svg"
+},
+{
+"code": "NAM",
+"name": "Namibia",
+"group": "nation",
+"src": "/avatars/flags/NAM.svg"
+},
+{
+"code": "NEP",
+"name": "Nepal",
+"group": "nation",
+"src": "/avatars/flags/NEP.svg"
+},
+{
+"code": "NED",
+"name": "Netherlands",
+"group": "nation",
+"src": "/avatars/cards/NED.jpg"
+},
+{
+"code": "NCL",
+"name": "New Caledonia",
+"group": "nation",
+"src": "/avatars/flags/NCL.svg"
+},
+{
+"code": "NZL",
+"name": "New Zealand",
+"group": "nation",
+"src": "/avatars/cards/NZL.jpg"
+},
+{
+"code": "NCA",
+"name": "Nicaragua",
+"group": "nation",
+"src": "/avatars/flags/NCA.svg"
+},
+{
+"code": "NIG",
+"name": "Niger",
+"group": "nation",
+"src": "/avatars/flags/NIG.svg"
+},
+{
+"code": "NGA",
+"name": "Nigeria",
+"group": "nation",
+"src": "/avatars/flags/NGA.svg"
+},
+{
+"code": "PRK",
+"name": "North Korea",
+"group": "nation",
+"src": "/avatars/flags/PRK.svg"
+},
+{
+"code": "MKD",
+"name": "North Macedonia",
+"group": "nation",
+"src": "/avatars/flags/MKD.svg"
+},
+{
+"code": "NIR",
+"name": "Northern Ireland",
+"group": "nation",
+"src": "/avatars/flags/NIR.svg"
+},
+{
+"code": "NOR",
+"name": "Norway",
+"group": "nation",
+"src": "/avatars/cards/NOR.jpg"
+},
+{
+"code": "OMA",
+"name": "Oman",
+"group": "nation",
+"src": "/avatars/flags/OMA.svg"
+},
+{
+"code": "PAK",
+"name": "Pakistan",
+"group": "nation",
+"src": "/avatars/flags/PAK.svg"
+},
+{
+"code": "PLE",
+"name": "Palestine",
+"group": "nation",
+"src": "/avatars/flags/PLE.svg"
+},
+{
+"code": "PAN",
+"name": "Panama",
+"group": "nation",
+"src": "/avatars/cards/PAN.jpg"
+},
+{
+"code": "PNG",
+"name": "Papua New Guinea",
+"group": "nation",
+"src": "/avatars/flags/PNG.svg"
+},
+{
+"code": "PAR",
+"name": "Paraguay",
+"group": "nation",
+"src": "/avatars/cards/PAR.jpg"
+},
+{
+"code": "PER",
+"name": "Peru",
+"group": "nation",
+"src": "/avatars/flags/PER.svg"
+},
+{
+"code": "PHI",
+"name": "Philippines",
+"group": "nation",
+"src": "/avatars/flags/PHI.svg"
+},
+{
+"code": "POL",
+"name": "Poland",
+"group": "nation",
+"src": "/avatars/flags/POL.svg"
+},
+{
+"code": "POR",
+"name": "Portugal",
+"group": "nation",
+"src": "/avatars/cards/POR.jpg"
+},
+{
+"code": "PUR",
+"name": "Puerto Rico",
+"group": "nation",
+"src": "/avatars/flags/PUR.svg"
+},
+{
+"code": "QAT",
+"name": "Qatar",
+"group": "nation",
+"src": "/avatars/cards/QAT.jpg"
+},
+{
+"code": "IRL",
+"name": "Republic of Ireland",
+"group": "nation",
+"src": "/avatars/flags/IRL.svg"
+},
+{
+"code": "ROU",
+"name": "Romania",
+"group": "nation",
+"src": "/avatars/flags/ROU.svg"
+},
+{
+"code": "RUS",
+"name": "Russia",
+"group": "nation",
+"src": "/avatars/flags/RUS.svg"
+},
+{
+"code": "RWA",
+"name": "Rwanda",
+"group": "nation",
+"src": "/avatars/flags/RWA.svg"
+},
+{
+"code": "SKN",
+"name": "Saint Kitts and Nevis",
+"group": "nation",
+"src": "/avatars/flags/SKN.svg"
+},
+{
+"code": "LCA",
+"name": "Saint Lucia",
+"group": "nation",
+"src": "/avatars/flags/LCA.svg"
+},
+{
+"code": "VIN",
+"name": "Saint Vincent and the Grenadines",
+"group": "nation",
+"src": "/avatars/flags/VIN.svg"
+},
+{
+"code": "SAM",
+"name": "Samoa",
+"group": "nation",
+"src": "/avatars/flags/SAM.svg"
+},
+{
+"code": "SMR",
+"name": "San Marino",
+"group": "nation",
+"src": "/avatars/flags/SMR.svg"
+},
+{
+"code": "STP",
+"name": "São Tomé and Príncipe",
+"group": "nation",
+"src": "/avatars/flags/STP.svg"
+},
+{
+"code": "KSA",
+"name": "Saudi Arabia",
+"group": "nation",
+"src": "/avatars/cards/KSA.jpg"
+},
+{
+"code": "SCO",
+"name": "Scotland",
+"group": "nation",
+"src": "/avatars/cards/SCO.jpg"
+},
+{
+"code": "SEN",
+"name": "Senegal",
+"group": "nation",
+"src": "/avatars/cards/SEN.jpg"
+},
+{
+"code": "SRB",
+"name": "Serbia",
+"group": "nation",
+"src": "/avatars/flags/SRB.svg"
+},
+{
+"code": "SEY",
+"name": "Seychelles",
+"group": "nation",
+"src": "/avatars/flags/SEY.svg"
+},
+{
+"code": "SLE",
+"name": "Sierra Leone",
+"group": "nation",
+"src": "/avatars/flags/SLE.svg"
+},
+{
+"code": "SGP",
+"name": "Singapore",
+"group": "nation",
+"src": "/avatars/flags/SGP.svg"
+},
+{
+"code": "SVK",
+"name": "Slovakia",
+"group": "nation",
+"src": "/avatars/flags/SVK.svg"
+},
+{
+"code": "SVN",
+"name": "Slovenia",
+"group": "nation",
+"src": "/avatars/flags/SVN.svg"
+},
+{
+"code": "SOL",
+"name": "Solomon Islands",
+"group": "nation",
+"src": "/avatars/flags/SOL.svg"
+},
+{
+"code": "SOM",
+"name": "Somalia",
+"group": "nation",
+"src": "/avatars/flags/SOM.svg"
+},
+{
+"code": "SAF",
+"name": "South Africa",
+"group": "nation",
+"src": "/avatars/cards/SAF.jpg"
+},
+{
+"code": "KOR",
+"name": "South Korea",
+"group": "nation",
+"src": "/avatars/cards/KOR.jpg"
+},
+{
+"code": "SSD",
+"name": "South Sudan",
+"group": "nation",
+"src": "/avatars/flags/SSD.svg"
+},
+{
+"code": "ESP",
+"name": "Spain",
+"group": "nation",
+"src": "/avatars/cards/ESP.jpg"
+},
+{
+"code": "SRI",
+"name": "Sri Lanka",
+"group": "nation",
+"src": "/avatars/flags/SRI.svg"
+},
+{
+"code": "SDN",
+"name": "Sudan",
+"group": "nation",
+"src": "/avatars/flags/SDN.svg"
+},
+{
+"code": "SUR",
+"name": "Suriname",
+"group": "nation",
+"src": "/avatars/flags/SUR.svg"
+},
+{
+"code": "SWE",
+"name": "Sweden",
+"group": "nation",
+"src": "/avatars/cards/SWE.jpg"
+},
+{
+"code": "SWZ",
+"name": "Switzerland",
+"group": "nation",
+"src": "/avatars/cards/SWZ.jpg"
+},
+{
+"code": "SYR",
+"name": "Syria",
+"group": "nation",
+"src": "/avatars/flags/SYR.svg"
+},
+{
+"code": "TAH",
+"name": "Tahiti",
+"group": "nation",
+"src": "/avatars/flags/TAH.svg"
+},
+{
+"code": "TJK",
+"name": "Tajikistan",
+"group": "nation",
+"src": "/avatars/flags/TJK.svg"
+},
+{
+"code": "TAN",
+"name": "Tanzania",
+"group": "nation",
+"src": "/avatars/flags/TAN.svg"
+},
+{
+"code": "THA",
+"name": "Thailand",
+"group": "nation",
+"src": "/avatars/flags/THA.svg"
+},
+{
+"code": "TLS",
+"name": "Timor-Leste",
+"group": "nation",
+"src": "/avatars/flags/TLS.svg"
+},
+{
+"code": "TOG",
+"name": "Togo",
+"group": "nation",
+"src": "/avatars/flags/TOG.svg"
+},
+{
+"code": "TGA",
+"name": "Tonga",
+"group": "nation",
+"src": "/avatars/flags/TGA.svg"
+},
+{
+"code": "TRI",
+"name": "Trinidad and Tobago",
+"group": "nation",
+"src": "/avatars/flags/TRI.svg"
+},
+{
+"code": "TUN",
+"name": "Tunisia",
+"group": "nation",
+"src": "/avatars/flags/TUN.svg"
+},
+{
+"code": "TUR",
+"name": "Turkey",
+"group": "nation",
+"src": "/avatars/cards/TUR.jpg"
+},
+{
+"code": "TKM",
+"name": "Turkmenistan",
+"group": "nation",
+"src": "/avatars/flags/TKM.svg"
+},
+{
+"code": "TCA",
+"name": "Turks and Caicos Islands",
+"group": "nation",
+"src": "/avatars/flags/TCA.svg"
+},
+{
+"code": "UGA",
+"name": "Uganda",
+"group": "nation",
+"src": "/avatars/flags/UGA.svg"
+},
+{
+"code": "UKR",
+"name": "Ukraine",
+"group": "nation",
+"src": "/avatars/flags/UKR.svg"
+},
+{
+"code": "UAE",
+"name": "United Arab Emirates",
+"group": "nation",
+"src": "/avatars/flags/UAE.svg"
+},
+{
+"code": "USA",
+"name": "United States",
+"group": "nation",
+"src": "/avatars/cards/USA.jpg"
+},
+{
+"code": "URU",
+"name": "Uruguay",
+"group": "nation",
+"src": "/avatars/cards/URU.jpg"
+},
+{
+"code": "VIR",
+"name": "US Virgin Islands",
+"group": "nation",
+"src": "/avatars/flags/VIR.svg"
+},
+{
+"code": "UZB",
+"name": "Uzbekistan",
+"group": "nation",
+"src": "/avatars/cards/UZB.jpg"
+},
+{
+"code": "VAN",
+"name": "Vanuatu",
+"group": "nation",
+"src": "/avatars/flags/VAN.svg"
+},
+{
+"code": "VEN",
+"name": "Venezuela",
+"group": "nation",
+"src": "/avatars/flags/VEN.svg"
+},
+{
+"code": "VIE",
+"name": "Vietnam",
+"group": "nation",
+"src": "/avatars/flags/VIE.svg"
+},
+{
+"code": "WAL",
+"name": "Wales",
+"group": "nation",
+"src": "/avatars/flags/WAL.svg"
+},
+{
+"code": "YEM",
+"name": "Yemen",
+"group": "nation",
+"src": "/avatars/flags/YEM.svg"
+},
+{
+"code": "ZAM",
+"name": "Zambia",
+"group": "nation",
+"src": "/avatars/flags/ZAM.svg"
+},
+{
+"code": "ZIM",
+"name": "Zimbabwe",
+"group": "nation",
+"src": "/avatars/flags/ZIM.svg"
+},
+{
+"code": "EPL_ARS",
+"name": "Arsenal",
+"group": "epl",
+"src": "/avatars/clubs/EPL_ARS.svg"
+},
+{
+"code": "EPL_AVL",
+"name": "Aston Villa",
+"group": "epl",
+"src": "/avatars/clubs/EPL_AVL.svg"
+},
+{
+"code": "EPL_BOU",
+"name": "AFC Bournemouth",
+"group": "epl",
+"src": "/avatars/clubs/EPL_BOU.svg"
+},
+{
+"code": "EPL_BRE",
+"name": "Brentford",
+"group": "epl",
+"src": "/avatars/clubs/EPL_BRE.svg"
+},
+{
+"code": "EPL_BHA",
+"name": "Brighton & Hove Albion",
+"group": "epl",
+"src": "/avatars/clubs/EPL_BHA.svg"
+},
+{
+"code": "EPL_CHE",
+"name": "Chelsea",
+"group": "epl",
+"src": "/avatars/clubs/EPL_CHE.svg"
+},
+{
+"code": "EPL_COV",
+"name": "Coventry City",
+"group": "epl",
+"src": "/avatars/clubs/EPL_COV.svg"
+},
+{
+"code": "EPL_CRY",
+"name": "Crystal Palace",
+"group": "epl",
+"src": "/avatars/clubs/EPL_CRY.svg"
+},
+{
+"code": "EPL_EVE",
+"name": "Everton",
+"group": "epl",
+"src": "/avatars/clubs/EPL_EVE.svg"
+},
+{
+"code": "EPL_FUL",
+"name": "Fulham",
+"group": "epl",
+"src": "/avatars/clubs/EPL_FUL.svg"
+},
+{
+"code": "EPL_HUL",
+"name": "Hull City",
+"group": "epl",
+"src": "/avatars/clubs/EPL_HUL.svg"
+},
+{
+"code": "EPL_IPS",
+"name": "Ipswich Town",
+"group": "epl",
+"src": "/avatars/clubs/EPL_IPS.svg"
+},
+{
+"code": "EPL_LEE",
+"name": "Leeds United",
+"group": "epl",
+"src": "/avatars/clubs/EPL_LEE.svg"
+},
+{
+"code": "EPL_LIV",
+"name": "Liverpool",
+"group": "epl",
+"src": "/avatars/clubs/EPL_LIV.svg"
+},
+{
+"code": "EPL_MNC",
+"name": "Manchester City",
+"group": "epl",
+"src": "/avatars/clubs/EPL_MNC.svg"
+},
+{
+"code": "EPL_MAN",
+"name": "Manchester United",
+"group": "epl",
+"src": "/avatars/clubs/EPL_MAN.svg"
+},
+{
+"code": "EPL_NEW",
+"name": "Newcastle United",
+"group": "epl",
+"src": "/avatars/clubs/EPL_NEW.svg"
+},
+{
+"code": "EPL_NFO",
+"name": "Nottingham Forest",
+"group": "epl",
+"src": "/avatars/clubs/EPL_NFO.svg"
+},
+{
+"code": "EPL_SUN",
+"name": "Sunderland",
+"group": "epl",
+"src": "/avatars/clubs/EPL_SUN.svg"
+},
+{
+"code": "EPL_TOT",
+"name": "Tottenham Hotspur",
+"group": "epl",
+"src": "/avatars/clubs/EPL_TOT.svg"
+}
+]

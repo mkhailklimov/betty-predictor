@@ -1,4 +1,5 @@
 // Betty Predictor API — Cloudflare Worker + D1
+import AVATARS from '../../frontend/src/data/avatars.json';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -17,13 +18,9 @@ function uuid() {
   return crypto.randomUUID();
 }
 
-// 31 confirmed WC 2026 participants (matches public/teams/Cards/*.png).
-const ALLOWED_TEAMS = new Set([
-  'ALG', 'ARG', 'AUS', 'BIH', 'BRA', 'CAN', 'CRO', 'CUR', 'CVE', 'CZE',
-  'ENG', 'ESP', 'FRA', 'GER', 'JAP', 'KOR', 'MEX', 'MOR', 'NED', 'NOR',
-  'PAR', 'POR', 'QAT', 'SAF', 'SCO', 'SEN', 'SWE', 'SWZ', 'TUR', 'USA',
-  'UZB',
-]);
+// PRO avatars: every FIFA nation + Premier League clubs (EPL_XXX). Shared
+// with the frontend picker via frontend/src/data/avatars.json.
+const ALLOWED_TEAMS = new Set(AVATARS.map(a => a.code));
 
 // Internal/test accounts — excluded from gold marts (Champions/Leaderboard).
 // MikeKlimov, bettyscores bot, bet_monitoring, TestUser, Illyria30_ad (added
@@ -429,8 +426,11 @@ export default {
       // --- Leaderboard (all-time, served from gold_leaderboard mart) ---
       if (method === 'GET' && (path === '/api/leaderboard' || path === '/api/leaderboard/overall')) {
         const { results } = await env.DB.prepare(
-          `SELECT gl.*, COALESCE(wp.total_stars, 0) AS stars_earned
+          `SELECT gl.*, COALESCE(wp.total_stars, 0) AS stars_earned,
+                  COALESCE(u.is_premium, gl.is_premium) AS is_premium,
+                  COALESCE(u.fav_team, gl.fav_team) AS fav_team
            FROM gold_leaderboard gl
+           LEFT JOIN users u ON u.id = gl.user_id
            LEFT JOIN (SELECT user_id, SUM(stars) AS total_stars FROM weekly_prizes GROUP BY user_id) wp
              ON gl.user_id = wp.user_id
            ORDER BY COALESCE(wp.total_stars, 0) DESC, gl.total_points DESC, gl.username ASC`
@@ -754,7 +754,7 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: 'Betty Premium',
-            description: 'PRO badge on the leaderboard. One-time purchase, supports the studio.',
+            description: 'PRO avatar: fly your national team flag or Premier League club badge next to your name in the Hall of Fame. One-time purchase.',
             payload,
             currency: 'XTR',
             prices: [{ label: 'Betty Premium', amount: 50 }],
