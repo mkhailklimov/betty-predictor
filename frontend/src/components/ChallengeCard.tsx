@@ -81,6 +81,13 @@ const FIXTURE_STICKERS: Record<string, { src: string; alt: string }> = {
   '401879261': { src: '/stickers/BHA_CRY.png', alt: 'Brighton versus Crystal Palace, M23 derby' },
   '401879260': { src: '/stickers/LEE_MUN.png', alt: 'Leeds United versus Manchester United, who scores first' },
   '401878769': { src: '/stickers/NFO_ARS.png', alt: 'Nottingham Forest versus Arsenal' },
+  // 2026_43
+  '401915312': { src: '/stickers/BAY_ARS.png', alt: 'Bayern Munich versus Arsenal, predict the score' },
+  '401879256': { src: '/stickers/HAALAND_AVL.png', alt: 'Haaland shooting at Villa Park' },
+  '401879255': { src: '/stickers/COV_FUL.png', alt: 'Coventry City versus Fulham, will Coventry win' },
+  '401878767': { src: '/stickers/CHE_TOT.png', alt: 'Chelsea versus Tottenham Hotspur, London derby' },
+  '401878765': { src: '/stickers/LIV_BHA.png', alt: 'Liverpool versus Brighton, over or under 2.5' },
+  '401879252': { src: '/stickers/MUN_BOU.png', alt: 'Manchester United versus Bournemouth, will United win' },
 }
 
 export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked, onPredict }) => {
