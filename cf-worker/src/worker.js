@@ -696,7 +696,31 @@ export default {
         const result = await env.DB.prepare(
           "UPDATE weekly_prizes SET status = 'paid', paid_at = datetime('now') WHERE week_id = ? AND rank = ?"
         ).bind(prizeWeek, rank).run();
-        return json({ ok: true, week_id: prizeWeek, rank, changed: result.changes });
+        return json({ ok: true, week_id: prizeWeek, rank, changed: result.meta ? result.meta.changes : result.changes });
+      }
+
+      // --- Admin: send one message from the bot to one player (prize notices) ---
+      // POST /api/admin/notify  {"tg_id": "123", "text": "..."}
+      if (method === 'POST' && path === '/api/admin/notify') {
+        const token = getToken(request);
+        if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const body = await request.json().catch(() => ({}));
+        const tgId = String(body.tg_id || '');
+        const text = String(body.text || '');
+        if (!/^\d{5,15}$/.test(tgId) || !text || text.length > 2000) {
+          return json({ detail: 'tg_id (digits) and text (1-2000 chars) required' }, 400);
+        }
+        const tg = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: tgId, text }),
+        });
+        const res = await tg.json().catch(() => ({}));
+        return res.ok
+          ? json({ ok: true, tg_id: tgId, message_id: res.result.message_id })
+          : json({ ok: false, tg_id: tgId, telegram: res.description || `HTTP ${tg.status}` }, 502);
       }
 
       // --- Public: get prizes for a week ---

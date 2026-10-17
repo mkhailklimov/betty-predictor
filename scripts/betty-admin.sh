@@ -11,6 +11,8 @@
 #   bash scripts/betty-admin.sh publish 2026_43 --force  replace a week that already has predictions (deletes them)
 #   bash scripts/betty-admin.sh resolve 2026_42 <challenge_id>=<answer> ...   set results and award points
 #   bash scripts/betty-admin.sh rebuild                rebuild silver + gold marts (Champions, Hall of Fame)
+#   bash scripts/betty-admin.sh paid 2026_41 1         mark a Stars prize paid (week or bonus_N, rank) — only after it was sent
+#   bash scripts/betty-admin.sh notify <tg_id> msg.txt  send one bot message to one player (prize notices)
 #   bash scripts/betty-admin.sh deploy-worker          npx wrangler deploy (cf-worker)
 #   bash scripts/betty-admin.sh deploy-frontend        build + wrangler pages deploy to app.bettyscores.com
 set -euo pipefail
@@ -19,7 +21,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 API="https://api.bettyscores.com"
 TOKEN_FILE="$ROOT/cf-worker/.admin-token"
 
-usage() { sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
 admin_post() {  # admin_post <path?query>
   [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
@@ -80,6 +82,23 @@ case "$cmd" in
     ;;
   rebuild)
     admin_post "/api/admin/rebuild"; echo
+    ;;
+  paid)
+    week="${1:-}"; rank="${2:-}"
+    [[ "$week" =~ ^([0-9]{4}_[0-9]{2}|bonus_[0-9]+)$ ]] || { echo "week must look like 2026_41 or bonus_1" >&2; exit 2; }
+    [[ "$rank" =~ ^[1-9]$ ]] || { echo "rank must be 1-9" >&2; exit 2; }
+    admin_post "/api/admin/prizes/$week/paid?rank=$rank"; echo
+    ;;
+  notify)
+    # One message from the bot to one player; the text is read from a file (UTF-8).
+    tg="${1:-}"; file="${2:-}"
+    [[ "$tg" =~ ^[0-9]{5,15}$ ]] || { echo "tg_id must be digits" >&2; exit 2; }
+    [ -s "$file" ] || { echo "give a text file with the message" >&2; exit 2; }
+    body="$(node -e 'const fs=require("fs");console.log(JSON.stringify({tg_id:process.argv[1],text:fs.readFileSync(process.argv[2],"utf8").trim()}))' "$tg" "$file")"
+    [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
+    curl -sS -X POST -H "Authorization: Bearer $(tr -d '\r\n' < "$TOKEN_FILE")" \
+      -H "Content-Type: application/json" -d "$body" "$API/api/admin/notify"
+    echo
     ;;
   deploy-worker)
     (cd "$ROOT/cf-worker" && npx wrangler deploy)
