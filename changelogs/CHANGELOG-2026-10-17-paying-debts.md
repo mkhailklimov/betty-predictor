@@ -22,5 +22,10 @@
 1. Check with Mishanna and Denis that the 100 ⭐ arrived; send 200 each.
 2. Then mark: `paid 2026_41 1`, `paid bonus_2 1` (Mishanna), `paid bonus_1 1` (Denis).
 3. When "........" writes to @bettyscores: top up 1 ⭐, send 50, `paid 2026_41 2`.
-4. Still pending: **week 43 re-publish** (`publish 2026_43 --force`) before Sun 18 Oct 15:30 UTC — D1 still has the Pickford card.
+4. ✅ Week 43 re-published by the owner on 17 Oct (Git Bash from PowerShell): D1 shows "Will Coventry beat Fulham?" (will_win, 401879255); week status published.
 5. Sun 18 Oct evening: resolve week 42.
+
+## Note: running the admin script from PowerShell
+
+`bash` in PowerShell starts WSL (not installed here). Use Git Bash:
+`& "C:\Program Files\Git\bin\bash.exe" scripts/betty-admin.sh <command> ...`
