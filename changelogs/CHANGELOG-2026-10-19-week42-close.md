@@ -47,3 +47,11 @@ KiernanOades 1 / 1 / 100; "........" 6 / 0 / 50.
 
 - Guard in `closeWeek`: if any challenge of the week is unresolved, skip the
   close (and retry on the next run) instead of awarding prizes on 0 points.
+
+## Update (19 Oct, later)
+
+- Owner confirmed the remaining Stars to Mishanna45 and ippolitovdenis were sent:
+  `paid 2026_41 1`, `paid bonus_2 1`, `paid bonus_1 1` (each changed 1 row).
+- Still owed: **2026_41/2 "........" 50 ⭐** (no activity since 9 Oct; bot message of
+  17 Oct unanswered as far as we know) and **2026_42/1 Th7Tezar 100 ⭐** (message text
+  given to the owner).
