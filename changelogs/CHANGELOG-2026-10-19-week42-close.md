@@ -55,3 +55,5 @@ KiernanOades 1 / 1 / 100; "........" 6 / 0 / 50.
 - Still owed: **2026_41/2 "........" 50 ⭐** (no activity since 9 Oct; bot message of
   17 Oct unanswered as far as we know) and **2026_42/1 Th7Tezar 100 ⭐** (message text
   given to the owner).
+- Owner sent Th7Tezar 100 ⭐ (congrats message with a share link, t.me/bettyscores_bot/app): `paid 2026_42 1`.
+  Only **2026_41/2 "........" 50 ⭐** remains owed.
