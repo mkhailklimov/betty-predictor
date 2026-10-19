@@ -90,3 +90,47 @@ bash scripts/betty-admin.sh resolve 2026_43 \
   e9d74fae-265d-40dd-ac58-b7a7ff4dfbd9=Yes|No     # Man Utd beat Bournemouth? (draw = No)
 ```
 Then send the Stars and mark them with `paid 2026_43 <rank>`.
+
+## Content for week 43 (Bayern vs Arsenal, Wed 21 Oct 19:00 UTC / 21:00 CEST)
+
+Facts checked: Arsenal 3–1 Bayern at the Emirates, Champions League league phase,
+26 Nov 2025 ("last November"); 2024 quarter-final Bayern won (2–2 London, 1–0
+Munich). Player names left out on purpose (check line-ups if added).
+
+### Video subtitles (owner's Bayern–Arsenal video)
+
+Long (~30 s): Last November, the Gunners blew Bayern away. / Arsenal 3, Bayern 1 at
+the Emirates. 💥 / But Munich is a different story… / In 2024, Bayern knocked
+Arsenal out right here. / Allianz Arena. Champions League night. 🏟️ / Can the
+Gooners do it again on Bayern's turf? / Or will Bayern take their revenge? 🔴 /
+Wednesday, 21 October. 21:00 CET. / Predict the exact score in Betty Scores. /
+Get it right and take 3 points! 🎯 / 👉 t.me/bettyscores_bot/app
+
+Short (~15 s): 3–1. The Gooners smashed Bayern last November. / Now it's Bayern's
+turn, at home. / Allianz Arena. Wednesday. ⚔️ / Who wins this time? / Call the
+exact score, win 3 points. / Betty Scores 👉 t.me/bettyscores_bot/app
+
+Extra lines: "The cannon fires in Munich 💣" · "Fortress Allianz… or Arsenal's
+playground?" · "Red vs Red. Only one survives. 🔴⚪" · "Last time: 3–1 Arsenal.
+This time: ? : ?"
+
+### Channel post: week 43 is open
+
+🔥 WEEK 43 IS OPEN! 🔥 Six matches, six questions, real Stars ⭐ — Bayern vs Arsenal
+(exact score, 3 pts), Haaland at Villa Park, Coventry vs Fulham ("the Sky Blues
+against the only winless team" — check the table first), Chelsea vs Spurs first
+scorer (3 pts), Liverpool vs Brighton over/under 2.5, Man Utd vs Bournemouth.
+Week 42 champion Th7Tezar, 100 ⭐ paid. "Every prize so far has been paid" (or,
+precisely: "to every winner who claimed them" — "........" has not yet).
+Link t.me/bettyscores_bot/app.
+
+### Channel teaser: "Arsenal won big last November. Will Bayern take revenge?"
+
+1. ⚔️ Arsenal won big last November: 3–1 at the Emirates. Will Bayern take their
+   revenge at the Allianz? 🔴 · Wednesday, 21:00 CET · exact score = 3 points · link
+2. 💥 3–1 to Arsenal last November. 🏟️ Now Bayern are at home. Revenge, or another
+   Gunners night? 🤔 Call the exact score 👉 link
+3. 🔴 Bayern or ⚪🔴 Arsenal? … 👇 Your score in the comments, then lock it in
+   Betty for 3 points! (only if channel comments are on)
+
+Best image: the `BAY_ARS` sticker or the owner's video.
