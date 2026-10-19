@@ -74,3 +74,19 @@ Worker version 2658071e (`betty-admin.sh deploy-worker`):
 - Runbook step 5 added (`docs/WEEKLY-RUNBOOK.md`).
 - Not changed: re-resolving a week that is already closed does not recompute
   its prizes (correct mistakes by hand if one ever happens).
+
+## Plan: close week 43 together, Sun 25 Oct evening (before 00:00 UTC)
+
+Last kickoffs Sun 25 Oct 14:00 UTC. Fill the answers from ESPN, then one call
+resolves, closes and awards the Stars:
+
+```
+bash scripts/betty-admin.sh resolve 2026_43 \
+  9d0d2df3-6bad-4399-befd-ff57faec360e=H:A \   # Bayern vs Arsenal, exact score (Bayern home)
+  ba6e65e5-05a9-4316-ab17-8cd5812555f5=Yes|No \ # Haaland scores at Villa Park?
+  2779b191-2bcf-4c01-9291-a0c7f22e57aa=Yes|No \ # Coventry beat Fulham? (draw = No)
+  495005c0-8eba-4e67-ae8e-7db7a77e3d0a=Home|Away|Nobody \ # Chelsea vs Spurs, first scorer (Chelsea home)
+  dcdbf7a1-200e-4e84-8736-f46f80776707=Over|Under \ # Liverpool vs Brighton, 2.5 goals
+  e9d74fae-265d-40dd-ac58-b7a7ff4dfbd9=Yes|No     # Man Utd beat Bournemouth? (draw = No)
+```
+Then send the Stars and mark them with `paid 2026_43 <rank>`.
