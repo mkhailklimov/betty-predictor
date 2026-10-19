@@ -57,3 +57,20 @@ KiernanOades 1 / 1 / 100; "........" 6 / 0 / 50.
   given to the owner).
 - Owner sent Th7Tezar 100 ⭐ (congrats message with a share link, t.me/bettyscores_bot/app): `paid 2026_42 1`.
   Only **2026_41/2 "........" 50 ⭐** remains owed.
+
+## Results in → Stars counted at once (owner's rule, deployed 19 Oct)
+
+Worker version 2658071e (`betty-admin.sh deploy-worker`):
+- **`resolve` closes the week itself:** once every card of the week has its answer
+  and the last match is over (kickoff + 2 h), the resolve call runs `closeWeek`
+  immediately: prizes awarded, Champions and Hall of Fame rebuilt. The reply
+  shows it in `close` (e.g. `{"ok":true,"awarded":[...]}`, or `waiting` with how
+  many answers are missing).
+- **Guard in `closeWeek`:** a challenge week with any unresolved card is not
+  closed (`{"ok":false,"waiting":true,"unresolved":n}`); the Monday 00:00 cron
+  therefore waits instead of paying on 0 points. Weeks without challenges close
+  as before.
+- Tested by re-entering week 42's answers: `close: {"ok":true,"already":true}`.
+- Runbook step 5 added (`docs/WEEKLY-RUNBOOK.md`).
+- Not changed: re-resolving a week that is already closed does not recompute
+  its prizes (correct mistakes by hand if one ever happens).

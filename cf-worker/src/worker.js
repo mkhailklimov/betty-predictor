@@ -1023,7 +1023,21 @@ export default {
           }
         }
 
-        return json({ ok: true, resolved, scored });
+        // Results in → count the Stars right away: once every card of the week
+        // has its answer and the last match is over, close the week now.
+        let close = null;
+        const weekId = url.searchParams.get('week');
+        if (weekId) {
+          const st = await env.DB.prepare(
+            `SELECT COUNT(*) AS n, SUM(correct_answer IS NULL) AS open, MAX(kickoff_utc) AS last_ko
+             FROM challenges WHERE week_id = ?`
+          ).bind(weekId).first();
+          const over = st && st.last_ko && Date.parse(st.last_ko) + 2 * 3600 * 1000 < Date.now();
+          if (st && st.n > 0 && !st.open && over) close = await closeWeek(env, weekId);
+          else if (st && st.n > 0) close = { ok: false, waiting: true, unresolved: st.open || 0, matches_over: !!over };
+        }
+
+        return json({ ok: true, resolved, scored, close });
       }
 
       return json({ detail: 'Not found' }, 404);
@@ -2356,6 +2370,13 @@ async function closeWeek(env, weekId) {
   const week = await env.DB.prepare('SELECT * FROM weeks WHERE week_id = ?').bind(weekId).first();
   if (!week) return { ok: false, reason: 'week not found' };
   if (week.status === 'closed') return { ok: true, already: true, week_id: weekId };
+
+  // Never award prizes on missing results: a challenge week waits until every
+  // card has its answer (resolve-challenges then closes it at once).
+  const open = await env.DB.prepare(
+    'SELECT COUNT(*) AS n FROM challenges WHERE week_id = ? AND correct_answer IS NULL'
+  ).bind(weekId).first();
+  if (open && open.n > 0) return { ok: false, waiting: true, week_id: weekId, unresolved: open.n };
 
   // Rebuild marts so champions are current.
   await rebuildMarts(env);

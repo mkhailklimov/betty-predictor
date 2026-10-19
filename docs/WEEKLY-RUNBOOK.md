@@ -92,6 +92,14 @@ wraps the routine steps and reads the token from `cf-worker/.admin-token`:
 4. Stickers: PNG in `frontend/public/stickers/`, mapped by Source ID in
    `FIXTURE_STICKERS` (`ChallengeCard.tsx`), then
    `bash scripts/betty-admin.sh deploy-frontend`.
+5. **Results and Stars (since 19 Oct 2026):** after the last match, enter the
+   answers with `bash scripts/betty-admin.sh resolve <week> <id>=<answer> ...`.
+   When every card has its answer and the last match is over, the same call
+   **closes the week and awards the Stars at once** (reply field `close`), and
+   Champions / Hall of Fame are rebuilt. The Monday 00:00 close **waits** (does
+   nothing) while any answer is missing, so prizes are never given on 0 points.
+   Then send the Stars by hand and mark each one with
+   `bash scripts/betty-admin.sh paid <week> <rank>`.
 
 6. **Finalize results** in the sheet (rolling-filled during the week, see below):
    confirm `Result` (1/X/2), `Score_1`/`Score_2`, set `Is active = 3` (ended).
