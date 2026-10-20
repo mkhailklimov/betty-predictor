@@ -71,3 +71,12 @@ colour when the app appears. A yellow background was tried first and corrected.
   weekly Stars prizes and the PRO purchase. **Wait for a reply** (a few days); if
   none, decide whether to resubmit via @tApps_bot with the listing text from this session.
 - Their own suggestion for growth meanwhile: Telegram Ads, social mechanics, other promotion.
+
+## Other catalogs
+
+- **FindMini.app — submitted 20 Oct 2026** (form findmini.app/submit; review ~7 days,
+  email them if not listed by ~27 Oct). Link `https://t.me/bettyscores_bot/app`,
+  logo `deploy/betty-logo-512.png` (original is >1 MB), EN+RU texts stressing
+  "free, no deposits, no betting" (their rules exclude casinos/gambling), TON unticked.
+- Checked and parked: GitHub "telegram-mini-apps-catalog" (many copies, 0 stars),
+  productradar.ru (terms unconfirmed). Next evening: look for more catalogs and submit.
