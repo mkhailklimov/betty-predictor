@@ -46,3 +46,15 @@ colour when the app appears. A yellow background was tried first and corrected.
 1. BotFather: Description (≤512 chars), About (≤120), preview media (screenshots / clip).
 2. Do the 50 ⭐ PRO test purchase in production.
 3. Submit to tApps Center via @app_moderation_bot (verify the bot still exists).
+
+## Bot profile texts (BotFather → bot → Edit Info)
+
+- Cover `deploy/betty-link-cover.png` attached to both direct links.
+- **About** kept: "⚽ Free weekly football prediction game. Predict scores, win Stars ⭐!"
+- **Welcome message** (= Description) replaced; the old one promised 10 exact-score
+  matches a week from La Liga / Serie A / Bundesliga / MLS. New text: big matches with
+  a focus on English clubs, exact score 3 pts / right result 1 pt, lock at kick-off,
+  100 ⭐ / 50 ⭐ weekly, free to play.
+- **Welcome picture** is still the old season's screens (Atlético card). Replace with
+  fresh phone-size screenshots (cards, Champions, Hall of Fame) once week 44 opens
+  with its stickers; reuse them for the app-center listing.
