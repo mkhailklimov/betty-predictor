@@ -56,9 +56,11 @@ Sheet: Release2.1 rows 20–25 (week 44) and 26–35 (week 45), Picture_name emp
 
 ## Sticker prompts (weeks 44 and 45)
 
-Common start of every prompt: *Comic pop-art sticker, white die-cut border, plain
-white background, landscape (~3:2), halftone dots, energy bursts, speed lines, a
-flip scoreboard showing "? : ?" in the middle.* (Plain white instead of
+Common start of every prompt (updated with the owner's idea: say what it is for):
+*Comic-style sticker for a Telegram football prediction game (shown on a phone
+card): pop-art, white die-cut border, plain white background, landscape (~3:2),
+bold readable shapes, halftone dots, energy bursts, speed lines, a flip
+scoreboard showing "? : ?" in the middle.* (Plain white instead of
 "transparent": generators paint a fake checkerboard, white is easier to clean.)
 Save in `frontend/public/stickers/` under these names. Due: week 44 by Sun 25 Oct,
 week 45 by Sun 1 Nov.
