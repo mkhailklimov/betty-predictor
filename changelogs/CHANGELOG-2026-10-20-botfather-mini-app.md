@@ -18,7 +18,16 @@ The profile's **Open App** button used the pages.dev URL, so players opening Bet
 from the bot profile got the **dev** database. The bot's own "Open Betty Scores"
 button already used app.bettyscores.com. Worker CORS is `*`, so no change needed there.
 
-Also check `/myapps` → `t.me/bettyscores_bot/app` uses the same URL.
+Direct links (BotFather → Mini Apps → Direct Links), both now → `https://app.bettyscores.com/`:
+- `t.me/bettyscores_bot/app` — the current one, used by the app's share/invite links and posts.
+  Was already correct.
+- `t.me/bettyscores_bot/bettyscores` — the old April link, kept so old messages and bookmarks
+  still work. It pointed at `https://bettyscores.surge.sh/` (old TON-era copy, slogan
+  "Sniff the score - get TONn of emotions"); fixed. This was the stale link from the
+  12 Jul changelog.
+
+Still optional: cover `deploy/betty-link-cover.png` (640×360, current logo) for both
+links, and the description "Predict football scores, catch Telegram Stars ⭐!".
 
 ## Splash icon — what BotFather accepts
 
