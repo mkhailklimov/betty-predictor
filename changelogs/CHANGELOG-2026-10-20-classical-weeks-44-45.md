@@ -53,3 +53,32 @@ Sheet: Release2.1 rows 20–25 (week 44) and 26–35 (week 45), Picture_name emp
 - Mon 26 Oct: check the cron published week 45 (`weeks` 2026_45 = published, 10 cards).
 - Sun 25 Oct evening: close week 43 together (template in the 19 Oct changelog).
 - Resolving exact-score cards: answer `home:away` (e.g. `2:1`); the result point is automatic.
+
+## Sticker prompts (weeks 44 and 45)
+
+Common start of every prompt: *Comic pop-art sticker, white die-cut border, plain
+white background, landscape (~3:2), halftone dots, energy bursts, speed lines, a
+flip scoreboard showing "? : ?" in the middle.* (Plain white instead of
+"transparent": generators paint a fake checkerboard, white is easier to clean.)
+Save in `frontend/public/stickers/` under these names. Due: week 44 by Sun 25 Oct,
+week 45 by Sun 1 Nov.
+
+Week 44:
+- `LIV_CHE.png` Liverpool vs Chelsea (League Cup): red Liver bird and royal-blue lion clash over a silver cup with big handles, Anfield floodlights, "CUP NIGHT" banner.
+- `CHE_MUN.png` Chelsea vs Man Utd: royal-blue lion faces a red devil with a trident, Stamford Bridge, "BIG GAME" burst.
+- `MCI_BHA.png` Man City vs Brighton: sky-blue eagle and blue-and-white striped seagull duel in the air over a ball, stadium ring.
+- `HUL_IPS.png` Hull vs Ipswich: amber-and-black tiger and blue-and-white tractor on a muddy pitch, "UNDERDOGS" banner.
+- `AVL_FUL.png` Aston Villa vs Fulham: claret-and-blue lion rampant against a white-and-black Thames riverside cottage, Villa Park arches.
+- `LIV_ARS.png` Liverpool vs Arsenal: red Liver bird against a golden cannon firing a ball, the Kop, "THE BIG ONE" burst.
+
+Week 45:
+- `BAR_AVL.png` Barcelona vs Aston Villa: blaugrana stripes and Catalan bat against a claret lion, starball, Camp Nou at night.
+- `MUN_ROM.png` Man Utd vs Roma: red devil against the Roman she-wolf, Old Trafford arch and Colosseum, starball.
+- `FEN_LIV.png` Fenerbahçe vs Liverpool: yellow-and-navy canary against the red Liver bird, Istanbul skyline, starball, yellow flares.
+- `RBL_MCI.png` RB Leipzig vs Man City: two red charging bulls against a sky-blue eagle, Leipzig arena, starball.
+- `SLA_ARS.png` Slavia Prague vs Arsenal: red-and-white Slavia star against a golden cannon, Prague Castle and Charles Bridge, starball.
+- `CRY_HOF.png` Palace vs Hoffenheim: red-and-blue eagle against a blue Hoffenheim emblem, Selhurst Park, orange Europa League ball.
+- `SPA_BOU.png` Sparta Prague vs Bournemouth: dark-red Prague spire and lion against red-and-black cherries, orange Europa ball.
+- `CEL_BES.png` Celtic vs Beşiktaş: green-and-white hooped shamrock against a black eagle, Celtic Park crowd, orange Europa ball.
+- `SUN_DIN.png` Sunderland vs Dinamo Zagreb: red-and-white black cat against a blue Zagreb dragon emblem, Stadium of Light, orange Europa ball.
+- `GET_BHA.png` Getafe vs Brighton: blue Madrid-suburb sun against a blue-and-white striped seagull, sunny Spanish stadium, green Conference League ball.
