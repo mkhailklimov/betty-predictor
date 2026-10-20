@@ -254,7 +254,9 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
       {resolved && myAnswer && (
         <div className={`cc__result ${pointsEarned > 0 ? 'cc__result--win' : 'cc__result--loss'}`}>
           {pointsEarned > 0
-            ? `\u2705 Correct! +${pointsEarned} pts`
+            ? challenge.type === 'exact_score' && pointsEarned < challenge.points
+              ? `\u2705 Right result! +${pointsEarned} pt \u00b7 Score: ${optionLabel(challenge.correct_answer!)}`
+              : `\u2705 Correct! +${pointsEarned} ${pointsEarned === 1 ? 'pt' : 'pts'}`
             : `Result: ${optionLabel(challenge.correct_answer!)} \u00B7 Your pick: ${optionLabel(myAnswer)} \u2014 next one's yours!`}
         </div>
       )}

@@ -1015,7 +1015,14 @@ export default {
           ).bind(challengeId).all();
 
           for (const p of preds) {
-            const earned = p.answer === correctAnswer ? ch.points : 0;
+            // Classical rule on exact-score cards: the exact score earns the card's
+            // points (3), the right result (home win / draw / away win) earns 1.
+            let earned = p.answer === correctAnswer ? ch.points : 0;
+            if (!earned && ch.type === 'exact_score') {
+              const sign = (s) => { const m = /^(\d+):(\d+)$/.exec(String(s || '').trim()); return m ? Math.sign(+m[1] - +m[2]) : null; };
+              const a = sign(p.answer), r = sign(correctAnswer);
+              if (a !== null && a === r) earned = 1;
+            }
             await env.DB.prepare(
               'UPDATE challenge_predictions SET points_earned = ? WHERE id = ?'
             ).bind(earned, p.id).run();
@@ -1738,7 +1745,7 @@ const FIXTURE_SOURCE = 'espn';
 // actually plays: UK clubs, the European cups and national teams. The wider
 // July list (Americas, Asia, other European leagues, women's) is in git history.
 const LEAGUES = [
-  'eng.1', 'eng.2', 'sco.1',
+  'eng.1', 'eng.2', 'sco.1', 'eng.league_cup',
   'uefa.champions', 'uefa.europa', 'uefa.europa.conf',
   'fifa.world', 'uefa.nations', 'uefa.euro',
 ];
@@ -1900,6 +1907,8 @@ const CANDIDATES_HEADER = ['Week ID', 'Source ID', 'League', 'Kickoff UTC', 'Hom
 const CHALLENGES_HEADER = ['Week ID', 'Match Source ID', 'Type', 'Question Text', 'Options', 'Points', 'Correct Answer'];
 const RELEASE21_HEADER = ['Week_start', '#', 'Fixture', 'Challenge', 'Points', 'Picture_name', 'Kickoff UTC', 'Source ID'];
 const RELEASE21_TAB = 'Release2.1';
+// Up to 10 cards a week: six on a normal weekend, ten on a European week.
+const MAX_CHALLENGES = 10;
 
 // The week the app shows. Normally the calendar week; but once every challenge
 // of that week has kicked off and the next week is already published, players
@@ -1993,8 +2002,8 @@ async function publishChallengesFromSheet(env, { weekId, dryRun = false, force =
   if (rows.length < 1) {
     errors.push(`no challenge rows for ${bounds.week_id}`);
   }
-  if (rows.length > 6) {
-    errors.push(`too many challenges for ${bounds.week_id}: ${rows.length} (max 6)`);
+  if (rows.length > MAX_CHALLENGES) {
+    errors.push(`too many challenges for ${bounds.week_id}: ${rows.length} (max ${MAX_CHALLENGES})`);
   }
 
   const VALID_TYPES = new Set(['exact_score', 'will_score', 'will_win', 'over_under', 'clean_sheet', 'first_to_score']);
