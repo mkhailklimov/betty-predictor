@@ -58,3 +58,16 @@ colour when the app appears. A yellow background was tried first and corrected.
 - **Welcome picture** is still the old season's screens (Atlético card). Replace with
   fresh phone-size screenshots (cards, Champions, Hall of Fame) once week 44 opens
   with its stickers; reuse them for the app-center listing.
+
+## App-center history (found today, missed at first) and today's step
+
+- Submission bot is **@tApps_bot**; @app_moderation_bot only posts status updates;
+  humans are **@tapps_center_moderation** (last seen 26.06.2026).
+- 26 Apr submitted → 1 May declined ("focus is web3/TON; games with TON or Stars
+  payments") → 3 May resubmitted with the 50⭐ PRO purchase → 4 May declined, no
+  reason; 5 May "nothing else to add". Another "Declined" status shows in the bot
+  (old TON preview "Sniff the score - get TONn of emotions!").
+- 20 Oct: asked @tapps_center_moderation what is missing, mentioning the fixed links,
+  weekly Stars prizes and the PRO purchase. **Wait for a reply** (a few days); if
+  none, decide whether to resubmit via @tApps_bot with the listing text from this session.
+- Their own suggestion for growth meanwhile: Telegram Ads, social mechanics, other promotion.
