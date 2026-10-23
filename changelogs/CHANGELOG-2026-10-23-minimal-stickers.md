@@ -110,3 +110,9 @@ and mapped by Source ID in `FIXTURE_STICKERS` (`ChallengeCard.tsx`):
 Frontend deployed (Pages fa692df0); all six PNGs return 200 on app.bettyscores.com and the
 mapping is in the live bundle. Week 45: BAR_AVL and MUN_ROM already in `public/stickers/`
 (not yet cleaned or wired); the rest are in progress with the minimalist prompts.
+
+**Deploy gotcha:** `RAYA.png` had been deleted locally (along with six unused old .jpg stickers),
+so the first deploy dropped it from the live site and the week 41 Raya card lost its picture.
+Restored from git and redeployed (Pages 51a2b375); `/stickers/RAYA.png` is an image again.
+Pages deploys whatever is on disk — check `git status` for deleted stickers before deploying.
+The six unused .jpg deletions are left uncommitted for the owner to decide.
