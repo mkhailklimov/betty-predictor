@@ -90,3 +90,23 @@ Minimalist comic-style sticker for a Telegram football prediction game, shown sm
 Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a smiling deep-blue sun. Right: a seagull with blue-and-white stripes. One small green Conference League ball under the scoreboard. Colours: deep blue, sky blue, white.
 ```
 
+
+## Week 44 stickers — live 23 Oct
+
+All six made by the owner (22–23 Oct, earlier busy style; MCI_BHA/HUL_IPS/AVL_FUL were saved in
+`C:\Users\mihel\betty-stickers-originals\`, the other three in `public/stickers/`). Originals are
+backed up there; cleaned with the scratchpad cleaner (border flood-fill, 22 px white edge, 1024 wide)
+and mapped by Source ID in `FIXTURE_STICKERS` (`ChallengeCard.tsx`):
+
+| Source ID | Match | Sticker |
+| --- | --- | --- |
+| 401921842 | Liverpool vs Chelsea (League Cup) | LIV_CHE.png |
+| 401879248 | Chelsea vs Man Utd | CHE_MUN.png |
+| 401879245 | Man City vs Brighton | MCI_BHA.png |
+| 401878763 | Hull vs Ipswich | HUL_IPS.png |
+| 401879250 | Aston Villa vs Fulham | AVL_FUL.png |
+| 401879246 | Liverpool vs Arsenal | LIV_ARS.png |
+
+Frontend deployed (Pages fa692df0); all six PNGs return 200 on app.bettyscores.com and the
+mapping is in the live bundle. Week 45: BAR_AVL and MUN_ROM already in `public/stickers/`
+(not yet cleaned or wired); the rest are in progress with the minimalist prompts.
