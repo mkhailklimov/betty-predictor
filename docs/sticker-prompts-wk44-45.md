@@ -1,103 +1,90 @@
-# Sticker prompts — weeks 44 and 45
+# Sticker prompts — weeks 44 and 45 (minimalist)
 
-Full prompts, one per sticker, ready to copy. Save each picture in `frontend/public/stickers/` under its file name.
+Owner feedback 23 Oct 2026: **minimalist design**, not many bursts and small elements. From now on every sticker prompt uses this style: two characters + the "? : ?" scoreboard, flat colours, white background, no bursts, halftone, crowds, stadiums or extra text.
 
-## Week 44 (26 Oct – 1 Nov) — due Sun 25 Oct
+Already made in the old busy style and kept: `LIV_CHE.png`, `CHE_MUN.png`, `LIV_ARS.png`.
 
-### `LIV_CHE.png` — Liverpool vs Chelsea (League Cup)
+Save each picture in `frontend/public/stickers/` under its file name.
 
-```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A red Liver bird and a royal-blue lion clash over a silver cup with big handles, Anfield floodlights, "CUP NIGHT" banner, red and blue bursts.
-```
+## Week 44 (26 Oct – 1 Nov) — still missing, due Sun 25 Oct
 
-### `CHE_MUN.png` — Chelsea vs Man Utd
+#### `MCI_BHA.png` — Man City vs Brighton
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A royal-blue lion faces a red devil with a trident, Stamford Bridge behind, blue and red lightning, "BIG GAME" burst.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a sky-blue eagle. Right: a seagull with blue-and-white stripes. Colours: sky blue, navy, white.
 ```
 
-### `MCI_BHA.png` — Man City vs Brighton
+#### `HUL_IPS.png` — Hull vs Ipswich
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A sky-blue eagle and a blue-and-white striped seagull duel in the air over a ball, a modern stadium ring behind, sky-blue bursts.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a tiger with amber-and-black stripes. Right: a simple blue tractor with a friendly face. Colours: amber, black, royal blue.
 ```
 
-### `HUL_IPS.png` — Hull vs Ipswich
+#### `AVL_FUL.png` — Aston Villa vs Fulham
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. An amber-and-black striped tiger and a blue-and-white tractor face off on a muddy pitch, "UNDERDOGS" banner, amber and blue bursts.
-```
-
-### `AVL_FUL.png` — Aston Villa vs Fulham
-
-```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A claret-and-blue lion rampant against a white-and-black Thames riverside cottage, red-brick stadium arches behind, claret bursts.
-```
-
-### `LIV_ARS.png` — Liverpool vs Arsenal
-
-```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A red Liver bird against a golden cannon firing a ball, a roaring red stand of fans behind, "THE BIG ONE" burst, red and gold lightning.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a claret lion standing on its hind legs. Right: a small white cottage with a black roof and a cheeky face. Colours: claret, light blue, black, white.
 ```
 
 ## Week 45 (2 – 8 Nov) — due Sun 1 Nov
 
-### `BAR_AVL.png` — Barcelona vs Aston Villa (Champions League)
+#### `BAR_AVL.png` — Barcelona vs Aston Villa (Champions League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. Blue-and-claret Barcelona stripes and a Catalan bat against a claret-and-blue lion, Champions League starball pattern, a huge stadium bowl at night.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a bat with blue-and-garnet stripes. Right: a claret lion. One small white Champions League starball under the scoreboard. Colours: blue, garnet, claret, light blue.
 ```
 
-### `MUN_ROM.png` — Man Utd vs Roma (Champions League)
+#### `MUN_ROM.png` — Man Utd vs Roma (Champions League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A red devil with a trident against the Roman she-wolf, the Colosseum behind, Champions League starball pattern, red and burnt-orange bursts.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a red devil with a trident. Right: a burnt-orange Roman she-wolf. One small white Champions League starball under the scoreboard. Colours: red, burnt orange, gold.
 ```
 
-### `FEN_LIV.png` — Fenerbahçe vs Liverpool (Champions League)
+#### `FEN_LIV.png` — Fenerbahçe vs Liverpool (Champions League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A yellow-and-navy canary against a red Liver bird, Istanbul skyline with domes and minarets, Champions League starball pattern, yellow flares.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a canary in yellow and navy. Right: a red Liver bird. One small white Champions League starball under the scoreboard. Colours: yellow, navy, red.
 ```
 
-### `RBL_MCI.png` — RB Leipzig vs Man City (Champions League)
+#### `RBL_MCI.png` — RB Leipzig vs Man City (Champions League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. Two red charging bulls against a sky-blue eagle, a modern glass arena behind, Champions League starball pattern, red and sky-blue lightning.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a charging red bull. Right: a sky-blue eagle. One small white Champions League starball under the scoreboard. Colours: red, white, sky blue.
 ```
 
-### `SLA_ARS.png` — Slavia Prague vs Arsenal (Champions League)
+#### `SLA_ARS.png` — Slavia Prague vs Arsenal (Champions League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A red-and-white star against a golden cannon firing a ball, Prague Castle and Charles Bridge behind, Champions League starball pattern.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a big red star with a red-and-white face. Right: a golden cannon with a face. One small white Champions League starball under the scoreboard. Colours: red, white, gold.
 ```
 
-### `CRY_HOF.png` — Crystal Palace vs Hoffenheim (Europa League)
+#### `CRY_HOF.png` — Crystal Palace vs Hoffenheim (Europa League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A red-and-blue eagle against a blue-and-white German village crest, a packed London stand, an orange Europa League ball, "EUROPA NIGHT" banner.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: an eagle in red and blue. Right: a royal-blue elk. One small orange Europa League ball under the scoreboard. Colours: red, blue, royal blue, white.
 ```
 
-### `SPA_BOU.png` — Sparta Prague vs Bournemouth (Europa League)
+#### `SPA_BOU.png` — Sparta Prague vs Bournemouth (Europa League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A dark-red lion before Prague's spires against a pair of red-and-black cherries, an orange Europa League ball, dark-red and black bursts.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a dark-red lion. Right: two cherries with red-and-black stripes and faces. One small orange Europa League ball under the scoreboard. Colours: dark red, black, red.
 ```
 
-### `CEL_BES.png` — Celtic vs Beşiktaş (Europa League)
+#### `CEL_BES.png` — Celtic vs Beşiktaş (Europa League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A green-and-white hooped shamrock against a black eagle, a roaring green-and-white crowd behind, an orange Europa League ball.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a shamrock with green-and-white hoops. Right: a black eagle. One small orange Europa League ball under the scoreboard. Colours: green, white, black.
 ```
 
-### `SUN_DIN.png` — Sunderland vs Dinamo Zagreb (Europa League)
+#### `SUN_DIN.png` — Sunderland vs Dinamo Zagreb (Europa League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A red-and-white black cat against a blue dragon, a glowing stadium of light behind, an orange Europa League ball, red and blue bursts.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a black cat with a red-and-white striped scarf. Right: a blue dragon. One small orange Europa League ball under the scoreboard. Colours: red, white, black, royal blue.
 ```
 
-### `GET_BHA.png` — Getafe vs Brighton (Conference League)
+#### `GET_BHA.png` — Getafe vs Brighton (Conference League)
 
 ```
-Comic-style sticker for a Telegram football prediction game (shown on a phone card): pop-art, white die-cut border, plain white background, landscape (~3:2), bold readable shapes, halftone dots, energy bursts, speed lines, a flip scoreboard showing "? : ?" in the middle. A blazing blue Spanish sun against a blue-and-white striped seagull, a sunny Spanish stadium, a green Conference League ball.
+Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". Left: a smiling deep-blue sun. Right: a seagull with blue-and-white stripes. One small green Conference League ball under the scoreboard. Colours: deep blue, sky blue, white.
 ```
+
