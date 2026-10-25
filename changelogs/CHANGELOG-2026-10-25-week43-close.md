@@ -27,3 +27,30 @@ Results from ESPN (all Full Time), resolved at ~17:45 UTC Sun 25 Oct with one ca
 - Send 100 ⭐ to Th7Arvin (tg 8067639990) and 50 ⭐ to Th7Tezar (tg 8775431442) as gifts
   from @bettyscores; after the owner confirms each: `paid 2026_43 1` / `paid 2026_43 2`.
 - Still owed from before: "........" 2026_41 rank 2, 50 ⭐.
+
+## Channel post (posted by the owner, 25 Oct)
+
+```
+🏁 Week 43 is done! Bayern and Arsenal drew 2–2, Haaland scored but Villa beat City 2–1, and Bournemouth won 3–0 at Old Trafford 😬. 🥇 @Th7Arvin wins with 5 pts (100 ⭐), 🥈 @Th7Tezar takes 50 ⭐. All Stars will be delivered soon ✨ Week 44 is open, starting with Liverpool vs Chelsea on Wednesday. Make your picks 👉 t.me/bettyscores_bot/app
+```
+
+## "........" (tg 8237993213), 2026_41 rank 2, 50 ⭐ — still unpaid
+
+- No activity since 9 Oct 2026 (no picks in weeks 42–44); no username, so reachable only via the bot.
+- First bot message 19 Oct (message id 52), no reply.
+- Second reminder drafted 25 Oct (below). **Not sent by Claude** — the owner wrote "sent"; unclear
+  whether they sent it themselves. If not, send with `betty-admin.sh notify 8237993213 <file>`.
+  If still no answer, stop chasing and keep the prize open.
+
+```
+Hi! 👋 You finished 2nd in Betty Scores week 41 and won 50 ⭐ — we still can't deliver them because your account has no username. Just send any message to @bettyscores and we'll send your Stars right away. Week 44 is open too — Liverpool vs Chelsea on Wednesday! 👉 t.me/bettyscores_bot/app
+```
+
+## Next session
+
+- Pay Th7Arvin 100 ⭐ and Th7Tezar 50 ⭐; mark each with `paid 2026_43 1|2` after the owner confirms.
+- **Connect Claude to the Betty Telegram channel** (owner's idea): make the bot a channel admin and
+  add an admin route (like `/api/admin/notify`) that posts a text to the channel, so results posts
+  can be published directly after the owner approves each text.
+- Week 45 stickers (2 of 10 in the folder) — wire up when all are in.
+- Mon 26 Oct: check week 45 auto-published (10 cards).
