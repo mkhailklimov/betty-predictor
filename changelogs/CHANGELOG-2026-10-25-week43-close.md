@@ -54,3 +54,14 @@ Hi! 👋 You finished 2nd in Betty Scores week 41 and won 50 ⭐ — we still ca
   can be published directly after the owner approves each text.
 - Week 45 stickers (2 of 10 in the folder) — wire up when all are in.
 - Mon 26 Oct: check week 45 auto-published (10 cards).
+
+## 27 Oct — prizes paid
+
+Owner sent 100 ⭐ to Th7Arvin and 50 ⭐ to Th7Tezar with personal messages (gold: first win +
+PRO avatar tip; silver: "two accounts is clever, but share with friends" + channel
+t.me/bettyscores_channel, 7 subscribers). Marked: `paid 2026_43 1` and `paid 2026_43 2` → changed 1 each.
+Owner suspects Th7Arvin and Th7Tezar are one person; no rule against it yet (option: "one account,
+one prize per person per week" in the published rules).
+
+Audience snapshot: 321 users, only 27 with Telegram (rest browser guests, 181 new in Oct).
+Weekly players: wk41 20 (7 TG) → wk42 4 → wk43 5 → wk44 5 so far.
