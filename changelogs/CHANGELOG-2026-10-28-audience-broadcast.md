@@ -27,3 +27,15 @@
 - `notify` also takes a 4th arg, a picture URL (sent with `sendPhoto`, text as caption), and accepts `@channel` as target (button becomes a t.me link there, since `web_app` buttons only work in private chats). Worker version 0d6dd14a.
 - Second test (with LIV_CHE.png, button "Make my pick") approved by the owner, then broadcast to 24 Telegram users: **18 delivered, 6 have blocked the bot** (500886298, 6034210172, 1699233542, 864596273, 7707147409, 7174602152) — drop them from future lists.
 - Bot is now an admin of @bettyscores_channel (owner, 28 Oct). Channel posts are always shown to the owner before sending.
+
+## First channel post (drafted, approved, NOT yet sent)
+- Text in `deploy/channel-post-2026-10-28-cup-night.txt`: cup night Liverpool–Chelsea + FindMini listing + 100/50 Stars. Picture LIV_CHE.png, button "Play Betty" (t.me/bettyscores_bot/app).
+- Owner: no emoji, looks more professional. Keep bot and channel texts emoji-free.
+- Sending was blocked by the permission check; send with
+  `bash scripts/betty-admin.sh notify @bettyscores_channel deploy/channel-post-2026-10-28-cup-night.txt "Play Betty" "https://app.bettyscores.com/stickers/LIV_CHE.png"`
+  (must go out before 20:00 UTC to make sense).
+
+## Next
+- Owner today: week 45 stickers (5/10 raw in frontend/public/stickers so far) + Liverpool–Chelsea video.
+- Me: clean + wire week 45 stickers before Sun 1 Nov; build the guest → Telegram prompt (plan item 1).
+- Git push needs the owner to sign in to GitHub once (`git push origin HEAD:main` in a terminal); commits since 27 Oct are local only.
