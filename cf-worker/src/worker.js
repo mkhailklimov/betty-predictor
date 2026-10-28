@@ -700,8 +700,10 @@ export default {
       }
 
       // --- Admin: send one message from the bot to one player (prize notices) ---
-      // POST /api/admin/notify  {"tg_id": "123", "text": "...", "button": "Open Betty"}
+      // POST /api/admin/notify  {"tg_id": "123", "text": "...", "button": "Open Betty", "photo": "https://..."}
       // "button" is optional: adds one button under the message that opens the Mini App.
+      // "photo" is optional: sends the picture with the text as its caption (max 1024 chars).
+      // tg_id may also be "@channelname" when the bot is an admin of that channel.
       if (method === 'POST' && path === '/api/admin/notify') {
         const token = getToken(request);
         if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
@@ -711,16 +713,22 @@ export default {
         const tgId = String(body.tg_id || '');
         const text = String(body.text || '');
         const button = String(body.button || '').slice(0, 40);
-        if (!/^\d{5,15}$/.test(tgId) || !text || text.length > 2000) {
-          return json({ detail: 'tg_id (digits) and text (1-2000 chars) required' }, 400);
+        const photo = String(body.photo || '');
+        const isChannel = /^@[A-Za-z0-9_]{5,32}$/.test(tgId);
+        if (!(isChannel || /^\d{5,15}$/.test(tgId)) || !text || text.length > (photo ? 1024 : 2000)) {
+          return json({ detail: 'tg_id (digits or @channel) and text (1-2000 chars, 1024 with photo) required' }, 400);
         }
-        const msg = { chat_id: tgId, text };
+        if (photo && !photo.startsWith('https://')) return json({ detail: 'photo must be an https URL' }, 400);
+        const msg = photo ? { chat_id: tgId, photo, caption: text } : { chat_id: tgId, text };
         if (button) {
+          // web_app buttons only work in private chats; a channel gets a plain link to the Mini App.
           msg.reply_markup = {
-            inline_keyboard: [[{ text: button, web_app: { url: 'https://app.bettyscores.com' } }]],
+            inline_keyboard: [[isChannel
+              ? { text: button, url: 'https://t.me/bettyscores_bot/app' }
+              : { text: button, web_app: { url: 'https://app.bettyscores.com' } }]],
           };
         }
-        const tg = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
+        const tg = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/${photo ? 'sendPhoto' : 'sendMessage'}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(msg),

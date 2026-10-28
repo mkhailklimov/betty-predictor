@@ -12,8 +12,8 @@
 #   bash scripts/betty-admin.sh resolve 2026_42 <challenge_id>=<answer> ...   set results and award points
 #   bash scripts/betty-admin.sh rebuild                rebuild silver + gold marts (Champions, Hall of Fame)
 #   bash scripts/betty-admin.sh paid 2026_41 1         mark a Stars prize paid (week or bonus_N, rank) — only after it was sent
-#   bash scripts/betty-admin.sh notify <tg_id> msg.txt ["Open Betty"]  one bot message to one player (+ optional Mini App button)
-#   bash scripts/betty-admin.sh broadcast ids.txt msg.txt "Open Betty"  same message (+ optional Mini App button) to many players
+#   bash scripts/betty-admin.sh notify <tg_id|@channel> msg.txt ["Open Betty"] [photo_url]  one bot message (+ optional Mini App button, picture)
+#   bash scripts/betty-admin.sh broadcast ids.txt msg.txt "Open Betty" [photo_url]  same message (+ optional button, picture) to many players
 #   bash scripts/betty-admin.sh deploy-worker          npx wrangler deploy (cf-worker)
 #   bash scripts/betty-admin.sh deploy-frontend        build + wrangler pages deploy to app.bettyscores.com
 set -euo pipefail
@@ -91,12 +91,14 @@ case "$cmd" in
     admin_post "/api/admin/prizes/$week/paid?rank=$rank"; echo
     ;;
   notify)
-    # One message from the bot to one player; the text is read from a file (UTF-8).
+    # One message from the bot to one player (or "@channel"); the text is read from a file (UTF-8).
     # Optional 3rd arg: label of a button under the message that opens the Mini App.
-    tg="${1:-}"; file="${2:-}"; button="${3:-}"
-    [[ "$tg" =~ ^[0-9]{5,15}$ ]] || { echo "tg_id must be digits" >&2; exit 2; }
+    # Optional 4th arg: https URL of a picture; the text becomes its caption.
+    tg="${1:-}"; file="${2:-}"; button="${3:-}"; photo="${4:-}"
+    [[ "$tg" =~ ^([0-9]{5,15}|@[A-Za-z0-9_]{5,32})$ ]] || { echo "tg_id must be digits or @channel" >&2; exit 2; }
     [ -s "$file" ] || { echo "give a text file with the message" >&2; exit 2; }
-    body="$(node -e 'const fs=require("fs");console.log(JSON.stringify({tg_id:process.argv[1],text:fs.readFileSync(process.argv[2],"utf8").trim(),button:process.argv[3]||""}))' "$tg" "$file" "$button")"
+    # Non-ASCII goes as \uXXXX escapes: emoji passed raw through the Windows command line arrive as "?".
+    body="$(node -e 'const fs=require("fs");const [tg,f,button,photo]=process.argv.slice(1);console.log(JSON.stringify({tg_id:tg,text:fs.readFileSync(f,"utf8").trim(),button:button||"",photo:photo||""}).replace(/[\u007f-￿]/g,c=>"\\u"+c.charCodeAt(0).toString(16).padStart(4,"0")))' "$tg" "$file" "$button" "$photo")"
     [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
     curl -sS -X POST -H "Authorization: Bearer $(tr -d '\r\n' < "$TOKEN_FILE")" \
       -H "Content-Type: application/json" -d "$body" "$API/api/admin/notify"
@@ -104,10 +106,10 @@ case "$cmd" in
     ;;
   broadcast)
     # The same message to every tg_id listed in a file (one per line, "#" = comment).
-    ids="${1:-}"; file="${2:-}"; button="${3:-}"
+    ids="${1:-}"; file="${2:-}"; button="${3:-}"; photo="${4:-}"
     [ -s "$ids" ] || { echo "give a file with tg_ids, one per line" >&2; exit 2; }
     grep -oE '^[0-9]{5,15}' "$ids" | while read -r tg; do
-      echo -n "$tg "; bash "$0" notify "$tg" "$file" "$button"
+      echo -n "$tg "; bash "$0" notify "$tg" "$file" "$button" "$photo"
       sleep 0.2
     done
     ;;
