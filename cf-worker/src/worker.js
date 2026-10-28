@@ -700,7 +700,8 @@ export default {
       }
 
       // --- Admin: send one message from the bot to one player (prize notices) ---
-      // POST /api/admin/notify  {"tg_id": "123", "text": "..."}
+      // POST /api/admin/notify  {"tg_id": "123", "text": "...", "button": "Open Betty"}
+      // "button" is optional: adds one button under the message that opens the Mini App.
       if (method === 'POST' && path === '/api/admin/notify') {
         const token = getToken(request);
         if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
@@ -709,13 +710,20 @@ export default {
         const body = await request.json().catch(() => ({}));
         const tgId = String(body.tg_id || '');
         const text = String(body.text || '');
+        const button = String(body.button || '').slice(0, 40);
         if (!/^\d{5,15}$/.test(tgId) || !text || text.length > 2000) {
           return json({ detail: 'tg_id (digits) and text (1-2000 chars) required' }, 400);
+        }
+        const msg = { chat_id: tgId, text };
+        if (button) {
+          msg.reply_markup = {
+            inline_keyboard: [[{ text: button, web_app: { url: 'https://app.bettyscores.com' } }]],
+          };
         }
         const tg = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: tgId, text }),
+          body: JSON.stringify(msg),
         });
         const res = await tg.json().catch(() => ({}));
         return res.ok
