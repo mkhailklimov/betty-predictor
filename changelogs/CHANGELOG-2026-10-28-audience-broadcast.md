@@ -21,3 +21,9 @@
 ## Catalogs
 - FindMini.app: listed — https://findmini.app/bettyscores_bot/ (Stars, Prediction Markets, Fitness and Sports).
 - tApps Center: no reply yet from @tapps_center_moderation; owner to check @app_moderation_bot.
+
+## Liverpool–Chelsea invite sent (28 Oct, ~07:00 UTC)
+- First test arrived with "?" instead of emoji/dash: the JSON body went through the Windows command line in the ANSI codepage. Fixed: the script now sends non-ASCII as `\uXXXX` escapes. Text rewritten without emoji anyway.
+- `notify` also takes a 4th arg, a picture URL (sent with `sendPhoto`, text as caption), and accepts `@channel` as target (button becomes a t.me link there, since `web_app` buttons only work in private chats). Worker version 0d6dd14a.
+- Second test (with LIV_CHE.png, button "Make my pick") approved by the owner, then broadcast to 24 Telegram users: **18 delivered, 6 have blocked the bot** (500886298, 6034210172, 1699233542, 864596273, 7707147409, 7174602152) — drop them from future lists.
+- Bot is now an admin of @bettyscores_channel (owner, 28 Oct). Channel posts are always shown to the owner before sending.
