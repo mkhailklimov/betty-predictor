@@ -14,6 +14,8 @@
 #   bash scripts/betty-admin.sh paid 2026_41 1         mark a Stars prize paid (week or bonus_N, rank) — only after it was sent
 #   bash scripts/betty-admin.sh notify <tg_id|@channel> msg.txt ["Open Betty"] [photo_url]  one bot message (+ optional Mini App button, picture)
 #   bash scripts/betty-admin.sh broadcast ids.txt msg.txt "Open Betty" [photo_url]  same message (+ optional button, picture) to many players
+#   bash scripts/betty-admin.sh sheet                  show the Release2.1 tab of Betty_Master_Data (with row numbers)
+#   bash scripts/betty-admin.sh sheet-add rows.tsv     append rows to Release2.1 (8 tab-separated cells per line)
 #   bash scripts/betty-admin.sh deploy-worker          npx wrangler deploy (cf-worker)
 #   bash scripts/betty-admin.sh deploy-frontend        build + wrangler pages deploy to app.bettyscores.com
 set -euo pipefail
@@ -22,7 +24,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 API="https://api.bettyscores.com"
 TOKEN_FILE="$ROOT/cf-worker/.admin-token"
 
-usage() { sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
 admin_post() {  # admin_post <path?query>
   [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
@@ -50,6 +52,22 @@ cmd="${1:-}"; shift || true
 case "$cmd" in
   ingest)
     admin_post "/api/admin/ingest-fixtures?sheet=0" | summarize
+    ;;
+  sheet)
+    [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
+    curl -sS -H "Authorization: Bearer $(tr -d '\r\n' < "$TOKEN_FILE")" "$API/api/admin/sheet/release21" |
+      node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);
+        if(!j.rows){console.log(s);process.exit(1)} for(const r of j.rows) console.log(r.join(" | "))})'
+    ;;
+  sheet-add)
+    # Rows from a UTF-8 file, one per line, cells separated by tabs; non-ASCII is \u-escaped (see notify).
+    file="${1:-}"
+    [ -s "$file" ] || { echo "give a file with tab-separated rows" >&2; exit 2; }
+    body="$(node -e 'const rows=require("fs").readFileSync(process.argv[1],"utf8").split(/\r?\n/).filter(l=>l.trim()).map(l=>l.split("\t"));console.log(JSON.stringify({rows}).replace(/[\u007f-￿]/g,c=>"\\u"+c.charCodeAt(0).toString(16).padStart(4,"0")))' "$file")"
+    [ -s "$TOKEN_FILE" ] || { echo "missing $TOKEN_FILE" >&2; exit 1; }
+    curl -sS -X POST -H "Authorization: Bearer $(tr -d '\r\n' < "$TOKEN_FILE")" \
+      -H "Content-Type: application/json" -d "$body" "$API/api/admin/sheet/release21"
+    echo
     ;;
   publish)
     week="${1:-}"; shift || true

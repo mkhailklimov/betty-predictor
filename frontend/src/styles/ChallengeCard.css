@@ -53,6 +53,30 @@
 }
 
 /* Hero icon when no match is linked */
+/* National-team weeks: the two World Cup team cards side by side. */
+.cc__team-cards {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 auto 1.1rem;
+}
+
+.cc__team-cards img {
+  width: 40%;
+  max-width: 150px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 3px solid #fff;
+}
+
+.cc__team-cards-vs {
+  font-weight: 800;
+  color: #ffd90f;
+  font-size: 1.1rem;
+}
+
 .cc__icon-hero {
   text-align: center;
   background: rgba(20, 44, 18, 0.35);
@@ -180,6 +204,7 @@
 
 /* Kick-off has passed: read-only, reachable with Prev but never the default card. */
 .cc--locked .cc__illustration,
+.cc--locked .cc__team-cards,
 .cc--locked .cc__icon-hero,
 .cc--locked .cc__options,
 .cc--locked .cc__reels {

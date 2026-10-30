@@ -987,6 +987,36 @@ export default {
       }
 
       // --- Admin: publish challenges from the Release2.1 sheet tab → D1 ---
+      // GET  /api/admin/sheet/release21          → all rows of the Release2.1 tab (with row numbers)
+      // POST /api/admin/sheet/release21 {"rows": [[Week_start, #, Fixture, Challenge, Points,
+      //      Picture_name, Kickoff UTC, Source ID], ...]}  → appends rows after the last one.
+      // Only this tab is reachable, so the routes can't touch Users/Bets/Prizes mirrors.
+      if (path === '/api/admin/sheet/release21' && (method === 'GET' || method === 'POST')) {
+        const adminToken = getToken(request);
+        if (!env.ADMIN_TOKEN || adminToken !== env.ADMIN_TOKEN) {
+          return json({ detail: 'Unauthorized' }, 401);
+        }
+        const sa = JSON.parse(env.GOOGLE_SA_JSON);
+        const gToken = await getGoogleAccessToken(sa);
+        const sid = env.SHEETS_SPREADSHEET_ID;
+        if (method === 'GET') {
+          const res = await sheetsFetch(
+            `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodeURIComponent(RELEASE21_TAB + '!A1:H')}`, gToken, 'GET');
+          return json({ rows: (res.values || []).map((r, i) => [i + 1, ...r]) });
+        }
+        const body = await request.json().catch(() => ({}));
+        const rows = Array.isArray(body.rows) ? body.rows : [];
+        const ok = rows.length > 0 && rows.length <= 12 && rows.every((r) =>
+          Array.isArray(r) && r.length === RELEASE21_HEADER.length &&
+          /^(\d{4}_\d{2}|\d{4}-\d{2}-\d{2})$/.test(String(r[0])) && /^\d{6,12}$/.test(String(r[7])));
+        if (!ok) return json({ detail: 'rows: 1-12 rows of 8 cells, Week_start like 2026-11-09 or 2026_46, Source ID digits' }, 400);
+        const res = await sheetsFetch(
+          `https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodeURIComponent(RELEASE21_TAB + '!A:H')}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+          // # and Points as numbers (like the hand-typed rows); the rest as text.
+          gToken, 'POST', { values: rows.map((r) => r.map((c, i) => (i === 1 || i === 4 ? Number(c) : String(c)))) });
+        return json({ ok: true, updated_range: res.updates && res.updates.updatedRange, rows: rows.length });
+      }
+
       // POST /api/admin/publish-challenges?dry=1&week=2026_37
       //   force=1  replace a week that already has predictions (deletes them)
       if (method === 'POST' && path === '/api/admin/publish-challenges') {

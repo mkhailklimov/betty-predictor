@@ -1,6 +1,7 @@
 import React from 'react'
 import { Challenge } from '../types'
 import { ScoreReels } from './ScoreReels'
+import { getCardImage } from '../data/matches'
 import '../styles/ChallengeCard.css'
 
 interface ChallengeCardProps {
@@ -142,6 +143,12 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
   const sticker = stickerKey
     ? RELEASE21_STICKERS[stickerKey]
     : (challenge.source_id && FIXTURE_STICKERS[challenge.source_id]) || null
+  // National-team weeks: with no fixture sticker, show both World Cup team cards.
+  // Only for national-team leagues: club codes can collide (Porto is "POR").
+  const isNational = /^(uefa\.nations|uefa\.euro|fifa\.)/.test(m?.league ?? '')
+  const homeCard = sticker || !isNational ? null : getCardImage(m?.code_home ?? null)
+  const awayCard = sticker || !isNational ? null : getCardImage(m?.code_away ?? null)
+  const teamCards = homeCard && awayCard ? { home: homeCard, away: awayCard } : null
   const homeName = challenge.home_team || m?.home_team || null
   const awayName = challenge.away_team || m?.away_team || null
   const fixture = stickerKey === '5'
@@ -220,7 +227,15 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
         />
       )}
 
-      {!sticker && (
+      {teamCards && (
+        <div className="cc__team-cards">
+          <img src={teamCards.home} alt={m?.home_team ?? ''} />
+          <span className="cc__team-cards-vs">vs</span>
+          <img src={teamCards.away} alt={m?.away_team ?? ''} />
+        </div>
+      )}
+
+      {!sticker && !teamCards && (
         <div className="cc__icon-hero">
           <span className="cc__icon-large">{icon}</span>
         </div>
