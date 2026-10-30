@@ -39,3 +39,8 @@ came through a tracking link yet.
 - YouTube: `https://app.bettyscores.com/?ref=youtube`
 - Facebook: `https://app.bettyscores.com/?ref=facebook`
   (stored as `users.ref_source`, so we can count players per platform).
+
+## Promotion plan (owner, 30 Oct)
+- YouTube channel "Betty" already exists; a Facebook group will be created. Reels start with
+  Barcelona vs Aston Villa (Tue 3 Nov). For each reel, the owner asks how to add the game link
+  (use the `?ref=` links above).
