@@ -95,6 +95,17 @@ const FIXTURE_STICKERS: Record<string, { src: string; alt: string }> = {
   '401878763': { src: '/stickers/HUL_IPS.png', alt: 'Hull City versus Ipswich Town, underdogs' },
   '401879250': { src: '/stickers/AVL_FUL.png', alt: 'Aston Villa versus Fulham' },
   '401879246': { src: '/stickers/LIV_ARS.png', alt: 'Liverpool versus Arsenal, the big one' },
+  // 2026_45 — European week
+  '401915387': { src: '/stickers/BAR_AVL.png', alt: 'Barcelona versus Aston Villa, Champions League night' },
+  '401915308': { src: '/stickers/MUN_ROM.png', alt: 'Manchester United versus Roma, Champions League' },
+  '401915382': { src: '/stickers/FEN_LIV.png', alt: 'Fenerbahce versus Liverpool in Istanbul' },
+  '401915306': { src: '/stickers/RBL_MCI.png', alt: 'RB Leipzig versus Manchester City' },
+  '401915381': { src: '/stickers/SLA_ARS.png', alt: 'Slavia Prague versus Arsenal' },
+  '401915526': { src: '/stickers/CRY_HOF.png', alt: 'Crystal Palace versus Hoffenheim, Europa night' },
+  '401915528': { src: '/stickers/SPA_BOU.png', alt: 'Sparta Prague versus Bournemouth, Europa night' },
+  '401915522': { src: '/stickers/CEL_BES.png', alt: 'Celtic versus Besiktas, Europa night' },
+  '401915523': { src: '/stickers/SUN_DIN.png', alt: 'Sunderland versus Dinamo Zagreb' },
+  '401915821': { src: '/stickers/GET_BHA.png', alt: 'Getafe versus Brighton, Conference League' },
 }
 
 export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked, onPredict }) => {
