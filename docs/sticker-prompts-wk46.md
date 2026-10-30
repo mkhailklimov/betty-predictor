@@ -1,69 +1,61 @@
 # Week 46 (9 – 15 Nov 2026) — Nations League week
 
-International break: no club football in the feed, only UEFA Nations League (Thu 12 – Sun 15 Nov).
+International break: no club football in the feed, only UEFA Nations League.
 Classical format: every card is "predict the exact score", 3 points exact / 1 point right result.
 
-## Rows for the sheet (Betty_Master_Data → Release2.1, after row 35)
+## Cards (in the sheet: Release2.1 rows 36–41, test publish ok)
 
-Tab-separated: paste into column A of the first empty row and the columns fill themselves.
+| # | Kickoff (UTC) | Match | Source ID |
+|---|---|---|---|
+| 1 | Thu 12 Nov 19:45 | England vs Croatia | 401861150 |
+| 2 | Fri 13 Nov 19:45 | Scotland vs North Macedonia | 401861161 |
+| 3 | Sat 14 Nov 17:00 | Norway vs Wales | 401861165 |
+| 4 | Sat 14 Nov 19:45 | Austria vs Republic of Ireland | 401861170 |
+| 5 | Sat 14 Nov 19:45 | Northern Ireland vs Ukraine | 401861169 |
+| 6 | Sun 15 Nov 19:45 | Spain vs England | 401861175 |
 
-```
-2026_46	1	England vs Croatia	England vs Croatia — predict the exact score!	3	ENG_CRO.png	2026-11-12T19:45Z	401861150
-2026_46	2	Italy vs France	Italy vs France — predict the exact score!	3	ITA_FRA.png	2026-11-12T19:45Z	401861151
-2026_46	3	Serbia vs Germany	Serbia vs Germany — predict the exact score!	3	SRB_GER.png	2026-11-13T19:45Z	401861158
-2026_46	4	Scotland vs North Macedonia	Scotland vs North Macedonia — predict the exact score!	3	SCO_MKD.png	2026-11-13T19:45Z	401861161
-2026_46	5	Norway vs Wales	Norway vs Wales — predict the exact score!	3	NOR_WAL.png	2026-11-14T17:00Z	401861165
-2026_46	6	Portugal vs Denmark	Portugal vs Denmark — predict the exact score!	3	POR_DEN.png	2026-11-14T19:45Z	401861167
-2026_46	7	Austria vs Republic of Ireland	Austria vs Republic of Ireland — predict the exact score!	3	AUT_IRL.png	2026-11-14T19:45Z	401861170
-2026_46	8	Spain vs England	Spain vs England — predict the exact score!	3	ESP_ENG.png	2026-11-15T19:45Z	401861175
-```
+## Pictures: World Cup team cards
 
-Possible extras (up to 10 cards): Northern Ireland vs Ukraine (Sat 14 Nov 19:45, 401861169),
-Belgium vs Italy (Sun 15 Nov 19:45, 401861176).
+No match stickers this week. A national-team card with no sticker shows the two World Cup
+team cards side by side (`frontend/public/teams/Cards/<CODE>.png`, list in `TEAM_CARDS`,
+`frontend/src/data/matches.ts`). A card shows the pair only when **both** teams have a card;
+otherwise it falls back to the icon.
 
-## Sticker prompts
+Have: ENG, CRO, SCO, NOR, AUT, ESP.
+**Missing (5): MKD North Macedonia, WAL Wales, IRL Republic of Ireland, NIR Northern Ireland, UKR Ukraine.**
+Without them, only England–Croatia and Spain–England show pictures.
 
-`ENG_CRO.png` already exists (September), so it is reused. Seven new stickers. Save each in
-`C:\Users\mihel\betty-stickers-originals\` (or `frontend/public/stickers/`) under its file name.
+To add one: save a square PNG (1024×1024) as `frontend/public/teams/Cards/<CODE>.png`, add
+`<CODE>: true` to `TEAM_CARDS`, bump `CARD_ASSETS_VERSION`, deploy the frontend.
 
-#### `ITA_FRA.png` — Italy vs France
+### Prompts in the World Cup card style (square, a player in the national kit before the flag)
 
-```
-Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". On the left an Italian knight in an azure tunic with a round shield; on the right a proud French rooster in blue, white and red.
-```
-
-#### `SRB_GER.png` — Serbia vs Germany
+#### `MKD.png` — North Macedonia
 
 ```
-Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". On the left a white double-headed eagle on a red shield; on the right a black eagle with red claws on a gold shield.
+Square comic-style football card illustration, bold clean outlines, bright saturated colours. A footballer in North Macedonia's red kit with yellow details runs towards the viewer, fists clenched in celebration, number 10 on the shirt. Behind him fills the whole background: a large waving North Macedonian flag, a golden-yellow sun with eight broadening rays on red. No text, no logos, no real person's likeness.
 ```
 
-#### `SCO_MKD.png` — Scotland vs North Macedonia
+#### `WAL.png` — Wales
 
 ```
-Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". On the left a red lion rampant in a navy-blue kit; on the right a smiling golden sun with eight rays on a red disc.
+Square comic-style football card illustration, bold clean outlines, bright saturated colours. A footballer in Wales's red kit runs towards the viewer, arms wide in celebration, number 11 on the shirt. Behind him fills the whole background: a large waving Welsh flag, a red dragon on white and green halves. No text, no logos, no real person's likeness.
 ```
 
-#### `NOR_WAL.png` — Norway vs Wales
+#### `IRL.png` — Republic of Ireland
 
 ```
-Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". On the left a tall blond Viking striker in a red kit with a ball at his feet; on the right a red Welsh dragon breathing a small flame.
+Square comic-style football card illustration, bold clean outlines, bright saturated colours. A footballer in Ireland's green kit with white shorts runs towards the viewer, fist raised in celebration, number 9 on the shirt. Behind him fills the whole background: a large waving Irish tricolour, vertical green, white and orange stripes. No text, no logos, no real person's likeness.
 ```
 
-#### `POR_DEN.png` — Portugal vs Denmark
+#### `NIR.png` — Northern Ireland
 
 ```
-Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". On the left a Portuguese navigator in a dark-red kit holding a golden armillary sphere; on the right a Danish Viking with a red shield bearing a white cross.
+Square comic-style football card illustration, bold clean outlines, bright saturated colours. A footballer in Northern Ireland's green kit with white trim runs towards the viewer, pointing to the sky in celebration, number 7 on the shirt. Behind him fills the whole background: a waving green and white stadium banner with a white shamrock pattern. No text, no logos, no flags, no real person's likeness.
 ```
 
-#### `AUT_IRL.png` — Austria vs Republic of Ireland
+#### `UKR.png` — Ukraine
 
 ```
-Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". On the left a black eagle with a red-white-red shield on its chest; on the right a golden Irish harp with a big green shamrock.
-```
-
-#### `ESP_ENG.png` — Spain vs England
-
-```
-Minimalist comic-style sticker for a Telegram football prediction game, shown small on a phone card. Clean flat illustration with thick bold outlines, large simple shapes and plenty of empty space; only two characters and a scoreboard, nothing else. White die-cut border, plain white background, landscape (~3:2). No bursts, no halftone dots, no speed lines, no crowd, no stadium, no small background details, no extra text. In the centre a simple flip scoreboard showing "? : ?". On the left a strong red bull with golden horns; on the right a white lion with a small crown in a white England kit.
+Square comic-style football card illustration, bold clean outlines, bright saturated colours. A footballer in Ukraine's yellow kit with blue details runs towards the viewer, both arms up in celebration, number 10 on the shirt. Behind him fills the whole background: a large waving Ukrainian flag, blue over yellow. No text, no logos, no real person's likeness.
 ```
