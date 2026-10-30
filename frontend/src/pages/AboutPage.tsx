@@ -53,8 +53,10 @@ export const AboutPage: React.FC = () => {
         </div>
         <p className="scoring-note">
           Tie-break: if two players have the same points, the one who placed
-          their last prediction earlier wins. Guest players are not eligible for
-          prizes until they log in with Telegram.
+          their last prediction earlier wins. Playing in a browser? Pick a
+          nickname to compete for prizes. A browser winner collects the Stars by
+          opening Betty in Telegram from the same browser within 14 days. One
+          prize per person per week.
         </p>
         <p className="scoring-note">
           Participation is free and voluntary. The organisers are not obligated to

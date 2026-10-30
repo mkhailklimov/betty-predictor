@@ -1,0 +1,50 @@
+/* Nickname prompt for browser guests, above the challenge cards. */
+.nick-bar {
+  background: rgba(20, 44, 18, 0.55);
+  border: 2px solid #ffd90f;
+  border-radius: 14px;
+  padding: 0.7rem 0.8rem;
+  margin: 0 0 0.9rem;
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.nick-bar--done {
+  text-align: center;
+}
+
+.nick-bar__row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+
+.nick-bar__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.65rem;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+}
+
+.nick-bar__btn {
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: none;
+  background: #ffd90f;
+  color: #1a3a18;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.nick-bar__btn:disabled {
+  opacity: 0.6;
+}
+
+.nick-bar__error {
+  margin-top: 0.4rem;
+  color: #ffb4a8;
+  font-size: 0.85rem;
+}

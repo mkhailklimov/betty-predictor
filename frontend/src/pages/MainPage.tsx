@@ -1,5 +1,6 @@
 import React from 'react'
 import { ChallengeCard } from '../components/ChallengeCard'
+import { NicknameBar } from '../components/NicknameBar'
 import { challengesApi } from '../services/api'
 import { Challenge } from '../types'
 import '../styles/MainPage.css'
@@ -204,6 +205,7 @@ export const MainPage: React.FC = () => {
 
   return (
     <div className="main-page">
+      <NicknameBar />
       <div className="page-header">
         <div className="progress-bar">
           <div

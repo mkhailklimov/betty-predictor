@@ -27,6 +27,14 @@ const ALLOWED_TEAMS = new Set(AVATARS.map(a => a.code));
 // 2026-10-11). Not ranked, so never awarded a Stars prize.
 const INTERNAL_TG_IDS = new Set(['1056798742', '8513208258', '7653593987', 'test_123', '8995334871']);
 
+// Who can be ranked for the weekly Stars: Telegram players, and browser guests
+// who chose a nickname (default guest name is 'Guest'). Takes a silver dimUser row.
+function isPrizeEligible(u) {
+  if (u.is_internal) return false;
+  if (!String(u.tg_id).startsWith('guest:')) return true;
+  return !!u.username && u.username !== 'Guest';
+}
+
 // Canonical scoring — the ONE place scoring is defined.
 //   correct outcome (1/X/2)            → 1 point
 //   exact score (implies outcome)      → 3 points TOTAL (not 1+3)
@@ -264,6 +272,17 @@ export default {
           moved++;
         }
 
+        // Release 2.1 card picks move too (the real account's pick wins a conflict),
+        // and a prize the guest won (nickname player) moves with them: this is the claim.
+        const cpMoved = await env.DB.prepare(
+          `UPDATE challenge_predictions SET user_id = ?
+           WHERE user_id = ? AND challenge_id NOT IN
+             (SELECT challenge_id FROM challenge_predictions WHERE user_id = ?)`
+        ).bind(real.id, guest.id, real.id).run();
+        const prizesMoved = await env.DB.prepare(
+          'UPDATE weekly_prizes SET user_id = ? WHERE user_id = ?'
+        ).bind(real.id, guest.id).run();
+
         // Tombstone the guest row.
         await env.DB.prepare(
           'UPDATE users SET merged_into = ?, updated_at = datetime("now") WHERE id = ?'
@@ -276,7 +295,38 @@ export default {
           ).bind(moved, real.id).run();
         }
 
-        return json({ ok: true, merged: moved, user: real });
+        // Champions / Hall of Fame show the picks under the Telegram account at once.
+        const changes = (r) => (r.meta ? r.meta.changes : r.changes) || 0;
+        if (changes(cpMoved) > 0 || changes(prizesMoved) > 0) {
+          try { await rebuildMarts(env); } catch (e) { console.error('marts after merge failed', e); }
+        }
+
+        return json({
+          ok: true, merged: moved, user: real,
+          card_picks: changes(cpMoved), prizes: changes(prizesMoved),
+        });
+      }
+
+      // A browser guest picks a nickname (e.g. their YouTube or Facebook name).
+      // With a nickname the guest is ranked for the weekly Stars (see isPrizeEligible).
+      // POST /api/user/nickname {"nickname": "..."}  (guest auth only)
+      if (method === 'POST' && path === '/api/user/nickname') {
+        const auth = await resolveTgId(request, env);
+        if (!auth || auth.authSource !== 'guest') return json({ detail: 'Guests only' }, 401);
+        const body = await request.json().catch(() => ({}));
+        const nick = String(body.nickname || '').trim().replace(/\s+/g, ' ');
+        if (!/^[\p{L}\p{N}_. -]{3,20}$/u.test(nick)) {
+          return json({ detail: 'Nickname: 3-20 letters, digits, spaces, _ . -' }, 400);
+        }
+        if (/^(guest|betty|admin|bettyscores)$/i.test(nick)) return json({ detail: 'Nickname taken' }, 409);
+        const taken = await env.DB.prepare(
+          'SELECT id FROM users WHERE lower(username) = lower(?) AND tg_id != ? AND merged_into IS NULL'
+        ).bind(nick, auth.tgId).first();
+        if (taken) return json({ detail: 'Nickname taken' }, 409);
+        await env.DB.prepare(
+          'UPDATE users SET username = ?, updated_at = datetime("now") WHERE tg_id = ?'
+        ).bind(nick, auth.tgId).run();
+        return json({ ok: true, nickname: nick });
       }
 
       if (method === 'GET' && path === '/api/user/me') {
@@ -1490,12 +1540,14 @@ async function rebuildMarts(env) {
   }
 
   // Weekly champions: legacy match points plus Release 2.1 challenge points.
-  // Guests (cannot receive Stars) and internal accounts are left out, so neither
-  // can be ranked or awarded a prize.
+  // Internal accounts and nameless guests are left out, so neither can be
+  // ranked or awarded a prize. A guest with a nickname (YouTube/Facebook
+  // players, since 30 Oct 2026) is ranked; Stars are paid once they claim
+  // the prize by opening Betty in Telegram (the merge moves picks and prize).
   const champAgg = {}; // key week|user
   const champRow = (weekId, userId) => {
     const u = userById[userId];
-    if (!u || !weekId || u.is_internal || String(u.tg_id).startsWith('guest:')) return null;
+    if (!u || !weekId || !isPrizeEligible(u)) return null;
     const k = `${weekId}|${userId}`;
     if (!champAgg[k]) champAgg[k] = {
       week_id: weekId, user_id: userId, username: u.username,
@@ -1558,13 +1610,13 @@ async function rebuildMarts(env) {
   }
 
   // Challenge points are part of the 2.1 leaderboard. Registered users already
-  // have them through their weekly champion rows above; guests and internal
-  // accounts have no champion rows, so their challenge points are added here
-  // (as before this fix). Their weeks played = distinct weeks with a pick.
+  // have them through their weekly champion rows above; nameless guests and
+  // internal accounts have no champion rows, so their challenge points are
+  // added here (as before this fix). Their weeks played = distinct weeks with a pick.
   const guestWeeks = {};
   for (const prediction of challengePredictions) {
     const u = userById[prediction.user_id];
-    if (!u || !(u.is_internal || String(u.tg_id).startsWith('guest:'))) continue;
+    if (!u || isPrizeEligible(u)) continue;
     if (!lbAgg[prediction.user_id]) lbAgg[prediction.user_id] = {
       user_id: prediction.user_id,
       username: u.username,
@@ -2419,7 +2471,8 @@ async function getWeek(env, which) {
 }
 
 // Close a week: award Stars prizes to 1st and 2nd place, then mark the week
-// as closed. Guests (tg_id starts with 'guest:') are prize-ineligible.
+// as closed. Who may win is decided in rebuildMarts (isPrizeEligible): a
+// nickname guest can win, and is paid after claiming via Telegram (merge).
 // Tie rule: equal points → earlier last-bet timestamp wins.
 async function closeWeek(env, weekId) {
   const week = await env.DB.prepare('SELECT * FROM weeks WHERE week_id = ?').bind(weekId).first();
@@ -2436,11 +2489,11 @@ async function closeWeek(env, weekId) {
   // Rebuild marts so champions are current.
   await rebuildMarts(env);
 
-  // Get champions for this week, excluding guests.
+  // Get champions for this week (only prize-eligible users have champion rows).
   const { results: champs } = await env.DB.prepare(
     `SELECT gc.*, u.tg_id FROM gold_champions gc
      JOIN users u ON u.id = gc.user_id
-     WHERE gc.week_id = ? AND u.tg_id NOT LIKE 'guest:%'
+     WHERE gc.week_id = ?
      ORDER BY gc.rank`
   ).bind(weekId).all();
 

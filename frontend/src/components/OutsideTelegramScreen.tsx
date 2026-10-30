@@ -59,7 +59,7 @@ export const OutsideTelegramScreen: React.FC<OutsideTelegramScreenProps> = ({ on
               {isProdSite() && (
                 <div className="landing__cta">
                   <p className="landing__cta-text">
-                    Compete on the leaderboard &amp; earn stars — play in Telegram!
+                    Win Stars with your nickname here, or play in Telegram!
                   </p>
                   <a
                     className="landing__cta-btn"

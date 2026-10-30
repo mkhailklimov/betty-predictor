@@ -65,6 +65,9 @@ export const guestApi = {
     api.post<User & { guest_token: string }>(`/api/user/guest${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`),
   merge: (guestToken: string, username?: string) =>
     api.post<{ ok: boolean; merged: number; user: User }>('/api/user/merge', { guest_token: guestToken, username }),
+  // A nickname (e.g. a YouTube/Facebook name) puts a browser guest in the race for Stars.
+  setNickname: (nickname: string) =>
+    api.post<{ ok: boolean; nickname: string }>('/api/user/nickname', { nickname }),
 }
 
 // Matches API
