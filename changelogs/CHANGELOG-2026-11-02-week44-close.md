@@ -57,3 +57,8 @@ Marked: `paid 2026_44 1` and `paid 2026_44 2` → changed 1 each.
 Checked 2 Nov: t.me/betty_game and t.me/betty_app show no public account; Fragment lists both as
 "Unavailable" (not for sale), so they look free to claim directly in the app. Taken: @bettygame (user
 "Dandy"), @bettyapp (channel, 3 subscribers). Plan: hold them as public channels owned by the owner.
+Owner took both: @betty_game and @betty_app are now public channels on the owner's account.
+News (t.me/thelab/1179, 2 Nov, not launched yet): Telegram plans bot usernames ending in `_app`, `_ai`,
+`_game`, for owners with Premium, one extra username per bot. When it ships: free @betty_app (or @betty_game)
+from its channel and add it to @bettyscores_bot as an extra username, keeping @bettyscores_bot, its players
+and links. No new bot needed.
