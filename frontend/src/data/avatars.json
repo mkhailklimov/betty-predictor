@@ -837,13 +837,13 @@
 "code": "MKD",
 "name": "North Macedonia",
 "group": "nation",
-"src": "/avatars/flags/MKD.svg"
+"src": "/avatars/cards/MKD.jpg"
 },
 {
 "code": "NIR",
 "name": "Northern Ireland",
 "group": "nation",
-"src": "/avatars/flags/NIR.svg"
+"src": "/avatars/cards/NIR.jpg"
 },
 {
 "code": "NOR",
@@ -927,7 +927,7 @@
 "code": "IRL",
 "name": "Republic of Ireland",
 "group": "nation",
-"src": "/avatars/flags/IRL.svg"
+"src": "/avatars/cards/IRL.jpg"
 },
 {
 "code": "ROU",
@@ -1191,7 +1191,7 @@
 "code": "UKR",
 "name": "Ukraine",
 "group": "nation",
-"src": "/avatars/flags/UKR.svg"
+"src": "/avatars/cards/UKR.jpg"
 },
 {
 "code": "UAE",
@@ -1245,7 +1245,7 @@
 "code": "WAL",
 "name": "Wales",
 "group": "nation",
-"src": "/avatars/flags/WAL.svg"
+"src": "/avatars/cards/WAL.jpg"
 },
 {
 "code": "YEM",

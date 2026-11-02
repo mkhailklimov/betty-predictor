@@ -41,10 +41,11 @@ export const TEAM_CARDS: Record<string, boolean> = {
   SCO: true, SEN: true, SWE: true, SWZ: true, TUR: true, USA: true, UZB: true,
   NZL: true, BEL: true, URU: true, PAN: true, COL: true, EGY: true,
   KSA: true, IRN: true, GHA: true, COD: true, AUT: true, JOR: true,
+  MKD: true, WAL: true, IRL: true, NIR: true, UKR: true,
 }
 
 // Bump when any card PNG is updated — appended as ?v= to bust WebView caches.
-const CARD_ASSETS_VERSION = '6'
+const CARD_ASSETS_VERSION = '7'
 
 export function getCardImage(code: string | null): string | null {
   return code && TEAM_CARDS[code] ? `/teams/Cards/${code}.png?v=${CARD_ASSETS_VERSION}` : null
