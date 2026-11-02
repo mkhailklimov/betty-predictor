@@ -47,3 +47,13 @@ Text given to the owner, who posts it with a screenshot of the week 45 cards (no
 - Facebook: Meta developer app in Live mode, privacy policy + data-deletion URLs; works in Facebook's in-app browser. More paperwork than code.
 - Gain: same account across devices. Cost: extra step vs 10-second nickname start. Stars still need Telegram anyway.
 - Revisit if nickname players ask to keep their account on another device; then add Google first, nickname stays as an option.
+
+## Prizes paid (2 Nov)
+Owner sent 100 Stars to Th7Tezar and 50 Stars to harrypohhher with personal messages (both invited to try a
+PRO team avatar for 50 Stars in the Hall of Fame tab; harrypohhher also got the channel link).
+Marked: `paid 2026_44 1` and `paid 2026_44 2` → changed 1 each.
+
+## Telegram usernames
+Checked 2 Nov: t.me/betty_game and t.me/betty_app show no public account; Fragment lists both as
+"Unavailable" (not for sale), so they look free to claim directly in the app. Taken: @bettygame (user
+"Dandy"), @bettyapp (channel, 3 subscribers). Plan: hold them as public channels owned by the owner.
