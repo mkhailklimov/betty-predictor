@@ -86,3 +86,10 @@ Idea, not done: pin a post with an "Open Betty" button in @betty_game / @betty_a
 ## Security
 Telegram Desktop before 7.2.9 has a link vulnerability that can steal local files; owner advised to update
 (this PC runs the bot/channel admin).
+
+## Week 46 team cards live (2 Nov)
+Owner generated MKD, WAL, IRL, NIR, UKR (1254x1254 PNG) into `frontend/public/teams/Cards/`. Added to
+`TEAM_CARDS`, `CARD_ASSETS_VERSION` 6 → 7, plus 160px avatar thumbnails in `public/avatars/cards/`
+(avatars.json now points to them instead of flags). Commit 4d57494, frontend deployed (fc1e6375).
+All six week 46 cards now show both team pictures. Wales card resembles Gareth Bale (man bun, 11);
+owner kept it (different eye colour).
