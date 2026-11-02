@@ -62,3 +62,27 @@ News (t.me/thelab/1179, 2 Nov, not launched yet): Telegram plans bot usernames e
 `_game`, for owners with Premium, one extra username per bot. When it ships: free @betty_app (or @betty_game)
 from its channel and add it to @bettyscores_bot as an extra username, keeping @bettyscores_bot, its players
 and links. No new bot needed.
+
+## Barcelona vs Aston Villa reel (owner, 2 Nov)
+- On-screen text (checked: Villa 6-0 Fenerbahce, UCL 14 Oct 2026, ESPN 401915409):
+  "Villa crushed Fenerbahce 6-0. Can they stay strong in Barcelona? Pick the score, grab Stars!"
+- Facebook description: Villa 6-0 hook, "Predict the exact score and win Telegram Stars. Free to play, no
+  sign-up", scoring line, `app.bettyscores.com/?ref=facebook`, hashtags #Barcelona #AstonVilla
+  #ChampionsLeague #UCL #FootballPredictions. Also post the link as the first comment (reel captions
+  often aren't clickable).
+- Kick-off Tue 3 Nov 20:00 UTC. After it: count new players by `ref_source`.
+
+## Winner messages (sent by owner with the Stars)
+- Th7Tezar: week 44 win, 7 pts, third week running among winners; PRO team avatar tip (50 Stars, Hall of
+  Fame tab); European week invite.
+- harrypohhher: 2nd in first week; team avatar tip; channel link t.me/bettyscores_channel.
+
+## Short bot names (checked 2 Nov)
+Free: @bettygamebot, @betty_game_bot, @betty_app_bot. Taken: @bettybot, @betty_bot, @bettyappbot.
+Decision: no move to a new bot (would lose the players we can message, the catalog listings and links,
+and need new token/webhook/payments setup). Optional: register @bettygamebot empty, just to protect the name.
+Idea, not done: pin a post with an "Open Betty" button in @betty_game / @betty_app (bot must be admin there).
+
+## Security
+Telegram Desktop before 7.2.9 has a link vulnerability that can steal local files; owner advised to update
+(this PC runs the bot/channel admin).
