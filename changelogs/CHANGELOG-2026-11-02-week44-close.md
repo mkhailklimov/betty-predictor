@@ -28,3 +28,22 @@ Prizes in `weekly_prizes` (2026_44 rank 1 and 2), **not paid yet**. Mark paid on
 ## Also checked
 - Week 46 published by the Monday 2 Nov cron (6 cards); week 45 running (10 cards).
 - Players per week: wk41 20 → wk42 4 → wk43 5 → wk44 8.
+
+## Channel post (week 44 results + week 45)
+Text given to the owner, who posts it with a screenshot of the week 45 cards (not sent by Claude):
+
+> Week 44 results are in! Th7Tezar takes first place with 7 points, nailing Aston Villa 1:1 Fulham and Liverpool 0:1 Arsenal. Newcomer harrypohhher finishes second with 5 points in his very first week. Congratulations to both, Stars will be delivered soon.
+>
+> This week goes European: ten matches from the Champions League, Europa League and Conference League, starting with Barcelona vs Aston Villa on Tuesday. Make your picks before kick-off: t.me/bettyscores_bot/app
+
+## YouTube / Facebook video (owner, 2-3 Nov)
+- No login needed: viewers open the site, pick a nickname, play. Winners claim Stars via Telegram (same browser, 14 days).
+- Links: `app.bettyscores.com/?ref=youtube`, `app.bettyscores.com/?ref=facebook` (stored in `users.ref_source`).
+- Suggested description: "Predict the exact score of Barcelona vs Aston Villa and nine more European matches this week. Free to play, top two win Telegram Stars. Play here: app.bettyscores.com/?ref=youtube"
+- After the video: check new players per `ref_source`.
+
+## Decision: Google / Facebook login, skipped for now
+- Google: ~1 day (Cloud client ID, Sign-in button, ID token check in the Worker, link to nickname). Blocked in YouTube/Facebook/Instagram in-app browsers (`disallowed_useragent`), exactly where our viewers arrive.
+- Facebook: Meta developer app in Live mode, privacy policy + data-deletion URLs; works in Facebook's in-app browser. More paperwork than code.
+- Gain: same account across devices. Cost: extra step vs 10-second nickname start. Stars still need Telegram anyway.
+- Revisit if nickname players ask to keep their account on another device; then add Google first, nickname stays as an option.
