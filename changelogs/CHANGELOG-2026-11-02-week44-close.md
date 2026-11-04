@@ -99,3 +99,8 @@ Owner declined buying his channel (ex @Yaftest, now @FootNiga, 498 subs, Persian
 Post 1 up 13:33 UTC (Fenerbahce vs Liverpool, screenshot, `t.me/bettyscores_bot/app?startapp=ref_arvin`); 100 Stars sent 13:56 UTC. Post 2 due Mon 9 Nov. @yafiro (5,486 subs, only 45-165 views per post) to discuss Tue 10 Nov.
 `startapp=ref_NAME` now sets `ref_source` (43ac8bb), deployed 14:00 UTC (8a21ac5a). New users between 13:33 and 14:00 have no source: count them by creation time.
 Facebook/YouTube automatic names delayed to release 2.2 (winter holidays).
+
+## TODO (agreed 4 Nov)
+- **Mon 9 Nov: second post in @FootNiga.** Already paid. Owner sends Arvin the text and screen before then; use the `startapp=ref_arvin` link.
+- Tue 10 Nov or later: assess results (`ref_source=arvin` + new users from 13:33 to 14:00 UTC on 4 Nov, without Th7Arvin / Th7Tezar), then decide on @yafiro.
+- **After Christmas (release 2.2): new entry with names from YouTube and Facebook.**
