@@ -93,3 +93,9 @@ Owner generated MKD, WAL, IRL, NIR, UKR (1254x1254 PNG) into `frontend/public/te
 (avatars.json now points to them instead of flags). Commit 4d57494, frontend deployed (fc1e6375).
 All six week 46 cards now show both team pictures. Wales card resembles Gareth Bale (man bun, 11);
 owner kept it (different eye colour).
+
+## 4 Nov: paid posts with Arvin, Telegram link tracking
+Owner declined buying his channel (ex @Yaftest, now @FootNiga, 498 subs, Persian) for 200 Stars. Deal: 100 Stars for two posts, paid in full up front.
+Post 1 up 13:33 UTC (Fenerbahce vs Liverpool, screenshot, `t.me/bettyscores_bot/app?startapp=ref_arvin`); 100 Stars sent 13:56 UTC. Post 2 due Mon 9 Nov. @yafiro (5,486 subs, only 45-165 views per post) to discuss Tue 10 Nov.
+`startapp=ref_NAME` now sets `ref_source` (43ac8bb), deployed 14:00 UTC (8a21ac5a). New users between 13:33 and 14:00 have no source: count them by creation time.
+Facebook/YouTube automatic names delayed to release 2.2 (winter holidays).
