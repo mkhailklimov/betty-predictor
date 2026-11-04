@@ -34,7 +34,10 @@ function pageFromPath(): Page {
 
 function captureRefSource(): string | undefined {
   const params = new URLSearchParams(window.location.search)
-  return params.get('ref') || params.get('utm_source') || undefined
+  // Telegram links carry the source as startapp=ref_NAME
+  const startParam = WebApp.initDataUnsafe?.start_param
+  const fromStart = startParam?.startsWith('ref_') ? startParam.slice(4) : undefined
+  return params.get('ref') || params.get('utm_source') || fromStart || undefined
 }
 
 const isLocalDev = (): boolean => {
