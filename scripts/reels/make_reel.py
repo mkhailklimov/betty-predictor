@@ -26,7 +26,7 @@ FONTS = r'C:\Windows\Fonts'
 
 W, H, FPS = 1080, 1920, 30
 # Scene start times in seconds; the reel ends at the last one.
-T_INTRO, T_GOALS, T_RESULT, T_SCORE, T_CARD, T_END = 0, 2.2, 5.4, 8.6, 10.8, 14.0
+T_INTRO, T_GOALS, T_RESULT, T_SCORE, T_CARD, T_END = 0, 2.4, 5.8, 9.2, 11.6, 15.0
 FADE = 0.2
 
 BG = (19, 42, 19)
