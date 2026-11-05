@@ -1,0 +1,12 @@
+{
+  "home": "England",
+  "away": "Croatia",
+  "home_card": "ENG",
+  "away_card": "CRO",
+  "home_style": "england",
+  "away_style": "croatia",
+  "competition": "Nations League",
+  "kickoff": "Thu 12 Nov, 19:45 UTC",
+  "probs": [56, 24, 20],
+  "sample": true
+}

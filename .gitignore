@@ -77,3 +77,6 @@ Thumbs.db
 
 # Claude Code personal settings (local permissions)
 .claude/settings.local.json
+
+# Rendered videos (scripts/reels makes them)
+/reels/

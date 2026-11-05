@@ -104,3 +104,8 @@ Facebook/YouTube automatic names delayed to release 2.2 (winter holidays).
 - **Mon 9 Nov: second post in @FootNiga.** Already paid. Owner sends Arvin the text and screen before then; use the `startapp=ref_arvin` link.
 - Tue 10 Nov or later: assess results (`ref_source=arvin` + new users from 13:33 to 14:00 UTC on 4 Nov, without Th7Arvin / Th7Tezar), then decide on @yafiro.
 - **After Christmas (release 2.2): new entry with names from YouTube and Facebook.**
+
+## 5 Nov: data reel generator (pilot)
+Owner's idea: animated bars as weekly reels. `scripts/reels/make_reel.py <match.json>` renders a 14 s, 1080x1920, 30 fps MP4 to `reels/` (git-ignored): team cards, expected goals, win/draw/loss, most likely score with its chance, game card + link.
+Input is 3 numbers (`odds` or `probs`); a Poisson fit gives goals and score so the bars agree. Needs Pillow, numpy, imageio-ffmpeg. No audio; owner adds music.
+`ENG_CRO.json` holds SAMPLE numbers with a red "NOT FOR POSTING" banner. Before posting: enter real odds, remove `"sample"`, re-render. No reliable current odds found on 5 Nov.
