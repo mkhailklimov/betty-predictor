@@ -7,6 +7,10 @@
   "away_style": "croatia",
   "competition": "Nations League",
   "kickoff": "Thu 12 Nov, 19:45 UTC",
-  "probs": [56, 24, 20],
-  "sample": true
+  "odds": [
+    1.235,
+    5.5,
+    9.5
+  ],
+  "odds_source": "DraftKings via ESPN event 401861150, 5 Nov 2026: -425 / +450 / +850"
 }
