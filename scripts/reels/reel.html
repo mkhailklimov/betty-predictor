@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #060f12; }
+  #gl { position: absolute; inset: 0; }
+  .layer { position: absolute; inset: 0; opacity: 0; font-family: 'Arial Black', Impact, sans-serif; color: #fff; }
+  .head {
+    position: absolute; left: 0; right: 0; top: 215px; text-align: center; font-size: 78px; letter-spacing: 2px;
+    background: linear-gradient(#fff 25%, #ffd90f 95%); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 6px 0 rgba(0,0,0,.65)) drop-shadow(0 0 28px rgba(0,0,0,.8));
+  }
+  .num {
+    position: absolute; transform: translate(-50%, -100%); font-size: 92px; white-space: nowrap;
+    text-shadow: 0 5px 0 rgba(0,0,0,.6), 0 0 34px rgba(0,0,0,.9);
+  }
+  .name {
+    position: absolute; transform: translate(-50%, 0); font-size: 40px; white-space: nowrap; padding: 7px 26px;
+    border-radius: 14px; background: rgba(5,18,16,.72); border: 2px solid rgba(255,255,255,.22);
+  }
+  .note {
+    position: absolute; left: 0; right: 0; top: 318px; text-align: center; font: bold 27px Arial, sans-serif;
+    color: rgba(255,255,255,.72); text-shadow: 0 2px 8px #000;
+  }
+  #intro .vs {
+    position: absolute; left: 0; right: 0; top: 190px; text-align: center; font-size: 104px; line-height: 112px;
+    text-shadow: 0 8px 0 rgba(0,0,0,.6), 0 0 42px rgba(0,0,0,.85);
+  }
+  #intro .vs small { font-size: 62px; color: #ffd90f; display: block; line-height: 76px; }
+  #intro .ask {
+    position: absolute; left: 90px; right: 90px; top: 1395px; text-align: center; font-size: 56px; color: #ffd90f;
+    text-shadow: 0 5px 0 rgba(0,0,0,.7), 0 0 30px #000;
+  }
+  #intro .when {
+    position: absolute; left: 0; right: 0; top: 1480px; text-align: center; font: bold 36px Arial, sans-serif;
+    text-shadow: 0 2px 10px #000;
+  }
+  #score .big {
+    position: absolute; left: 0; right: 0; top: 590px; text-align: center; font-size: 340px; line-height: 360px;
+    background: linear-gradient(#fff6b0, #ffd90f 45%, #e08a00); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 12px 0 rgba(70,35,0,.95)) drop-shadow(0 0 70px rgba(255,190,0,.65));
+  }
+  #score .lines { position: absolute; left: 0; right: 0; top: 1040px; text-align: center; }
+  #score .l1 { font-size: 60px; text-shadow: 0 5px 0 rgba(0,0,0,.6), 0 0 26px #000; }
+  #score .l2 { font-size: 54px; color: #ffd90f; margin-top: 24px; text-shadow: 0 5px 0 rgba(0,0,0,.6), 0 0 26px #000; }
+  #cardwrap { position: absolute; left: 85px; top: 215px; width: 910px; perspective: 1500px; }
+  #card {
+    border-radius: 44px; padding: 38px 0 40px; text-align: center; transform-style: preserve-3d;
+    background: linear-gradient(160deg, #3f7038, #24441f); border: 3px solid rgba(236,243,158,.55);
+    box-shadow: 0 50px 90px rgba(0,0,0,.75), inset 0 2px 0 rgba(255,255,255,.3);
+  }
+  #card .t { font-size: 50px; color: #ecf39e; }
+  #card .k { font: bold 30px Arial, sans-serif; color: #b6cf7c; margin-top: 8px; }
+  #card .pics { margin: 28px 0 24px; }
+  #card .pics img { width: 335px; height: 335px; border-radius: 26px; margin: 0 9px; box-shadow: 0 14px 30px rgba(0,0,0,.55); }
+  #card .p { font-size: 44px; }
+  #card .reels { margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 42px; }
+  #card .reel {
+    width: 180px; height: 185px; line-height: 185px; border-radius: 30px; font-size: 118px; color: #ecf39e;
+    background: rgba(10,30,10,.55); border: 4px solid #90a955;
+  }
+  #card .c { font-size: 100px; color: #ecf39e; }
+  #cta { position: absolute; left: 0; right: 0; top: 1205px; text-align: center; }
+  #cta .a { font-size: 82px; color: #ffd90f; text-shadow: 0 6px 0 rgba(0,0,0,.65), 0 0 34px #000; }
+  #cta .b { font-size: 54px; margin-top: 14px; text-shadow: 0 4px 0 rgba(0,0,0,.6), 0 0 24px #000; }
+  #cta .d { font: bold 32px Arial, sans-serif; margin-top: 16px; color: #ecf39e; text-shadow: 0 2px 8px #000; }
+  #score, #end { background: rgba(3,10,14,.5); }
+  #bars { background: linear-gradient(rgba(3,10,14,.72), rgba(3,10,14,.12) 28%, rgba(3,10,14,0) 60%); }
+  #intro { background: linear-gradient(rgba(3,10,14,.6), rgba(3,10,14,0) 24%, rgba(3,10,14,0) 58%, rgba(3,10,14,.92) 76%, rgba(3,10,14,.95)); }
+  #fade { position: absolute; inset: 0; background: #04090b; opacity: 0; }
+  #sample {
+    display: none; position: absolute; left: 0; right: 0; top: 130px; height: 62px; line-height: 62px; text-align: center;
+    background: #ce1126; color: #fff; font: bold 28px Arial, sans-serif;
+  }
+</style>
+</head>
+<body>
+<canvas id="gl" width="1080" height="1920"></canvas>
+<div id="intro" class="layer">
+  <div class="vs"><span id="iHome"></span><small>vs</small><span id="iAway"></span></div>
+  <div class="ask">What does the data say?</div>
+  <div class="when" id="iWhen"></div>
+</div>
+<div id="bars" class="layer">
+  <div class="head" id="bHead"></div>
+  <div id="bLabels"></div>
+  <div class="note">Based on market data. Not a guarantee.</div>
+</div>
+<div id="score" class="layer">
+  <div class="head" style="top:440px">MOST LIKELY SCORE</div>
+  <div class="big" id="sBig"></div>
+  <div class="lines"><div class="l1" id="sPct"></div><div class="l2">Can you beat the data?</div></div>
+  <div class="note" style="top:1260px">Based on market data. Not a guarantee.</div>
+</div>
+<div id="end" class="layer">
+  <div id="cardwrap"><div id="card">
+    <div class="t" id="cTitle"></div>
+    <div class="k" id="cKick"></div>
+    <div class="pics"><img id="cHome"><img id="cAway"></div>
+    <div class="p">Predict the exact score!</div>
+    <div class="reels"><div class="reel">?</div><div class="c">:</div><div class="reel">?</div></div>
+  </div></div>
+  <div id="cta">
+    <div class="a">What's your score?</div>
+    <div class="b">app.bettyscores.com</div>
+    <div class="d">Free to play. Top two win Telegram Stars.</div>
+  </div>
+</div>
+<div id="fade"></div>
+<div id="sample">SAMPLE NUMBERS - NOT FOR POSTING</div>
+<script src="vendor/three.min.js"></script>
+<script src="reel.js"></script>
+</body>
+</html>
