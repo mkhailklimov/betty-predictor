@@ -2,6 +2,7 @@ import React from 'react'
 import { Challenge } from '../types'
 import { ScoreReels } from './ScoreReels'
 import { getCardImage } from '../data/matches'
+import { nationCode } from '../data/avatars'
 import '../styles/ChallengeCard.css'
 
 interface ChallengeCardProps {
@@ -145,9 +146,12 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
     : (challenge.source_id && FIXTURE_STICKERS[challenge.source_id]) || null
   // National-team weeks: with no fixture sticker, show both World Cup team cards.
   // Only for national-team leagues: club codes can collide (Porto is "POR").
+  // Sheet-made cards have no linked match, so fall back to exact country names.
   const isNational = /^(uefa\.nations|uefa\.euro|fifa\.)/.test(m?.league ?? '')
-  const homeCard = sticker || !isNational ? null : getCardImage(m?.code_home ?? null)
-  const awayCard = sticker || !isNational ? null : getCardImage(m?.code_away ?? null)
+  const homeCode = m ? (isNational ? m.code_home ?? null : null) : nationCode(challenge.home_team)
+  const awayCode = m ? (isNational ? m.code_away ?? null : null) : nationCode(challenge.away_team)
+  const homeCard = sticker ? null : getCardImage(homeCode)
+  const awayCard = sticker ? null : getCardImage(awayCode)
   const teamCards = homeCard && awayCard ? { home: homeCard, away: awayCard } : null
   const homeName = challenge.home_team || m?.home_team || null
   const awayName = challenge.away_team || m?.away_team || null

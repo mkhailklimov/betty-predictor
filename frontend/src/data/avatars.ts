@@ -15,3 +15,12 @@ const BY_CODE = new Map(AVATAR_LIST.map((a) => [a.code, a]))
 
 export const getAvatar = (code?: string | null): Avatar | undefined =>
   code ? BY_CODE.get(code) : undefined
+
+// Exact country name (as the sheet writes it) -> code, for cards whose challenge
+// has no linked feed match. Exact names only, so clubs never match a nation.
+const NATION_BY_NAME = new Map(
+  AVATAR_LIST.filter((a) => a.group === 'nation').map((a) => [a.name, a.code]),
+)
+
+export const nationCode = (name?: string | null): string | null =>
+  (name && NATION_BY_NAME.get(name)) || null
