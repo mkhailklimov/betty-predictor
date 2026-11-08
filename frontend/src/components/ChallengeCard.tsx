@@ -2,7 +2,7 @@ import React from 'react'
 import { Challenge } from '../types'
 import { ScoreReels } from './ScoreReels'
 import { getCardImage } from '../data/matches'
-import { nationCode } from '../data/avatars'
+import { clubBadge, nationCode } from '../data/avatars'
 import '../styles/ChallengeCard.css'
 
 interface ChallengeCardProps {
@@ -155,6 +155,10 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
   const teamCards = homeCard && awayCard ? { home: homeCard, away: awayCard } : null
   const homeName = challenge.home_team || m?.home_team || null
   const awayName = challenge.away_team || m?.away_team || null
+  // Club cards with no sticker: the two club shields, each in its own box.
+  const homeShield = sticker || teamCards ? null : clubBadge(homeName)
+  const awayShield = sticker || teamCards ? null : clubBadge(awayName)
+  const shields = homeShield && awayShield ? { home: homeShield, away: awayShield } : null
   const fixture = stickerKey === '5'
     ? 'Chelsea vs Bournemouth'
     : challenge.fixture || (m ? `${m.home_team} vs ${m.away_team}` : null)
@@ -233,13 +237,30 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
 
       {teamCards && (
         <div className="cc__team-cards">
-          <img src={teamCards.home} alt={m?.home_team ?? ''} />
+          <img src={teamCards.home} alt={homeName ?? ''} />
           <span className="cc__team-cards-vs">vs</span>
-          <img src={teamCards.away} alt={m?.away_team ?? ''} />
+          <img src={teamCards.away} alt={awayName ?? ''} />
         </div>
       )}
 
-      {!sticker && !teamCards && (
+      {shields && (
+        <div className="cc__shields">
+          {([['home', shields.home, homeName], ['away', shields.away, awayName]] as const).map(([side, src, name]) => (
+            <React.Fragment key={side}>
+              {side === 'away' && <span className="cc__team-cards-vs">vs</span>}
+              <div className={`cc__shield-box cc__shield-box--${side}`}>
+                <div className="cc__shield" style={{ '--badge': `url(${src})` } as React.CSSProperties}>
+                  <img src={src} alt="" />
+                  <span className="cc__shield-gloss" />
+                </div>
+                <span className="cc__shield-name">{name}</span>
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+
+      {!sticker && !teamCards && !shields && (
         <div className="cc__icon-hero">
           <span className="cc__icon-large">{icon}</span>
         </div>

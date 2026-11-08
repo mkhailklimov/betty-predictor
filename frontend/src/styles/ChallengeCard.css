@@ -77,6 +77,69 @@
   font-size: 1.1rem;
 }
 
+/* Club weeks without stickers: each club shield in its own box, tilted towards
+   the middle, lit from the top left, with a soft shadow on the floor. */
+.cc__shields {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 auto 1.1rem;
+}
+
+.cc__shield-box {
+  width: 42%;
+  max-width: 160px;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  perspective: 420px;
+  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0) 60%),
+    linear-gradient(160deg, #2f5a2a, #18301a);
+  border: 2px solid rgba(236, 243, 158, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.cc__shield {
+  position: relative;
+  width: 62%;
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.45)) drop-shadow(0 2px 1px rgba(0, 0, 0, 0.35));
+}
+
+.cc__shield-box--home .cc__shield { transform: rotateY(16deg) rotateX(6deg); }
+.cc__shield-box--away .cc__shield { transform: rotateY(-16deg) rotateX(6deg); }
+
+.cc__shield img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Light and shade painted only inside the badge shape. */
+.cc__shield-gloss {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.08) 38%,
+    rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.3) 100%);
+  -webkit-mask: var(--badge) center / contain no-repeat;
+  mask: var(--badge) center / contain no-repeat;
+}
+
+.cc__shield-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ecf39e;
+  text-align: center;
+  line-height: 1.1;
+  padding: 0 0.3rem;
+}
+
 .cc__icon-hero {
   text-align: center;
   background: rgba(20, 44, 18, 0.35);
@@ -205,6 +268,7 @@
 /* Kick-off has passed: read-only, reachable with Prev but never the default card. */
 .cc--locked .cc__illustration,
 .cc--locked .cc__team-cards,
+.cc--locked .cc__shields,
 .cc--locked .cc__icon-hero,
 .cc--locked .cc__options,
 .cc--locked .cc__reels {

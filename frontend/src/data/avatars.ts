@@ -24,3 +24,11 @@ const NATION_BY_NAME = new Map(
 
 export const nationCode = (name?: string | null): string | null =>
   (name && NATION_BY_NAME.get(name)) || null
+
+// Exact club name (as the sheet writes it) -> shield badge, for club cards with no sticker.
+const CLUB_BY_NAME = new Map(
+  AVATAR_LIST.filter((a) => a.group === 'epl').map((a) => [a.name, a.src]),
+)
+
+export const clubBadge = (name?: string | null): string | null =>
+  (name && CLUB_BY_NAME.get(name)) || null
