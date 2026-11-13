@@ -17,7 +17,7 @@ Resolved with ESPN finals: 10 cards, 28 picks scored.
 | Sunderland vs Dinamo Zagreb | 0:2 |
 | Getafe vs Brighton | 0:1 |
 
-Prizes (NOT yet marked paid, wait for the owner to confirm sending):
+Prizes (sent by the owner and marked paid 9 Nov):
 - 1st Mishanna45 (tg 1017885628), 8 pts, 100 Stars. Tie on 8 pts won by earlier last pick (2 Nov 10:25).
 - 2nd Th7Tezar (tg 8775431442), 8 pts, 50 Stars. Among the winners 4 weeks running.
 
