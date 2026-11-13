@@ -64,6 +64,7 @@ export const ChampionsPage: React.FC = () => {
                 </div>
                 <div className="col player">
                   {entry.username}
+                  {entry.league_name && <span className="league-tag">{entry.league_name}</span>}
                 </div>
                 <div className="col num total">{entry.points}</div>
                 <div className="col num stars-col stars-bold">{(entry as any).stars_earned || 0}</div>

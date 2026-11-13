@@ -2,22 +2,24 @@ import React from 'react'
 import WebApp from '@twa-dev/sdk'
 import './styles/App.css'
 import { useTelegram } from './hooks/useTelegram'
-import { userApi, guestApi, predictionsApi } from './services/api'
+import { userApi, guestApi, predictionsApi, leagueApi } from './services/api'
 import { MainPage } from './pages/MainPage'
 import { Navigation } from './components/Navigation'
 import { ChampionsPage } from './pages/ChampionsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { OutsideTelegramScreen } from './components/OutsideTelegramScreen'
 import { AboutPage } from './pages/AboutPage'
+import { LeaguePage } from './pages/LeaguePage'
 import { User } from './types'
 
-type Page = 'champions' | 'matches' | 'leaderboard' | 'rules'
+type Page = 'champions' | 'matches' | 'leaderboard' | 'league' | 'rules'
 
 const PAGE_PATHS: Record<string, Page> = {
   '/': 'matches',
   '/matches': 'matches',
   '/leaderboard': 'leaderboard',
   '/champions': 'champions',
+  '/league': 'league',
   '/rules': 'rules',
 }
 
@@ -25,6 +27,7 @@ const PATH_FOR_PAGE: Record<Page, string> = {
   matches: '/matches',
   leaderboard: '/leaderboard',
   champions: '/champions',
+  league: '/league',
   rules: '/rules',
 }
 
@@ -36,8 +39,16 @@ function captureRefSource(): string | undefined {
   const params = new URLSearchParams(window.location.search)
   // Telegram links carry the source as startapp=ref_NAME
   const startParam = WebApp.initDataUnsafe?.start_param
-  const fromStart = startParam?.startsWith('ref_') ? startParam.slice(4) : undefined
+  const fromStart = startParam?.startsWith('ref_') ? startParam.slice(4)
+    // A league link also tells us where the player came from, e.g. "league_master".
+    : startParam?.startsWith('league_') ? startParam : undefined
   return params.get('ref') || params.get('utm_source') || fromStart || undefined
+}
+
+// League join links: startapp=league_<id>, e.g. league_master for the Master League.
+function captureLeague(): string | undefined {
+  const startParam = WebApp.initDataUnsafe?.start_param
+  return startParam?.startsWith('league_') ? startParam.slice(7) : undefined
 }
 
 const isLocalDev = (): boolean => {
@@ -52,6 +63,7 @@ function App() {
   const [, setNeedsAuth] = React.useState(false)
   const { tg, user: tgUser, userId, initData } = useTelegram()
   const refSource = React.useRef(captureRefSource())
+  const leagueToJoin = React.useRef(captureLeague())
 
   // History API routing — update URL without reload.
   const navigateTo = React.useCallback((page: Page) => {
@@ -130,6 +142,17 @@ function App() {
             ref_source: refSource.current,
           })
           setUser(data)
+
+          // Join the league from a startapp=league_<id> link, then open the League tab.
+          if (leagueToJoin.current) {
+            try {
+              await leagueApi.join(leagueToJoin.current)
+            } catch (leagueErr) {
+              console.error('League join failed (non-fatal):', leagueErr)
+            }
+            leagueToJoin.current = undefined
+            navigateTo('league')
+          }
 
           // Merge guest predictions if launched with startapp=gt_TOKEN
           try {
@@ -233,6 +256,7 @@ function App() {
         {currentPage === 'champions' && <ChampionsPage />}
         {currentPage === 'matches' && <MainPage />}
         {currentPage === 'leaderboard' && <LeaderboardPage />}
+        {currentPage === 'league' && <LeaguePage />}
         {currentPage === 'rules' && <AboutPage />}
       </div>
       <Navigation currentPage={currentPage} onPageChange={navigateTo} />

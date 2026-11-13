@@ -1,6 +1,6 @@
 import axios from 'axios'
 import WebApp from '@twa-dev/sdk'
-import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse, WeekResponse, ChallengesResponse } from '../types'
+import { User, Match, Prediction, LeaderboardEntry, ChampionsResponse, WeekResponse, ChallengesResponse, LeagueResponse } from '../types'
 
 // Host-based API routing: prod domain → prod Worker, everything else → dev Worker.
 // Lets the `dev` branch's preview URL hit the dev API without a separate env var.
@@ -109,6 +109,13 @@ export const leaderboardApi = {
 export const championsApi = {
   getLastRound: (week?: string) =>
     api.get<ChampionsResponse>(week ? `/api/champions?week=${week}` : '/api/champions'),
+}
+
+// Leagues API: a channel's own table (join link startapp=league_<id>)
+export const leagueApi = {
+  join: (league: string) =>
+    api.post<{ ok: boolean; league_id: string; name: string; joined: boolean }>('/api/league/join', { league }),
+  getMine: () => api.get<LeagueResponse>('/api/league/me'),
 }
 
 // Payments API

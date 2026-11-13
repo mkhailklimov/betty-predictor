@@ -283,6 +283,13 @@ export default {
           'UPDATE weekly_prizes SET user_id = ? WHERE user_id = ?'
         ).bind(real.id, guest.id).run();
 
+        // League membership moves too, unless the real account is already in one.
+        await env.DB.prepare(
+          `UPDATE league_members SET user_id = ? WHERE user_id = ?
+           AND NOT EXISTS (SELECT 1 FROM league_members WHERE user_id = ?)`
+        ).bind(real.id, guest.id, real.id).run();
+        await env.DB.prepare('DELETE FROM league_members WHERE user_id = ?').bind(guest.id).run();
+
         // Tombstone the guest row.
         await env.DB.prepare(
           'UPDATE users SET merged_into = ?, updated_at = datetime("now") WHERE id = ?'
@@ -473,14 +480,77 @@ export default {
         return json(parseScores(results));
       }
 
+      // --- Leagues: a channel's own table (migration 0009) ---
+      // POST /api/league/join {"league": "master"}  join with the link startapp=league_<id>
+      // One league per player: joining another league while in one returns 409.
+      if (method === 'POST' && path === '/api/league/join') {
+        const token = await resolveTgIdStr(request, env);
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT id FROM users WHERE tg_id = ?').bind(token).first();
+        if (!user) return json({ detail: 'User not found' }, 404);
+        const body = await request.json().catch(() => ({}));
+        const leagueId = String(body.league || '').trim().toLowerCase();
+        if (!/^[a-z0-9_-]{2,32}$/.test(leagueId)) return json({ detail: 'Invalid league' }, 400);
+        const league = await env.DB.prepare('SELECT * FROM leagues WHERE id = ?').bind(leagueId).first();
+        if (!league) return json({ detail: 'League not found' }, 404);
+        const current = await env.DB.prepare('SELECT league_id FROM league_members WHERE user_id = ?').bind(user.id).first();
+        if (current && current.league_id !== leagueId) {
+          return json({ detail: 'Already in another league', league_id: current.league_id }, 409);
+        }
+        if (!current) {
+          await env.DB.prepare('INSERT OR IGNORE INTO league_members (user_id, league_id) VALUES (?, ?)')
+            .bind(user.id, leagueId).run();
+        }
+        return json({ ok: true, league_id: leagueId, name: league.name, joined: !current });
+      }
+
+      // GET /api/league/me  the player's league and its season table (all members ranked).
+      if (method === 'GET' && path === '/api/league/me') {
+        const token = await resolveTgIdStr(request, env);
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT id FROM users WHERE tg_id = ?').bind(token).first();
+        if (!user) return json({ detail: 'User not found' }, 404);
+        const league = await env.DB.prepare(
+          `SELECT l.* FROM league_members lm JOIN leagues l ON l.id = lm.league_id WHERE lm.user_id = ?`
+        ).bind(user.id).first();
+        if (!league) return json({ league: null, table: [] });
+        // Season totals from the weekly marts; members with no scored week yet show zeros.
+        // Ties: more exact scores, then more correct results, then who joined first.
+        const { results } = await env.DB.prepare(
+          `SELECT lm.user_id, u.username, u.fav_team, u.is_premium, lm.joined_at,
+                  COUNT(gc.week_id) AS weeks_played,
+                  COALESCE(SUM(gc.total_points), 0) AS points,
+                  COALESCE(SUM(gc.correct_outcomes), 0) AS correct_results,
+                  COALESCE(SUM(gc.correct_scores), 0) AS exact_scores
+           FROM league_members lm
+           JOIN users u ON u.id = lm.user_id AND u.merged_into IS NULL
+           LEFT JOIN gold_champions gc ON gc.user_id = lm.user_id AND gc.week_id >= ?
+           WHERE lm.league_id = ?
+           GROUP BY lm.user_id
+           ORDER BY points DESC, exact_scores DESC, correct_results DESC, lm.joined_at ASC`
+        ).bind(league.season_start_week, league.id).all();
+        return json({
+          league: { id: league.id, name: league.name, season_start_week: league.season_start_week,
+                    members: results.length },
+          table: results.map((r, i) => ({
+            rank: i + 1, user_id: r.user_id, username: r.username, fav_team: r.fav_team || null,
+            is_premium: r.is_premium === 1, weeks_played: r.weeks_played, points: r.points,
+            correct_results: r.correct_results, exact_scores: r.exact_scores,
+            is_me: r.user_id === user.id,
+          })),
+        });
+      }
+
       // --- Leaderboard (all-time, served from gold_leaderboard mart) ---
       if (method === 'GET' && (path === '/api/leaderboard' || path === '/api/leaderboard/overall')) {
         const { results } = await env.DB.prepare(
           `SELECT gl.*, COALESCE(wp.total_stars, 0) AS stars_earned,
                   COALESCE(u.is_premium, gl.is_premium) AS is_premium,
-                  COALESCE(u.fav_team, gl.fav_team) AS fav_team
+                  COALESCE(u.fav_team, gl.fav_team) AS fav_team, lg.name AS league_name
            FROM gold_leaderboard gl
            LEFT JOIN users u ON u.id = gl.user_id
+           LEFT JOIN league_members lm ON lm.user_id = gl.user_id
+           LEFT JOIN leagues lg ON lg.id = lm.league_id
            LEFT JOIN (SELECT user_id, SUM(stars) AS total_stars FROM weekly_prizes GROUP BY user_id) wp
              ON gl.user_id = wp.user_id
            ORDER BY COALESCE(wp.total_stars, 0) DESC, gl.total_points DESC, gl.username ASC`
@@ -498,6 +568,7 @@ export default {
           grams: l.weeks_won,
           is_premium: l.is_premium === 1,
           fav_team: l.fav_team || null,
+          league_name: l.league_name || null,
         }));
         return json(leaderboard);
       }
@@ -518,7 +589,10 @@ export default {
         }
         if (!week) return json({ week_id: null, results: [] });
         const { results } = await env.DB.prepare(
-          'SELECT * FROM gold_champions WHERE week_id = ? ORDER BY rank IS NULL, rank'
+          `SELECT gc.*, lg.name AS league_name FROM gold_champions gc
+           LEFT JOIN league_members lm ON lm.user_id = gc.user_id
+           LEFT JOIN leagues lg ON lg.id = lm.league_id
+           WHERE gc.week_id = ? ORDER BY gc.rank IS NULL, gc.rank`
         ).bind(week).all();
         // Stars = prizes actually awarded for this week, not a guess from rank.
         const { results: prizes } = await env.DB.prepare(
@@ -532,6 +606,7 @@ export default {
             points: c.total_points, correct_predictions: c.correct_outcomes,
             correct_scores: c.correct_scores, matches_predicted: c.matches_predicted,
             stars_earned: starsByUser[c.user_id] || 0, ton_earned: 0,
+            league_name: c.league_name || null,
           })),
         });
       }

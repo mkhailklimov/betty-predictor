@@ -1,0 +1,47 @@
+.league-page .league-sub {
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: #b6cf7c;
+}
+
+.league-page .league-note {
+  margin: 0 0 0.9rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(236, 243, 158, 0.08);
+  border: 1px solid rgba(236, 243, 158, 0.2);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #ECF39E;
+  text-align: center;
+}
+
+.league-table .col.lg-num { width: 44px; text-align: center; font-size: 0.85rem; color: #ddd; }
+.league-table .col.lg-pts { width: 44px; text-align: center; font-size: 0.9rem; font-weight: 700; color: #ECF39E; }
+.league-table .col.player { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.league-page .league-legend {
+  margin: 0.7rem 0.3rem 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: #888;
+  text-align: center;
+}
+
+.league-table .lg-exact { width: 52px; }
+.league-table .table-header .col.lg-num,
+.league-table .table-header .col.lg-pts { font-size: inherit; font-weight: 700; color: #888; }
+
+/* League name next to a player in Champions and Hall of Fame. */
+.league-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #ECF39E;
+  border: 1px solid rgba(236, 243, 158, 0.45);
+  border-radius: 4px;
+  vertical-align: middle;
+  white-space: nowrap;
+}

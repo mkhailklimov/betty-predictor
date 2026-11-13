@@ -1,7 +1,7 @@
 import React from 'react'
 import '../styles/App.css'
 
-type Page = 'champions' | 'matches' | 'leaderboard' | 'rules'
+type Page = 'champions' | 'matches' | 'leaderboard' | 'league' | 'rules'
 
 interface NavigationProps {
   currentPage: Page
@@ -31,6 +31,13 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChang
       >
         <span className="icon">&#11088;</span>
         <span className="label">Hall of Fame</span>
+      </button>
+      <button
+        className={`nav-button ${currentPage === 'league' ? 'active' : ''}`}
+        onClick={() => onPageChange('league')}
+      >
+        <span className="icon">&#128737;</span>
+        <span className="label">League</span>
       </button>
       <button
         className={`nav-button ${currentPage === 'rules' ? 'active' : ''}`}

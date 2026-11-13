@@ -68,6 +68,7 @@ export const LeaderboardPage: React.FC = () => {
         )}
         {entry.username}
         {entry.is_premium && <span className="pro-badge">PRO</span>}
+        {entry.league_name && <span className="league-tag">{entry.league_name}</span>}
       </div>
       <div className="col rounds">{entry.weeks_played ?? 0}</div>
       <div className="col ton">{entry.points}</div>

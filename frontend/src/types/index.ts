@@ -69,6 +69,7 @@ export interface LeaderboardEntry {
   grams?: number
   is_premium?: boolean
   fav_team?: string | null
+  league_name?: string | null
 }
 
 export interface ChampionEntry {
@@ -81,6 +82,32 @@ export interface ChampionEntry {
   matches_predicted: number
   week_id: string
   ton_earned: number
+  league_name?: string | null
+}
+
+export interface League {
+  id: string
+  name: string
+  season_start_week: string
+  members: number
+}
+
+export interface LeagueRow {
+  rank: number
+  user_id: string
+  username: string
+  fav_team: string | null
+  is_premium: boolean
+  weeks_played: number
+  points: number
+  correct_results: number
+  exact_scores: number
+  is_me: boolean
+}
+
+export interface LeagueResponse {
+  league: League | null
+  table: LeagueRow[]
 }
 
 export interface ChampionsResponse {
