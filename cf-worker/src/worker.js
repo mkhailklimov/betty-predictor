@@ -844,13 +844,18 @@ export default {
           return json({ detail: 'tg_id (digits or @channel) and text (1-2000 chars, 1024 with photo) required' }, 400);
         }
         if (photo && !photo.startsWith('https://')) return json({ detail: 'photo must be an https URL' }, 400);
+        // Optional app_url (private chats only): open a test copy of the app, e.g. a pages.dev preview.
+        const appUrl = String(body.app_url || '');
+        if (appUrl && !/^https:\/\/([a-z0-9-]+\.)*(betty-scores-app\.pages\.dev|bettyscores\.com)(\/|$)/.test(appUrl)) {
+          return json({ detail: 'app_url must be a betty-scores-app.pages.dev or bettyscores.com address' }, 400);
+        }
         const msg = photo ? { chat_id: tgId, photo, caption: text } : { chat_id: tgId, text };
         if (button) {
           // web_app buttons only work in private chats; a channel gets a plain link to the Mini App.
           msg.reply_markup = {
             inline_keyboard: [[isChannel
               ? { text: button, url: 'https://t.me/bettyscores_bot/app' }
-              : { text: button, web_app: { url: 'https://app.bettyscores.com' } }]],
+              : { text: button, web_app: { url: appUrl || 'https://app.bettyscores.com' } }]],
           };
         }
         const tg = await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/${photo ? 'sendPhoto' : 'sendMessage'}`, {

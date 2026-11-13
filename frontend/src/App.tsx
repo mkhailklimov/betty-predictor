@@ -46,9 +46,11 @@ function captureRefSource(): string | undefined {
 }
 
 // League join links: startapp=league_<id>, e.g. league_master for the Master League.
+// Also ?league=<id> in the address, for app buttons that open the page directly.
 function captureLeague(): string | undefined {
   const startParam = WebApp.initDataUnsafe?.start_param
-  return startParam?.startsWith('league_') ? startParam.slice(7) : undefined
+  const fromUrl = new URLSearchParams(window.location.search).get('league') || undefined
+  return startParam?.startsWith('league_') ? startParam.slice(7) : fromUrl
 }
 
 const isLocalDev = (): boolean => {
