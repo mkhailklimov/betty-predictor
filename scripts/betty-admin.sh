@@ -162,6 +162,7 @@ case "$cmd" in
   migrate)
     f="${1:-}"; [ -s "$f" ] || f="$ROOT/$f"
     [ -s "$f" ] || { echo "give a migration file, e.g. cf-worker/migrations/0009_leagues.sql" >&2; exit 2; }
+    f="$(cd "$(dirname "$f")" && pwd)/$(basename "$f")"   # wrangler runs from cf-worker: pass a full path
     (cd "$ROOT/cf-worker" && npx wrangler d1 execute betty-db --remote --file "$f")
     ;;
   *) usage ;;
