@@ -139,6 +139,8 @@ export interface Challenge {
   resolved_at: string | null
   created_at: string
   my_prediction: { challenge_id: string; answer: string; points_earned: number } | null
+  /** Release 2.2: the 90-minute score, 120 minutes after kickoff (official once the week is scored). */
+  result?: { score: string; official: boolean; my_points: number | null } | null
   /** UTC kickoff; predictions close at this moment. Null for legacy rows with no time. */
   kickoff_utc: string | null
   /** Server's view of the lock at response time; the client re-checks on a timer. */

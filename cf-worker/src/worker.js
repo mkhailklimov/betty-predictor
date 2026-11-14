@@ -129,7 +129,8 @@ export default {
       return;
     }
 
-    // Hourly: lock each match once when its kickoff has passed.
+    // Hourly: the 90-minute scores of finished cards (release 2.2), then lock started matches.
+    try { await refreshLiveResults(env); } catch (e) { console.error('live results failed', e); }
     const now = new Date();
     const { results: matches } = await env.DB.prepare(
       'SELECT id, time, match_date_utc FROM matches WHERE is_active = 1'
@@ -154,7 +155,7 @@ export default {
     if (updates.length) await env.DB.batch(updates);
   },
 
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
@@ -1031,15 +1032,32 @@ export default {
         // the linked match). Cards are ordered by kickoff so locked ones sit
         // first and the client can default to the first open card.
         const nowMs = Date.now();
+        // Release 2.2: the 90-minute score, 120 minutes after kickoff (official result first).
+        if (ctx && challenges.some(c => liveDue(c, nowMs))) ctx.waitUntil(refreshLiveResults(env).catch(e => console.error('live results failed', e)));
+        const liveMap = {};
+        if (challenges.length) {
+          const { results: lv } = await env.DB.prepare(
+            `SELECT * FROM challenge_live WHERE challenge_id IN (${challenges.map(() => '?').join(',')})`
+          ).bind(...challenges.map(c => c.id)).all().catch(() => ({ results: [] }));
+          for (const r of lv) liveMap[r.challenge_id] = r;
+        }
         const enriched = challenges.map(c => {
           const m = c.match_id ? matchMap[c.match_id] : null;
           const kickoff = challengeKickoff(c, m);
           const home = c.home_team || (m && m.home_team) || null;
           const away = c.away_team || (m && m.away_team) || null;
+          const live = liveMap[c.id];
+          const shown = kickoff && nowMs >= kickoff.getTime() + LIVE_AFTER_MS;
+          const resultScore = c.correct_answer || (shown && live && live.final ? live.score : null);
+          const mine = myPredictions[c.id] || null;
           return {
             ...c,
             options: JSON.parse(c.options),
-            my_prediction: myPredictions[c.id] || null,
+            my_prediction: mine,
+            result: resultScore ? {
+              score: resultScore, official: !!c.correct_answer,
+              my_points: mine ? (c.correct_answer ? (mine.points_earned || 0) : pointsFor(c, mine.answer, resultScore)) : null,
+            } : null,
             kickoff_utc: kickoff ? kickoff.toISOString() : null,
             locked: !!kickoff && nowMs >= kickoff.getTime(),
             fixture: home && away ? `${home} vs ${away}` : null,
@@ -1193,12 +1211,7 @@ export default {
           for (const p of preds) {
             // Classical rule on exact-score cards: the exact score earns the card's
             // points (3), the right result (home win / draw / away win) earns 1.
-            let earned = p.answer === correctAnswer ? ch.points : 0;
-            if (!earned && ch.type === 'exact_score') {
-              const sign = (s) => { const m = /^(\d+):(\d+)$/.exec(String(s || '').trim()); return m ? Math.sign(+m[1] - +m[2]) : null; };
-              const a = sign(p.answer), r = sign(correctAnswer);
-              if (a !== null && a === r) earned = 1;
-            }
+            const earned = pointsFor(ch, p.answer, correctAnswer);
             await env.DB.prepare(
               'UPDATE challenge_predictions SET points_earned = ? WHERE id = ?'
             ).bind(earned, p.id).run();
@@ -2782,4 +2795,70 @@ function pemToDer(pem) {
   const buf = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
   return buf.buffer;
+}
+
+// --- Release 2.2: live results (the 90-minute score, 120 minutes after kickoff) ---
+const LIVE_AFTER_MS = 120 * 60 * 1000;
+const LIVE_WINDOW_MS = 4 * 86400000;   // stop trying four days after kickoff
+
+/** Points for one answer: the card's points for the exact answer; on exact-score cards 1 for the right result. */
+function pointsFor(ch, answer, correct) {
+  if (answer == null || correct == null) return 0;
+  if (String(answer).trim() === String(correct).trim()) return ch.points;
+  if (ch.type !== 'exact_score') return 0;
+  const sign = (x) => { const m = /^(\d+):(\d+)$/.exec(String(x || '').trim()); return m ? Math.sign(+m[1] - +m[2]) : null; };
+  const a = sign(answer), r = sign(correct);
+  return a !== null && a === r ? 1 : 0;
+}
+
+/** True when an unresolved exact-score card is past kickoff + 120 minutes and inside the window. */
+function liveDue(c, nowMs) {
+  if (c.correct_answer || !c.source_id || c.type !== 'exact_score') return false;
+  const k = parseKickoffUtc(c.kickoff_utc);
+  return !!k && nowMs >= k.getTime() + LIVE_AFTER_MS && nowMs <= k.getTime() + LIVE_WINDOW_MS;
+}
+
+/** ESPN's score after 90 minutes for one event: first two halves only, so extra time and penalties are left out. */
+async function espnScore90(eventId) {
+  const r = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${encodeURIComponent(eventId)}`);
+  if (!r.ok) return null;
+  const d = await r.json();
+  const comp = d && d.header && d.header.competitions && d.header.competitions[0];
+  if (!comp) return null;
+  const type = (comp.status && comp.status.type) || {};
+  const side = (ha) => (comp.competitors || []).find(t => t.homeAway === ha);
+  const goals = (t) => {
+    if (!t) return null;
+    const ls = t.linescores || [];
+    if (ls.length >= 2) return (+ls[0].displayValue || 0) + (+ls[1].displayValue || 0);
+    return t.score != null && type.name === 'STATUS_FULL_TIME' ? +t.score : null;
+  };
+  const h = goals(side('home')), a = goals(side('away'));
+  if (h == null || a == null || Number.isNaN(h) || Number.isNaN(a)) return null;
+  return { score: `${h}:${a}`, status: type.name || null, final: !!type.completed };
+}
+
+/** Fetch the 90-minute score of every card that is due and not yet final. Throttled: one try per card per 5 minutes. */
+async function refreshLiveResults(env) {
+  const nowMs = Date.now();
+  const { results: cands } = await env.DB.prepare(
+    `SELECT c.id, c.source_id, c.kickoff_utc, c.type, c.correct_answer, l.final, l.fetched_at
+     FROM challenges c LEFT JOIN challenge_live l ON l.challenge_id = c.id
+     WHERE c.correct_answer IS NULL AND c.source_id IS NOT NULL AND c.type = 'exact_score'
+       AND (l.final IS NULL OR l.final = 0)`
+  ).all();
+  let fetched = 0;
+  for (const c of cands) {
+    if (!liveDue(c, nowMs)) continue;
+    if (c.fetched_at && nowMs - Date.parse(String(c.fetched_at).replace(' ', 'T') + 'Z') < 5 * 60 * 1000) continue;
+    if (fetched >= 12) break;
+    fetched++;
+    let res = null;
+    try { res = await espnScore90(c.source_id); } catch (e) { console.error('espn live', c.source_id, e); }
+    await env.DB.prepare(
+      `INSERT INTO challenge_live (challenge_id, score, status, final, fetched_at) VALUES (?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(challenge_id) DO UPDATE SET score = excluded.score, status = excluded.status, final = excluded.final, fetched_at = excluded.fetched_at`
+    ).bind(c.id, res ? res.score : null, res ? res.status : null, res && res.final ? 1 : 0).run();
+  }
+  return { fetched };
 }

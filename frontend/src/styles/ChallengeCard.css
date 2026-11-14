@@ -292,3 +292,24 @@
   font-weight: 600;
   color: rgba(236, 243, 158, 0.75);
 }
+
+/* Release 2.2: the full-time box, 120 minutes after kickoff */
+.cc__ft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: 0.8rem;
+  padding: 0.6rem 0.8rem 0.7rem;
+  border-radius: 12px;
+  background: rgba(236, 243, 158, 0.07);
+  border: 1px solid rgba(236, 243, 158, 0.25);
+  text-align: center;
+}
+.cc__ft--win { background: rgba(76, 175, 80, 0.14); border-color: rgba(76, 175, 80, 0.45); }
+.cc__ft-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: #b6cf7c; }
+.cc__ft-score { font-size: 1.9rem; font-weight: 800; color: #ECF39E; line-height: 1.1; }
+.cc__ft-mine { font-size: 0.85rem; color: #ddd; }
+.cc__ft-mine b { color: #ECF39E; }
+.cc__ft--win .cc__ft-mine b { color: #6fdc7a; }
+.cc__ft-note { font-size: 0.68rem; color: #888; margin-top: 0.15rem; }

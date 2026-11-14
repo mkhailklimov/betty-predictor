@@ -117,6 +117,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
   const isLaunchWeek = challenge.week_id === LAUNCH_WEEK
   const myAnswer = challenge.my_prediction?.answer ?? null
   const pointsEarned = challenge.my_prediction?.points_earned ?? 0
+  const fullTime = challenge.type === 'exact_score' && challenge.result ? challenge.result : null
   const m = challenge.match
   const challengeNumberMatch = challenge.id.match(/(?:^|[-_])(?:ch[-_])?(\d+)$/i)
   const challengeNumber = challengeNumberMatch
@@ -308,8 +309,26 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
         </div>
       )}
 
+      {/* Release 2.2: full-time box on exact-score cards, 120 minutes after kickoff */}
+      {fullTime && (
+        <div className={`cc__ft ${fullTime.my_points ? 'cc__ft--win' : ''}`} role="status">
+          <span className="cc__ft-label">Full time, 90 minutes</span>
+          <span className="cc__ft-score">{fullTime.score.replace(':', ' : ')}</span>
+          {myAnswer ? (
+            <span className="cc__ft-mine">
+              Your pick {myAnswer.replace(':', ' : ')} &middot;{' '}
+              <b>{fullTime.my_points ? `+${fullTime.my_points} ${fullTime.my_points === 1 ? 'point' : 'points'}` : '0 points'}</b>
+              {fullTime.my_points === challenge.points ? ' · exact score' : fullTime.my_points ? ' · right result' : ''}
+            </span>
+          ) : (
+            <span className="cc__ft-mine">You did not pick this one</span>
+          )}
+          {!fullTime.official && <span className="cc__ft-note">Counts in the tables when the week is scored</span>}
+        </div>
+      )}
+
       {/* Result / saved indicator */}
-      {resolved && myAnswer && (
+      {!fullTime && resolved && myAnswer && (
         <div className={`cc__result ${pointsEarned > 0 ? 'cc__result--win' : 'cc__result--loss'}`}>
           {pointsEarned > 0
             ? challenge.type === 'exact_score' && pointsEarned < challenge.points
@@ -318,12 +337,12 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
             : `Result: ${optionLabel(challenge.correct_answer!)} \u00B7 Your pick: ${optionLabel(myAnswer)} \u2014 next one's yours!`}
         </div>
       )}
-      {resolved && !myAnswer && (
+      {!fullTime && resolved && !myAnswer && (
         <div className="cc__result cc__result--missed">
           Answer: {challenge.correct_answer}
         </div>
       )}
-      {locked && !resolved && (
+      {!fullTime && locked && !resolved && (
         <div className="cc__locked" role="status">
           &#128274; The event is locked
           {myAnswer ? <span className="cc__locked-pick"> &middot; Your pick: {myAnswer}</span> : null}
