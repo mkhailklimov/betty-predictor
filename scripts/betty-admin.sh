@@ -18,9 +18,21 @@
 #   bash scripts/betty-admin.sh sheet-add rows.tsv     append rows to Release2.1 (8 tab-separated cells per line)
 #   bash scripts/betty-admin.sh deploy-worker          npx wrangler deploy (cf-worker)
 #   bash scripts/betty-admin.sh deploy-frontend        build + wrangler pages deploy to app.bettyscores.com
+#   bash scripts/betty-admin.sh deploy-dev-worker      deploy cf-worker to betty-api-dev (dev bot @betty_worldcup2026_bot)
+#   bash scripts/betty-admin.sh deploy-dev-frontend    build + deploy to dev.betty-scores-app.pages.dev (opens on the dev bot)
+#   bash scripts/betty-admin.sh migrate <file.sql>     apply one migration to betty-db (SHARED by live and dev)
+#
+# Release 2.2 is developed on main and tested on dev until 30 Nov 2026. Live deploys
+# are refused unless the checked-out branch is PROD_BRANCH (release-2.1 until then;
+# set it to main on release day).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PROD_BRANCH="release-2.1"
+prod_guard() {
+  local b; b="$(git -C "$ROOT" rev-parse --abbrev-ref HEAD)"
+  [ "$b" = "$PROD_BRANCH" ] || { echo "Live deploy refused: on '$b', live comes from '$PROD_BRANCH' (2.2 is dev only until 30 Nov)." >&2; exit 3; }
+}
 API="https://api.bettyscores.com"
 TOKEN_FILE="$ROOT/cf-worker/.admin-token"
 
@@ -132,11 +144,25 @@ case "$cmd" in
     done
     ;;
   deploy-worker)
+    prod_guard
     (cd "$ROOT/cf-worker" && npx wrangler deploy)
     ;;
   deploy-frontend)
+    prod_guard
     (cd "$ROOT/frontend" && npm run build && \
       npx wrangler pages deploy dist --project-name betty-scores-app --branch main)
+    ;;
+  deploy-dev-worker)
+    (cd "$ROOT/cf-worker" && npx wrangler deploy --env dev)
+    ;;
+  deploy-dev-frontend)
+    (cd "$ROOT/frontend" && npm run build && \
+      npx wrangler pages deploy dist --project-name betty-scores-app --branch dev)
+    ;;
+  migrate)
+    f="${1:-}"; [ -s "$f" ] || f="$ROOT/$f"
+    [ -s "$f" ] || { echo "give a migration file, e.g. cf-worker/migrations/0009_leagues.sql" >&2; exit 2; }
+    (cd "$ROOT/cf-worker" && npx wrangler d1 execute betty-db --remote --file "$f")
     ;;
   *) usage ;;
 esac
