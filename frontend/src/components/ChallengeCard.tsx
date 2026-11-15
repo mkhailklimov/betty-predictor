@@ -110,6 +110,13 @@ const FIXTURE_STICKERS: Record<string, { src: string; alt: string }> = {
   '401915821': { src: '/stickers/GET_BHA.png', alt: 'Getafe versus Brighton, Conference League' },
 }
 
+// A lightning bolt between the two pictures (the old "vs").
+const Bolt: React.FC = () => (
+  <span className="cc__bolt" role="img" aria-label="versus">
+    <svg viewBox="0 0 32 56" aria-hidden="true"><path d="M20 1 L4 31 H15 L10 55 L28 21 H17 L23 1 Z" /></svg>
+  </span>
+)
+
 export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked, onPredict }) => {
   const isReels = challenge.options.length === 1 && challenge.options[0] === 'reels'
   const resolved = !!challenge.correct_answer
@@ -238,7 +245,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
       {teamCards && (
         <div className="cc__team-cards">
           <img src={teamCards.home} alt={homeName ?? ''} />
-          <span className="cc__team-cards-vs">vs</span>
+          <Bolt />
           <img src={teamCards.away} alt={awayName ?? ''} />
         </div>
       )}
@@ -247,7 +254,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
         <div className="cc__shields">
           {([['home', shields.home, homeName], ['away', shields.away, awayName]] as const).map(([side, src, name]) => (
             <React.Fragment key={side}>
-              {side === 'away' && <span className="cc__team-cards-vs">vs</span>}
+              {side === 'away' && <Bolt />}
               <div className={`cc__shield-box cc__shield-box--${side}`}>
                 <div className="cc__shield" style={{ '--badge': `url(${src})` } as React.CSSProperties}>
                   <img src={src} alt="" />
