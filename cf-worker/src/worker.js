@@ -315,16 +315,18 @@ export default {
         });
       }
 
-      // A browser guest picks a nickname (e.g. their YouTube or Facebook name).
-      // With a nickname the guest is ranked for the weekly Stars (see isPrizeEligible).
-      // POST /api/user/nickname {"nickname": "..."}  (guest auth only)
+      // A player picks a nickname (release 2.2: Telegram players too, e.g. "Gooner#1").
+      // A browser guest with a nickname is ranked for the weekly Stars (see isPrizeEligible).
+      // Typed nicknames are Latin only, so every table stays readable and nobody can copy a
+      // name with look-alike letters; names that came from Telegram stay as they are.
+      // POST /api/user/nickname {"nickname": "..."}
       if (method === 'POST' && path === '/api/user/nickname') {
         const auth = await resolveTgId(request, env);
-        if (!auth || auth.authSource !== 'guest') return json({ detail: 'Guests only' }, 401);
+        if (!auth) return json({ detail: 'Unauthorized' }, 401);
         const body = await request.json().catch(() => ({}));
         const nick = String(body.nickname || '').trim().replace(/\s+/g, ' ');
-        if (!/^[\p{L}\p{N}_. -]{3,20}$/u.test(nick)) {
-          return json({ detail: 'Nickname: 3-20 letters, digits, spaces, _ . -' }, 400);
+        if (!/^[A-Za-z0-9_.# -]{3,20}$/.test(nick) || !/[A-Za-z]/.test(nick)) {
+          return json({ detail: 'Nickname: 3-20 Latin letters, digits, spaces and _ . - #' }, 400);
         }
         if (/^(guest|betty|admin|bettyscores)$/i.test(nick)) return json({ detail: 'Nickname taken' }, 409);
         const taken = await env.DB.prepare(
@@ -545,7 +547,7 @@ export default {
       // --- Leaderboard (all-time, served from gold_leaderboard mart) ---
       if (method === 'GET' && (path === '/api/leaderboard' || path === '/api/leaderboard/overall')) {
         const { results } = await env.DB.prepare(
-          `SELECT gl.*, COALESCE(wp.total_stars, 0) AS stars_earned,
+          `SELECT gl.*, COALESCE(u.username, gl.username) AS username, COALESCE(wp.total_stars, 0) AS stars_earned,
                   COALESCE(u.is_premium, gl.is_premium) AS is_premium,
                   COALESCE(u.fav_team, gl.fav_team) AS fav_team, lg.name AS league_name
            FROM gold_leaderboard gl
@@ -590,7 +592,8 @@ export default {
         }
         if (!week) return json({ week_id: null, results: [] });
         const { results } = await env.DB.prepare(
-          `SELECT gc.*, lg.name AS league_name FROM gold_champions gc
+          `SELECT gc.*, COALESCE(u.username, gc.username) AS username, u.fav_team AS fav_team, lg.name AS league_name FROM gold_champions gc
+           LEFT JOIN users u ON u.id = gc.user_id
            LEFT JOIN league_members lm ON lm.user_id = gc.user_id
            LEFT JOIN leagues lg ON lg.id = lm.league_id
            WHERE gc.week_id = ? ORDER BY gc.rank IS NULL, gc.rank`
@@ -607,7 +610,7 @@ export default {
             points: c.total_points, correct_predictions: c.correct_outcomes,
             correct_scores: c.correct_scores, matches_predicted: c.matches_predicted,
             stars_earned: starsByUser[c.user_id] || 0, ton_earned: 0,
-            league_name: c.league_name || null,
+            league_name: c.league_name || null, fav_team: c.fav_team || null,
           })),
         });
       }
@@ -898,7 +901,7 @@ export default {
         if (!token) return json({ detail: 'Unauthorized' }, 401);
         const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
-        if (user.is_premium !== 1) return json({ detail: 'Premium required' }, 403);
+        // Release 2.2: avatars are free for everyone.
         const body = await request.json();
         const code = (body && body.team_code) ? String(body.team_code).toUpperCase() : '';
         if (!ALLOWED_TEAMS.has(code)) return json({ detail: 'Invalid team_code' }, 400);

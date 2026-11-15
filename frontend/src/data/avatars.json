@@ -1384,5 +1384,47 @@
 "name": "Tottenham Hotspur",
 "group": "epl",
 "src": "/avatars/clubs/EPL_TOT.svg"
+},
+{
+"code": "UCL_GAL",
+"name": "Galatasaray",
+"group": "club",
+"src": "/avatars/clubs/UCL_GAL.svg"
+},
+{
+"code": "UCL_BVB",
+"name": "Borussia Dortmund",
+"group": "club",
+"src": "/avatars/clubs/UCL_BVB.svg"
+},
+{
+"code": "UCL_NAP",
+"name": "Napoli",
+"group": "club",
+"src": "/avatars/clubs/UCL_NAP.svg"
+},
+{
+"code": "UCL_BRU",
+"name": "Club Brugge",
+"group": "club",
+"src": "/avatars/clubs/UCL_BRU.svg"
+},
+{
+"code": "UCL_SCP",
+"name": "Sporting CP",
+"group": "club",
+"src": "/avatars/clubs/UCL_SCP.svg"
+},
+{
+"code": "SCO_HEA",
+"name": "Heart of Midlothian",
+"group": "club",
+"src": "/avatars/clubs/SCO_HEA.svg"
+},
+{
+"code": "SCO_CEL",
+"name": "Celtic",
+"group": "club",
+"src": "/avatars/clubs/SCO_CEL.svg"
 }
 ]

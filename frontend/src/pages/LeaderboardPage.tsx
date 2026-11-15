@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import WebApp from '@twa-dev/sdk'
-import { leaderboardApi, userApi, paymentsApi } from '../services/api'
+import { leaderboardApi, userApi, guestApi } from '../services/api'
 import { LeaderboardEntry, User } from '../types'
 import { FlagPickerModal } from '../components/FlagPickerModal'
 import { getAvatar } from '../data/avatars'
@@ -10,7 +9,10 @@ export const LeaderboardPage: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [me, setMe] = useState<User | null>(null)
-  const [premiumStatus, setPremiumStatus] = useState<'idle' | 'loading' | 'paid' | 'failed'>('idle')
+  const [editing, setEditing] = useState(false)
+  const [nick, setNick] = useState('')
+  const [nickError, setNickError] = useState<string | null>(null)
+  const [nickBusy, setNickBusy] = useState(false)
   const [showFlagPicker, setShowFlagPicker] = useState(false)
   const [showAll, setShowAll] = useState(false)
 
@@ -33,7 +35,6 @@ export const LeaderboardPage: React.FC = () => {
     loadLeaderboard()
   }, [])
 
-  const isPremium = !!me?.is_premium
   const scorecard = leaderboard
     .filter((entry) => {
       const username = entry.username?.trim() || ''
@@ -76,33 +77,22 @@ export const LeaderboardPage: React.FC = () => {
     </div>
   )
 
-  const handleBuyPremium = async () => {
-    setPremiumStatus('loading')
+  // Release 2.2: any player may choose a nickname (Latin letters, digits, spaces, _ . - #).
+  const saveNick = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const value = nick.trim()
+    if (value.length < 3) { setNickError('At least 3 characters'); return }
+    setNickBusy(true)
+    setNickError(null)
     try {
-      const { data } = await paymentsApi.createStarsInvoice()
-      WebApp.openInvoice(data.invoice_url, async (status) => {
-        if (status === 'paid') {
-          setPremiumStatus('paid')
-          // Telegram's payment webhook can land a moment after the client
-          // callback; picking before it does would be rejected as non-premium.
-          for (let attempt = 0; attempt < 10; attempt++) {
-            try {
-              const { data: meData } = await userApi.getMe()
-              setMe(meData)
-              if (meData.is_premium) break
-            } catch {}
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-          }
-          setShowFlagPicker(true)
-        } else if (status === 'cancelled') {
-          setPremiumStatus('idle')
-        } else {
-          setPremiumStatus('failed')
-        }
-      })
-    } catch (e) {
-      console.error('createStarsInvoice failed:', e)
-      setPremiumStatus('failed')
+      const { data } = await guestApi.setNickname(value)
+      setMe((prev) => (prev ? { ...prev, username: data.nickname } : prev))
+      setLeaderboard((prev) => prev.map((row) => (me && row.user_id === me.id ? { ...row, username: data.nickname } : row)))
+      setEditing(false)
+    } catch (err: any) {
+      setNickError(err?.response?.data?.detail || 'Could not save, try again')
+    } finally {
+      setNickBusy(false)
     }
   }
 
@@ -152,33 +142,38 @@ export const LeaderboardPage: React.FC = () => {
         </div>
       )}
 
-      <div className="premium-zone">
-        {isPremium || premiumStatus === 'paid' ? (
-          <>
-            <p className="premium-hint">
-              <span className="pro-badge">PRO</span>
-              {getAvatar(me?.fav_team)
-                ? ` Your avatar: ${getAvatar(me?.fav_team)!.name}.`
-                : ' Pick your national team or Premier League club.'}
-            </p>
-            <button className="premium-btn" onClick={() => setShowFlagPicker(true)}>
-              {me?.fav_team ? 'Change my avatar' : 'Pick my avatar'}
-            </button>
-          </>
+      <div className="premium-zone me-zone">
+        <p className="me-zone__title">Your player</p>
+        <div className="me-zone__card">
+          {getAvatar(me?.fav_team) ? (
+            <img className="me-zone__avatar" src={getAvatar(me?.fav_team)!.src} alt={getAvatar(me?.fav_team)!.name} />
+          ) : (
+            <span className="me-zone__avatar me-zone__avatar--empty">?</span>
+          )}
+          <span className="me-zone__name">{me?.username || 'Player'}</span>
+        </div>
+        {editing ? (
+          <form className="me-zone__form" onSubmit={saveNick}>
+            <input
+              className="me-zone__input"
+              value={nick}
+              onChange={(e) => setNick(e.target.value)}
+              maxLength={20}
+              placeholder="e.g. Gooner#1"
+              aria-label="New nickname"
+              autoFocus
+            />
+            <button className="premium-btn" type="submit" disabled={nickBusy}>Save</button>
+            <button className="me-zone__cancel" type="button" onClick={() => { setEditing(false); setNickError(null) }}>Cancel</button>
+          </form>
         ) : (
-          <>
-            <button
-              className="premium-btn"
-              onClick={handleBuyPremium}
-              disabled={premiumStatus === 'loading'}
-            >
-              {premiumStatus === 'loading' ? 'Opening...' : 'Get fave team avatar for 50 ⭐'}
-            </button>
-            {premiumStatus === 'failed' && (
-              <p className="premium-error">Couldn&apos;t start payment. Try again later.</p>
-            )}
-          </>
+          <div className="me-zone__buttons">
+            <button className="premium-btn" onClick={() => { setNick(me?.username || ''); setEditing(true) }}>Change name</button>
+            <button className="premium-btn" onClick={() => setShowFlagPicker(true)}>{me?.fav_team ? 'Change avatar' : 'Pick avatar'}</button>
+          </div>
         )}
+        {nickError && <p className="premium-error">{nickError}</p>}
+        <p className="me-zone__hint">Latin letters, digits, spaces and _ . - # (3 to 20). Avatars: any nation, Premier League or European club.</p>
       </div>
 
       {showFlagPicker && (

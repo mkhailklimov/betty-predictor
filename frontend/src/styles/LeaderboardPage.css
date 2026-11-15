@@ -177,3 +177,16 @@
   object-fit: cover;
   vertical-align: middle;
 }
+
+/* Release 2.2: Your player (name + avatar, free) */
+.me-zone__title { margin: 0 0 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #b6cf7c; }
+.me-zone__card { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; }
+.me-zone__avatar { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+.me-zone__avatar--empty { display: inline-grid; place-items: center; background: rgba(0,0,0,0.25); color: #888; font-weight: 700; }
+.me-zone__name { font-size: 1.15rem; font-weight: 800; color: #fff; }
+.me-zone__buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.me-zone__buttons .premium-btn { padding: 10px 16px; font-size: 0.92rem; }
+.me-zone__form { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.me-zone__input { flex: 1 1 140px; max-width: 200px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(236,243,158,0.4); background: rgba(0,0,0,0.25); color: #fff; font-size: 0.95rem; }
+.me-zone__cancel { background: none; border: none; color: #b6cf7c; font-size: 0.85rem; cursor: pointer; }
+.me-zone__hint { margin: 12px 0 0; font-size: 0.72rem; line-height: 1.4; color: #9fb48a; }

@@ -3,7 +3,7 @@ import { paymentsApi } from '../services/api'
 import { AVATAR_LIST, getAvatar } from '../data/avatars'
 import '../styles/FlagPickerModal.css'
 
-type Tab = 'nation' | 'epl'
+type Tab = 'nation' | 'epl' | 'club'
 
 interface Props {
   current?: string | null
@@ -57,6 +57,12 @@ export const FlagPickerModal: React.FC<Props> = ({ current, onPicked, onClose })
             onClick={() => setTab('epl')}
           >
             Premier League
+          </button>
+          <button
+            className={`flag-modal__tab ${tab === 'club' ? 'flag-modal__tab--active' : ''}`}
+            onClick={() => setTab('club')}
+          >
+            Europe
           </button>
         </div>
         {tab === 'nation' && (
