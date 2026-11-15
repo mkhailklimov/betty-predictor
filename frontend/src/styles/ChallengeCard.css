@@ -109,11 +109,19 @@
   width: 62%;
   aspect-ratio: 1;
   transform-style: preserve-3d;
-  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.45)) drop-shadow(0 2px 1px rgba(0, 0, 0, 0.35));
+  /* a sticker: white die-cut edge, then the shadow on the floor */
+  filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
+    drop-shadow(0 10px 8px rgba(0, 0, 0, 0.45)) drop-shadow(0 2px 1px rgba(0, 0, 0, 0.35));
 }
 
-.cc__shield-box--home .cc__shield { transform: rotateY(16deg) rotateX(6deg); }
-.cc__shield-box--away .cc__shield { transform: rotateY(-16deg) rotateX(6deg); }
+.cc__shield-box--home .cc__shield { transform: rotateY(18deg) rotateX(6deg) rotateZ(7deg); }
+.cc__shield-box--away .cc__shield { transform: rotateY(-18deg) rotateX(6deg) rotateZ(-7deg); }
+
+/* the lightning bolt between the two pictures */
+.cc__bolt { display: inline-flex; width: 30px; flex: 0 0 30px; justify-content: center; }
+.cc__bolt svg { width: 26px; height: 46px; overflow: visible; }
+.cc__bolt path { fill: #ffd90f; stroke: #fff6b0; stroke-width: 1.2; stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(255, 217, 15, 0.85)) drop-shadow(0 0 10px rgba(255, 170, 0, 0.55)); }
 
 .cc__shield img {
   width: 100%;

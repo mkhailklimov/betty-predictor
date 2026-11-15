@@ -1,4 +1,5 @@
 import AVATARS from './avatars.json'
+import { EXTRA_SHIELDS } from './shields'
 
 // PRO avatars: every FIFA nation (illustrated card where we have one, else a
 // flag) and Premier League club badges. Codes are stored in users.fav_team;
@@ -31,4 +32,4 @@ const CLUB_BY_NAME = new Map(
 )
 
 export const clubBadge = (name?: string | null): string | null =>
-  (name && CLUB_BY_NAME.get(name)) || null
+  (name && (CLUB_BY_NAME.get(name) || EXTRA_SHIELDS[name])) || null
