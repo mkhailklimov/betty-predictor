@@ -193,3 +193,18 @@ Football club emblem in sticker style, square image. A shield-shaped badge with 
 ```
 Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a big four-leaf clover, green on a white field, green and white horizontal hoops behind it.
 ```
+
+## Evening 16 Nov
+- **Prizes week 46 paid:** 1st Th7Tezar 100 Stars (marked paid). 2nd Underdogs United: the owner's friend, paid outside Telegram with a bonus equal to 100 Stars (marked paid, note on the row).
+- **Proposal (waiting for owner's OK):** nickname (non-Telegram) players keep playing and stay in the tables, but only Telegram players get Stars; a nickname winner's prize moves to the next Telegram player. Needs a server change (`isPrizeEligible`) + the NicknameBar text ("Winners collect them in Telegram"), both branches, then deploy. Until then: check winners by hand at each Monday resolve.
+- **Congrats to Arvin** drafted (assumed Th7Tezar is Arvin's account, owner to confirm).
+- **Club crests, first 8 in** (owner generated): Arsenal, Aston Villa, Bournemouth, Brentford, Brighton, Chelsea, Coventry, Crystal Palace. Grey background cut out, trimmed, 512 px PNG in `frontend/public/avatars/clubs/EPL_*.png`, `avatars.json` points to them. release-2.1 `dcfa9b6`, main `28a3ead`. Tested in a local build on week 47 cards. **NOT deployed yet** (needs owner's "deploy").
+- Workflow for the rest: owner saves raw pictures in `betty-release-2.1/frontend/public/teams/Cards/<CODE>.png`; I move originals to `C:\Users\mihel\betty-crests` (outside the repo, so they don't ship), cut + wire on both branches, test, deploy on "deploy".
+- Still to generate: 12 EPL (EVE FUL HUL IPS LEE LIV MNC MAN NEW NFO SUN TOT) + 7 others for week 48 (GAL BVB NAP BRU SCP HEA CEL; on release-2.1 these come from `src/data/shields.ts`, swap the `.svg` paths there too).
+
+## Next session
+1. Deploy the 8 crests (and any new ones) on "deploy".
+2. Decide the nickname-prize rule.
+3. Recheck week 49 dry run (`publish 2026_49 --dry`) before 23 Nov.
+4. Mon 23 Nov morning: resolve week 47 first (ESPN finals), check winners are Telegram players.
+5. Before 30 Nov: remove owner's test Master League membership; release 2.2 on Mon 30 Nov.
