@@ -1384,5 +1384,11 @@
 "name": "Tottenham Hotspur",
 "group": "epl",
 "src": "/avatars/clubs/EPL_TOT.svg"
+},
+{
+"code": "PIR",
+"name": "Pirate flag",
+"group": "special",
+"src": "/avatars/special/PIR.svg"
 }
 ]

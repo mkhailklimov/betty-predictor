@@ -7,7 +7,7 @@ import { EXTRA_SHIELDS } from './shields'
 export interface Avatar {
   code: string
   name: string
-  group: 'nation' | 'epl'
+  group: 'nation' | 'epl' | 'special'  // special: given by hand, never in the picker
   src: string
 }
 

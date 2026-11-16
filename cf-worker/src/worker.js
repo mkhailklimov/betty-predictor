@@ -20,7 +20,8 @@ function uuid() {
 
 // PRO avatars: every FIFA nation + Premier League clubs (EPL_XXX). Shared
 // with the frontend picker via frontend/src/data/avatars.json.
-const ALLOWED_TEAMS = new Set(AVATARS.map(a => a.code));
+// 'special' avatars (e.g. PIR pirate flag) are given by hand only, never chosen.
+const ALLOWED_TEAMS = new Set(AVATARS.filter(a => a.group !== 'special').map(a => a.code));
 
 // Internal/test accounts — excluded from gold marts (Champions/Leaderboard).
 // MikeKlimov, bettyscores bot, bet_monitoring, TestUser, Illyria30_ad (added
