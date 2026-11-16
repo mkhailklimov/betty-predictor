@@ -1426,5 +1426,11 @@
 "name": "Celtic",
 "group": "club",
 "src": "/avatars/clubs/SCO_CEL.svg"
+},
+{
+"code": "PIR",
+"name": "Pirate flag",
+"group": "special",
+"src": "/avatars/special/PIR.svg"
 }
 ]

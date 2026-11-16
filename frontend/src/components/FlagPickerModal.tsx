@@ -14,7 +14,7 @@ interface Props {
 export const FlagPickerModal: React.FC<Props> = ({ current, onPicked, onClose }) => {
   const [picking, setPicking] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<Tab>(getAvatar(current)?.group ?? 'nation')
+  const [tab, setTab] = useState<Tab>(() => { const g = getAvatar(current)?.group; return g && g !== 'special' ? g : 'nation' })
   const [query, setQuery] = useState('')
 
   const q = query.trim().toLowerCase()
