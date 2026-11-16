@@ -25,9 +25,8 @@ const ALLOWED_TEAMS = new Set(AVATARS.filter(a => a.group !== 'special').map(a =
 
 // Internal/test accounts — excluded from gold marts (Champions/Leaderboard).
 // MikeKlimov, bettyscores bot, bet_monitoring, TestUser, Illyria30_ad (added
-// 2026-10-11), owner's 'Mihail Klimov' guest nickname (added 2026-11-16). Not ranked, so never awarded a Stars prize.
-const INTERNAL_TG_IDS = new Set(['1056798742', '8513208258', '7653593987', 'test_123', '8995334871',
-  'guest:75b46a7a-bd15-4726-9ca3-5ed220f3fb0e']);
+// 2026-10-11). Not ranked, so never awarded a Stars prize.
+const INTERNAL_TG_IDS = new Set(['1056798742', '8513208258', '7653593987', 'test_123', '8995334871']);
 
 // Who can be ranked for the weekly Stars: Telegram players, and browser guests
 // who chose a nickname (default guest name is 'Guest'). Takes a silver dimUser row.
