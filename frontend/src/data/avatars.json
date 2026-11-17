@@ -1317,43 +1317,43 @@
 "code": "EPL_EVE",
 "name": "Everton",
 "group": "epl",
-"src": "/avatars/clubs/EPL_EVE.svg"
+"src": "/avatars/clubs/EPL_EVE.png"
 },
 {
 "code": "EPL_FUL",
 "name": "Fulham",
 "group": "epl",
-"src": "/avatars/clubs/EPL_FUL.svg"
+"src": "/avatars/clubs/EPL_FUL.png"
 },
 {
 "code": "EPL_HUL",
 "name": "Hull City",
 "group": "epl",
-"src": "/avatars/clubs/EPL_HUL.svg"
+"src": "/avatars/clubs/EPL_HUL.png"
 },
 {
 "code": "EPL_IPS",
 "name": "Ipswich Town",
 "group": "epl",
-"src": "/avatars/clubs/EPL_IPS.svg"
+"src": "/avatars/clubs/EPL_IPS.png"
 },
 {
 "code": "EPL_LEE",
 "name": "Leeds United",
 "group": "epl",
-"src": "/avatars/clubs/EPL_LEE.svg"
+"src": "/avatars/clubs/EPL_LEE.png"
 },
 {
 "code": "EPL_LIV",
 "name": "Liverpool",
 "group": "epl",
-"src": "/avatars/clubs/EPL_LIV.svg"
+"src": "/avatars/clubs/EPL_LIV.png"
 },
 {
 "code": "EPL_MNC",
 "name": "Manchester City",
 "group": "epl",
-"src": "/avatars/clubs/EPL_MNC.svg"
+"src": "/avatars/clubs/EPL_MNC.png"
 },
 {
 "code": "EPL_MAN",
@@ -1365,25 +1365,25 @@
 "code": "EPL_NEW",
 "name": "Newcastle United",
 "group": "epl",
-"src": "/avatars/clubs/EPL_NEW.svg"
+"src": "/avatars/clubs/EPL_NEW.png"
 },
 {
 "code": "EPL_NFO",
 "name": "Nottingham Forest",
 "group": "epl",
-"src": "/avatars/clubs/EPL_NFO.svg"
+"src": "/avatars/clubs/EPL_NFO.png"
 },
 {
 "code": "EPL_SUN",
 "name": "Sunderland",
 "group": "epl",
-"src": "/avatars/clubs/EPL_SUN.svg"
+"src": "/avatars/clubs/EPL_SUN.png"
 },
 {
 "code": "EPL_TOT",
 "name": "Tottenham Hotspur",
 "group": "epl",
-"src": "/avatars/clubs/EPL_TOT.svg"
+"src": "/avatars/clubs/EPL_TOT.png"
 },
 {
 "code": "PIR",
