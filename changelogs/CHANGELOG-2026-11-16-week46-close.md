@@ -211,3 +211,9 @@ Football club emblem in sticker style, square image. A shield-shaped badge with 
 
 ## 17 Nov: crest prompts v2
 Owner: the v1 stickers look like kindergarten (Man Utd devil in a nappy). Rewritten all 27 prompts in a mature esports / NFL team-logo style (fierce mascots, sharp shapes, rim lighting, no chibi or baby proportions), still die-cut stickers on a grey background. Napoli: erupting volcano instead of the donkey. Full prompts in `design/prompts/club-crests.md` (v1 replaced). The 8 v1 crests already wired (not deployed) can be regenerated in v2 for a consistent set.
+
+## 17 Nov: crest style chosen, prompts v3
+- Owner chose the aggressive esports-mascot style after the Man Utd red devil test. Devil cut out and wired as `EPL_MAN.png` (release-2.1 `298e808`, main `dbd1efe`, not deployed). Original in `C:\Users\mihel\betty-crests`.
+- Lesson: generators weight the start of the prompt, so the subject goes first; busts avoid childish bodies; "subject large, inside the shield" keeps it readable at avatar size.
+- Background cutter improved (`C:\Users\mihel\betty-crests\cut.py`): matches the sampled background colour (keeps dark armour), keeps only the main sticker shape.
+- All other 26 prompts rewritten in this style (`design/prompts/club-crests.md` v3). Owner regenerates all, including the 8 earlier ones.
