@@ -208,3 +208,6 @@ Football club emblem in sticker style, square image. A shield-shaped badge with 
 3. Recheck week 49 dry run (`publish 2026_49 --dry`) before 23 Nov.
 4. Mon 23 Nov morning: resolve week 47 first (ESPN finals), check winners are Telegram players.
 5. Before 30 Nov: remove owner's test Master League membership; release 2.2 on Mon 30 Nov.
+
+## 17 Nov: crest prompts v2
+Owner: the v1 stickers look like kindergarten (Man Utd devil in a nappy). Rewritten all 27 prompts in a mature esports / NFL team-logo style (fierce mascots, sharp shapes, rim lighting, no chibi or baby proportions), still die-cut stickers on a grey background. Napoli: erupting volcano instead of the donkey. Full prompts in `design/prompts/club-crests.md` (v1 replaced). The 8 v1 crests already wired (not deployed) can be regenerated in v2 for a consistent set.

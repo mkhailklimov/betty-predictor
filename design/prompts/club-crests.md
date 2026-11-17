@@ -1,166 +1,167 @@
-# Club crest prompts (sticker style)
+# Club crest prompts v2 (mature esports-logo style)
 
-Our own emblems in each club's colours with its best-known symbol: not copies of the official crests, no names or letters.
-Save each picture as `frontend/public/avatars/clubs/<CODE>.png` (square, at least 512 px).
+Owner feedback 17 Nov: v1 looked like kindergarten (the devil wore a nappy). v2: fierce, stylish, adult mascots in the style of esports / NFL team logos, still die-cut stickers.
+Our own emblems with each club's best-known symbol: not copies of the official crests, no names or letters.
+Save each picture as `betty-release-2.1/frontend/public/teams/Cards/<CODE>.png`; I cut the background and wire it in.
 
 ## Arsenal - `EPL_ARS.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a big golden-brass cannon pointing to the right on a red field, with a white border strip.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a heavy bronze field cannon firing, smoke and sparks bursting from the barrel, on a deep red shield with a white and navy trim.
 ```
 
 ## Aston Villa - `EPL_AVL.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a gold rampant lion standing on its hind legs on a claret field, with a sky-blue rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a muscular golden lion rearing on its hind legs, claws out, mane flowing, roaring, on a claret shield with a sky-blue trim.
 ```
 
 ## AFC Bournemouth - `EPL_BOU.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a pair of shiny red cherries on green stalks on a field split in red and black vertical stripes.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a pair of glossy dark-red cherries with a single sharp leaf, lit like polished glass, on a shield of red and black vertical stripes.
 ```
 
 ## Brentford - `EPL_BRE.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a friendly bold bee in flight on a field of red and white vertical stripes, black rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a menacing armoured hornet-like bee in attack flight, sharp stinger, glowing amber eyes, on a red and white striped shield.
 ```
 
 ## Brighton & Hove Albion - `EPL_BHA.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a white seagull with spread wings over blue and white vertical stripes.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a sharp-eyed seagull diving with wings swept back like a fighter jet, on a blue and white striped shield.
 ```
 
 ## Chelsea - `EPL_CHE.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a regal blue lion standing and holding a staff, on a white circle inside a royal blue field, gold details.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a proud royal-blue lion standing upright gripping a golden staff, regal and powerful, on a royal blue shield with a gold trim.
 ```
 
 ## Coventry City - `EPL_COV.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a sky-blue elephant carrying a small castle tower on its back, on a white field with a sky-blue rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a massive armoured war elephant charging, tusks forward, a stone battle tower on its back, on a sky-blue shield.
 ```
 
 ## Crystal Palace - `EPL_CRY.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: an eagle with spread wings perched above a small glass palace, on red and blue vertical halves.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a fierce eagle with wings spread wide and talons out, perched on a gleaming glass palace dome, on a red and blue shield.
 ```
 
 ## Everton - `EPL_EVE.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: an old round stone tower with a pointed roof, white tower on a royal blue field, gold laurel at the bottom.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a dark stone watchtower with a burning beacon at the top, storm clouds behind it, on a royal blue shield with a gold trim.
 ```
 
 ## Fulham - `EPL_FUL.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a cosy brick cottage with a pitched roof on a white field, black rim and a thin red line.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: an elegant riverside house at night with glowing windows, the river and a crescent moon behind it, black and white with a thin red line.
 ```
 
 ## Hull City - `EPL_HUL.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a fierce tiger head facing forward, orange with black stripes, on a black field with an amber rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a snarling tiger head facing forward, bared fangs, orange with black stripes, on a black shield with an amber trim.
 ```
 
 ## Ipswich Town - `EPL_IPS.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a strong white working horse rearing up on a royal blue field, with a red rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a powerful white stallion rearing up, mane flying, muscles tense, on a royal blue shield with a red trim.
 ```
 
 ## Leeds United - `EPL_LEE.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a large white Yorkshire rose on a field split in blue and yellow, white rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a sharp white rose with steel-edged petals and long thorns, lit from above, on a shield of royal blue with a yellow band.
 ```
 
 ## Liverpool - `EPL_LIV.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a mythical cormorant-like bird with a sprig of seaweed in its beak, gold bird on a deep red field.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a fierce mythical sea bird with wings raised high and a sprig of seaweed in its beak, golden on a deep red shield.
 ```
 
 ## Manchester City - `EPL_MNC.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a golden sailing ship with full sails above three diagonal stripes, on a sky-blue field with a navy rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a golden galleon with full sails cutting through stormy waves, three diagonal stripes behind it, on a sky-blue shield with a navy trim.
 ```
 
 ## Manchester United - `EPL_MAN.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a small grinning red devil holding a trident, on a gold field with a red and black rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a menacing adult devil warrior, horned, muscular, with a sly grin and glowing yellow eyes, gripping a trident, red skin, black armour, on a red and black shield with a gold trim.
 ```
 
 ## Newcastle United - `EPL_NEW.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: two seahorses facing each other below a small castle, black and white vertical stripes behind them.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: two armoured seahorses rearing face to face below a dark castle, on a black and white striped shield.
 ```
 
 ## Nottingham Forest - `EPL_NFO.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a big stylised oak tree with a round crown above wavy river lines, white tree on a deep red field.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: an ancient gnarled oak tree with a wide crown and deep roots over a dark river, white on a deep red shield.
 ```
 
 ## Sunderland - `EPL_SUN.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a sleek black cat sitting proudly above red and white vertical stripes, gold rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a sleek black panther-like cat crouched ready to pounce, glowing green eyes, on a red and white striped shield with a gold trim.
 ```
 
 ## Tottenham Hotspur - `EPL_TOT.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a navy cockerel standing on an old-style football, on a white field with a navy rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a proud fighting cockerel with sharp spurs and a high crest standing on an old leather football, navy on a white shield.
 ```
 
 ## Galatasaray - `UCL_GAL.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a roaring lion head with a full mane, on a field split diagonally in deep red and yellow-gold.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a roaring lion head with a fiery mane, on a shield split diagonally in deep red and gold.
 ```
 
 ## Borussia Dortmund - `UCL_BVB.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a bold striped bee in yellow and black, on a bright yellow field with a thick black rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: an armoured black and yellow wasp warrior in attack flight, sharp wings and stinger, on a bright yellow shield with a thick black trim.
 ```
 
 ## Napoli - `UCL_NAP.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a cheerful little donkey trotting, white on a sky-blue field, a small volcano silhouette on the horizon.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: an erupting volcano with glowing lava under a night sky above a calm bay, on a sky-blue shield with a white trim.
 ```
 
 ## Club Brugge - `UCL_BRU.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a black rampant lion standing on its hind legs, on blue and black vertical stripes, gold rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a black lion rearing with claws out and a golden tongue, on a shield of blue and black stripes with a gold trim.
 ```
 
 ## Sporting CP - `UCL_SCP.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a rampant lion standing on its hind legs, gold lion on a green field with one white horizontal band.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a powerful golden lion rearing, roaring, on a green shield with one white horizontal band.
 ```
 
 ## Heart of Midlothian - `SCO_HEA.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a large heart made of small mosaic tiles, maroon heart on a white field, maroon rim.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a burning maroon heart wrapped in a broken iron chain, flames rising from the top, on a white shield with a maroon trim.
 ```
 
 ## Celtic - `SCO_CEL.png`
 
 ```
-Football club emblem in sticker style, square image. A shield-shaped badge with a thick white die-cut sticker border, a slight 3D bevel, soft drop shadow and a glossy highlight at the top left. Bold clean outlines, bright flat colours, comic-book finish. Centred on a plain light grey background with space around the sticker. No text, no letters, no numbers, no real club crest, no logos. Inside the shield: a big four-leaf clover, green on a white field, green and white horizontal hoops behind it.
+Premium sports team emblem in the style of modern professional esports and NFL team logos. Mature, fierce, confident and stylish: sharp angular shapes, powerful anatomy, dynamic pose, intense eyes, dramatic rim lighting, metallic and gradient shading, bold thick outlines. Not cute, not childish: no chibi, no baby proportions, no big round eyes, no smiling cartoon faces, no clothing like nappies. Shown as a die-cut sticker: the emblem sits on a shield shape with a thick white sticker border and a soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers, not a copy of any real club crest. Emblem: a four-leaf clover forged from polished green metal with Celtic knotwork, on a shield of green and white hoops.
 ```
