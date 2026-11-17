@@ -217,3 +217,7 @@ Owner: the v1 stickers look like kindergarten (Man Utd devil in a nappy). Rewrit
 - Lesson: generators weight the start of the prompt, so the subject goes first; busts avoid childish bodies; "subject large, inside the shield" keeps it readable at avatar size.
 - Background cutter improved (`C:\Users\mihel\betty-crests\cut.py`): matches the sampled background colour (keeps dark armour), keeps only the main sticker shape.
 - All other 26 prompts rewritten in this style (`design/prompts/club-crests.md` v3). Owner regenerates all, including the 8 earlier ones.
+
+## 17 Nov: crest tone settled, prompts v4
+- v3 (esports, realistic and menacing) gave a kindergarten bee first, then a scary ugly hornet. Middle ground approved on the Brentford hornet: modern NBA / NHL mascot logo, three-quarter view in motion, sharp eyes under angry brows, confident smirk, simplified bold shapes, two-tone shading. No words like cute/cartoon in prompts (they pull towards cute).
+- All remaining 25 prompts rewritten in this tone (`design/prompts/club-crests.md` v4). Done so far: Man Utd devil (wired), Brentford hornet (approved, to save as `EPL_BRE.png`).
