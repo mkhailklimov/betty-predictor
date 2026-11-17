@@ -108,7 +108,7 @@ A four-leaf clover in polished green with sharp blade-edged leaves and clean Cel
 #### Arsenal - `EPL_ARS.png`
 
 ```
-A bronze cannon in three-quarter view, tilted upward and firing forward with a burst of flame and smoke, sparks flying, polished barrel with sharp highlights, sturdy spoked wheel. Drawn as a modern professional sports team logo, like NBA or NHL team logos: simplified bold shapes, clean thick outlines, two-tone shading with a little shine. Bold, dynamic and aggressive, full of energy and motion, catchy rather than threatening. The cannon is large and fills most of the shield. Placed on a deep red shield with a white and navy trim, shown as a die-cut sticker with a thick white border and soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers.
+Explosive action shot: a bronze cannon firing straight towards the viewer at a sharp diagonal angle, a big burst of orange flame and white smoke blasting from the muzzle, sparks and motion lines flying, the cannonball shooting out of the blast. The cannon and its blast are large and fill most of the shield, breaking slightly over the shield edge. Drawn as a modern professional sports team logo, like NBA or NHL team logos: simplified bold shapes, clean thick outlines, two-tone shading with a little shine. Bold, dynamic and aggressive, full of energy and motion, catchy rather than threatening. Placed on a deep red shield with a white and navy trim, shown as a die-cut sticker with a thick white border and soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers.
 ```
 
 #### Liverpool - `EPL_LIV.png`
