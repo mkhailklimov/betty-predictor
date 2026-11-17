@@ -217,3 +217,4 @@ A fighting cockerel in three-quarter view, standing on a football with wings hal
 - Owner generated all 25 remaining crests from the v5 prompts. Backgrounds cut (`C:\Users\mihel\betty-crests\cut.py`) into `frontend/public/avatars/clubs/<CODE>.png` (512 px). Originals moved to `C:\Users\mihel\betty-crests\v5`. A duplicate folder `teams/Cards/Cards` (copies only) and `EPL_MUN.jpg` (same devil as EPL_MAN) moved to `C:\Users\mihel\betty-crests\dup-nested-Cards` so they don't ship.
 - Wired: `avatars.json` (all EPL; plus UCL/SCO on main) and `shields.ts` (UCL/SCO -> .png) on both branches. Checked in a local build on the week 47 cards (screenshot on the Desktop: `betty_crests_week47_cards.png`).
 - **NOT deployed yet**: needs the owner's "deploy" (release-2.1 `deploy-frontend`).
+- **DEPLOYED LIVE 17 Nov** (release-2.1 `0e9eae2`, pages deploy 583f7a5c); checked on the live site, all 7 EPL week 47 cards show the new crests.
