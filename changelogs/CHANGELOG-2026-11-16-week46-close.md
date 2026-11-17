@@ -212,3 +212,8 @@ A sleek black panther-like cat in three-quarter view, crouched ready to pounce: 
 ```
 A fighting cockerel in three-quarter view, standing on a football with wings half-spread: sharp focused eyes under angry brows, a confident open beak, chest puffed out, tall red crest, spurs on its legs. Drawn as a modern professional sports team mascot logo, like NBA or NHL team logos: simplified bold shapes, clean thick outlines, two-tone shading with a little shine. Cool, confident and athletic, heroic rather than monstrous. The cockerel is large and fills most of the shield. Placed on a white shield with a navy trim, shown as a die-cut sticker with a thick white border and soft drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers.
 ```
+
+## 17 Nov afternoon: all crests in (v5)
+- Owner generated all 25 remaining crests from the v5 prompts. Backgrounds cut (`C:\Users\mihel\betty-crests\cut.py`) into `frontend/public/avatars/clubs/<CODE>.png` (512 px). Originals moved to `C:\Users\mihel\betty-crests\v5`. A duplicate folder `teams/Cards/Cards` (copies only) and `EPL_MUN.jpg` (same devil as EPL_MAN) moved to `C:\Users\mihel\betty-crests\dup-nested-Cards` so they don't ship.
+- Wired: `avatars.json` (all EPL; plus UCL/SCO on main) and `shields.ts` (UCL/SCO -> .png) on both branches. Checked in a local build on the week 47 cards (screenshot on the Desktop: `betty_crests_week47_cards.png`).
+- **NOT deployed yet**: needs the owner's "deploy" (release-2.1 `deploy-frontend`).
