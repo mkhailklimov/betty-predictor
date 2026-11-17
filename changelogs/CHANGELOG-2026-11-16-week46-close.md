@@ -218,3 +218,14 @@ A fighting cockerel in three-quarter view, standing on a football with wings hal
 - Wired: `avatars.json` (all EPL; plus UCL/SCO on main) and `shields.ts` (UCL/SCO -> .png) on both branches. Checked in a local build on the week 47 cards (screenshot on the Desktop: `betty_crests_week47_cards.png`).
 - **NOT deployed yet**: needs the owner's "deploy" (release-2.1 `deploy-frontend`).
 - **DEPLOYED LIVE 17 Nov** (release-2.1 `0e9eae2`, pages deploy 583f7a5c); checked on the live site, all 7 EPL week 47 cards show the new crests.
+- **DEPLOYED DEV 17 Nov** (main `106d372`, `deploy-dev-frontend`, https://dev.betty-scores-app.pages.dev). Checked: all crest PNGs served, the app code points to `.png` (UCL/SCO included).
+
+### Crests: where everything is (summary)
+- Prompts: `design/prompts/club-crests.md` (v5, the only current set; also above in this file).
+- Generated originals: `C:\Users\mihel\betty-crests\v5` (outside the repo). Duplicates removed from the app folder: `C:\Users\mihel\betty-crests\dup-nested-Cards`.
+- Cutter: `C:\Users\mihel\betty-crests\cut.py` (`python cut.py <src_dir> <out_dir> files...`).
+- App files: `frontend/public/avatars/clubs/<CODE>.png` (27: 20 EPL + GAL BVB NAP BRU SCP HEA CEL), referenced in `frontend/src/data/avatars.json` and `frontend/src/data/shields.ts`.
+- Commits: release-2.1 `0e9eae2` (LIVE), main `2fd2580` (DEV).
+- Screenshots on the Desktop: `betty_crests_week47_cards.png` (local test), `betty_crests_LIVE.png` (live).
+- Telegram may cache old pictures: close and reopen the app.
+- Next new club: write a v5-style prompt (subject and action first), owner saves to `teams/Cards/<CODE>.png`, cut, wire on both branches, test, deploy on "deploy".
