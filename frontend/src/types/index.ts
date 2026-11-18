@@ -112,12 +112,16 @@ export interface Challenge {
   resolved_at: string | null
   created_at: string
   my_prediction: { challenge_id: string; answer: string; points_earned: number } | null
+  /** The 90-minute score, 120 minutes after kickoff (official once the week is scored). */
+  result?: { score: string; official: boolean; my_points: number | null } | null
   /** UTC kickoff; predictions close at this moment. Null for legacy rows with no time. */
   kickoff_utc: string | null
   /** Server's view of the lock at response time; the client re-checks on a timer. */
   locked: boolean
   /** "Home vs Away" label, independent of a linked match row. */
   fixture: string | null
+  /** Competition name from ESPN, e.g. "English Premier League" (card top line). */
+  competition?: string | null
   home_team?: string | null
   away_team?: string | null
   /** ESPN event id for challenges published from bronze_fixtures (week 42 on). */
