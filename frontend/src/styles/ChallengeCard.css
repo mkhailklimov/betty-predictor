@@ -106,7 +106,8 @@
 
 .cc__shield {
   position: relative;
-  width: 62%;
+  /* the crest fills the box (no club name under it any more) */
+  width: 86%;
   aspect-ratio: 1;
   transform-style: preserve-3d;
   /* a sticker: white die-cut edge, then the shadow on the floor */

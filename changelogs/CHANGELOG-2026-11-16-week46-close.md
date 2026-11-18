@@ -229,3 +229,9 @@ A fighting cockerel in three-quarter view, standing on a football with wings hal
 - Screenshots on the Desktop: `betty_crests_week47_cards.png` (local test), `betty_crests_LIVE.png` (live).
 - Telegram may cache old pictures: close and reopen the app.
 - Next new club: write a v5-style prompt (subject and action first), owner saves to `teams/Cards/<CODE>.png`, cut, wire on both branches, test, deploy on "deploy".
+
+## 18 Nov: card layout (owner's comments)
+- Club names were shown three times. Now: top line = the competition (ESPN league name: "English Premier League", "UEFA Champions League", "Scottish Premiership", "UEFA Nations League"; worker field `competition`, looked up by `source_id`, cached a day; extra `_c=1` in the URL so the live-score fetch never gets a cached copy). Names removed from the crest boxes; crests enlarged (62% -> 86% of the box). Bottom line unchanged ("Man City vs Fulham — predict the exact score!").
+- Full-time box brought forward from 2.2 into live 2.1: 120 minutes after kickoff the card shows the 90-minute score from ESPN, the player's pick and points (3 exact / 1 result / 0), "Counts in the tables when the week is scored". Worker: hourly cron + on request, table `challenge_live` (migration 0010, already applied). Scoring now uses the same `pointsFor`.
+- Tested: worker functions against ESPN (Switzerland 4:0 Scotland, Wales 2:3 Portugal, Hungary 1:1 Northern Ireland; points 3/1/0), card in a local build (screenshot on the Desktop: `betty_cards_new_layout.png`).
+- Commits: release-2.1 (see git log), main. NOT deployed: needs the owner's "deploy" (live worker + live frontend), dev too.

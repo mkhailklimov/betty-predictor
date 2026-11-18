@@ -170,6 +170,10 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
   const fixture = stickerKey === '5'
     ? 'Chelsea vs Bournemouth'
     : challenge.fixture || (m ? `${m.home_team} vs ${m.away_team}` : null)
+  // Top line: the competition (ESPN league name). The team names are already in the
+  // question under the pictures, so they are not repeated here. Old sticker cards with
+  // no competition keep their fixture line.
+  const topLine = challenge.competition || (sticker ? fixture : null)
   const kickoffLabel = formatKickoff(challenge.kickoff_utc)
   const displayQuestion = stickerKey === '1'
     ? 'What will be the final score: England vs Croatia?'
@@ -228,8 +232,8 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
         {challenge.points} {challenge.points === 1 ? 'pt' : 'pts'}
       </div>
 
-      {fixture && (
-        <div className="cc__fixture">{fixture}</div>
+      {topLine && (
+        <div className="cc__fixture">{topLine}</div>
       )}
       {kickoffLabel && (
         <div className="cc__kickoff">Kick-off {kickoffLabel}</div>
@@ -258,10 +262,9 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
               {side === 'away' && <Bolt />}
               <div className={`cc__shield-box cc__shield-box--${side}`}>
                 <div className="cc__shield" style={{ '--badge': `url(${src})` } as React.CSSProperties}>
-                  <img src={src} alt="" />
+                  <img src={src} alt={name ?? ''} />
                   <span className="cc__shield-gloss" />
                 </div>
-                <span className="cc__shield-name">{name}</span>
               </div>
             </React.Fragment>
           ))}

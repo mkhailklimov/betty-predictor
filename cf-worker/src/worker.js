@@ -1045,7 +1045,8 @@ export default {
           ).bind(...challenges.map(c => c.id)).all().catch(() => ({ results: [] }));
           for (const r of lv) liveMap[r.challenge_id] = r;
         }
-        const enriched = challenges.map(c => {
+        const competitions = await Promise.all(challenges.map(c => espnCompetition(c.source_id)));
+        const enriched = challenges.map((c, i) => {
           const m = c.match_id ? matchMap[c.match_id] : null;
           const kickoff = challengeKickoff(c, m);
           const home = c.home_team || (m && m.home_team) || null;
@@ -1058,6 +1059,7 @@ export default {
             ...c,
             options: JSON.parse(c.options),
             my_prediction: mine,
+            competition: competitions[i],
             result: resultScore ? {
               score: resultScore, official: !!c.correct_answer,
               my_points: mine ? (c.correct_answer ? (mine.points_earned || 0) : pointsFor(c, mine.answer, resultScore)) : null,
@@ -2865,4 +2867,24 @@ async function refreshLiveResults(env) {
     ).bind(c.id, res ? res.score : null, res ? res.status : null, res && res.final ? 1 : 0).run();
   }
   return { fetched };
+}
+
+// --- Competition name for the card's top line (ESPN league name, e.g. "English Premier League") ---
+// Cached per isolate and at the edge for a day. The extra "_c=1" keeps this cache entry apart
+// from the live-score fetch of the same event, which must never be served from a day-old cache.
+const COMPETITION_CACHE = new Map();
+async function espnCompetition(eventId) {
+  if (!eventId) return null;
+  if (COMPETITION_CACHE.has(eventId)) return COMPETITION_CACHE.get(eventId);
+  let name = null;
+  try {
+    const r = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${encodeURIComponent(eventId)}&_c=1`,
+      { cf: { cacheTtl: 86400, cacheEverything: true }, signal: AbortSignal.timeout(2500) });
+    if (r.ok) {
+      const d = await r.json();
+      name = (d && d.header && d.header.league && d.header.league.name) || null;
+    }
+  } catch (e) { /* no name: the card simply shows no top line */ }
+  if (name) COMPETITION_CACHE.set(eventId, name);
+  return name;
 }

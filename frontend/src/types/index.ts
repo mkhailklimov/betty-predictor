@@ -147,6 +147,8 @@ export interface Challenge {
   locked: boolean
   /** "Home vs Away" label, independent of a linked match row. */
   fixture: string | null
+  /** Competition name from ESPN, e.g. "English Premier League" (card top line). */
+  competition?: string | null
   home_team?: string | null
   away_team?: string | null
   /** ESPN event id for challenges published from bronze_fixtures (week 42 on). */
