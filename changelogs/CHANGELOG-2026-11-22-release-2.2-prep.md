@@ -24,3 +24,10 @@
 ## Open question: how players get into the Master League
 - Built in 2.2: a join link. Arvin posts it in his channels; one tap opens Betty and joins. One league per player. No password, no manual list.
 - Missing: a way to see and remove members (for cheaters or test accounts). Proposed: `betty-admin.sh league-members` and `league-remove <name>`; the league table in the app already shows Arvin everyone who joined.
+
+## Owner decisions (22 Nov evening)
+- Master League entry: invite link only, no limit, no barriers. Rules (limit, prize, inactive players) decided later.
+- Test account "bettyscores" REMOVED from the Master League (owner OK). Th7Arvin ADDED (owner asked), joined 2026-11-22 17:37 UTC. Members: 1.
+- Release 2.2 stays on Mon 30 Nov.
+- Week 49 plan approved as in the sheet (rows 62-71, 10 EPL matches, 2-6 Dec). Matches 9 and 10 (Newcastle v Sunderland, Tottenham v Arsenal) checked at ESPN: times match.
+- Week 48 (rows 52-61) publishes Mon 23 Nov by the cron.
