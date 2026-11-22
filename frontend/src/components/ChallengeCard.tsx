@@ -194,6 +194,15 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
   const [away, setAway] = React.useState(parsed?.away ?? 0)
   const [touched, setTouched] = React.useState(!!myAnswer)
 
+  // An open exact-score card counts as a pick as soon as the player sees it:
+  // 0:0 is saved until they change it with the arrows.
+  React.useEffect(() => {
+    if (readOnly || myAnswer || challenge.type !== 'exact_score') return
+    setTouched(true)
+    onPredict(challenge.id, '0:0')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [challenge.id])
+
   const handleOption = (answer: string) => {
     if (readOnly) return
     onPredict(challenge.id, answer)
