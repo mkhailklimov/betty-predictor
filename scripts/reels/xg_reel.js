@@ -21,7 +21,9 @@ function scene(start, dur, build) {
 function crestImg(code) { const i = el('img', 'crest'); i.src = `/frontend/public/avatars/clubs/${code}.png`; return i; }
 
 function playerScene(t0, team, p, i) {
-  return scene(t0, 2.6, (s, r) => {
+  return scene(t0, 3.0, (s, r) => {
+    const glow = el('div', 'p-glow'); r.appendChild(glow);
+    const conf = confetti(r, team, i);
     const mini = el('div', 'p-mini'); mini.appendChild(crestImg(team.crest)); r.appendChild(mini);
     r.appendChild(el('div', 'p-count', `${team.short} TOP ${i + 1}/3`));
     // the owner's avatar when there is one, else the big shirt number
@@ -41,10 +43,40 @@ function playerScene(t0, team, p, i) {
       f.style.width = `${Math.min(100, p.xg / 0.8 * 100) * k}%`;
       const n = prog(t, t0, t0 + 0.5);
       name.style.transform = `translateY(${(1 - n) * 60}px)`; name.style.opacity = n;
-      const a = prog(t, t0, t0 + 0.6);
-      av.style.transform = `translateX(-50%) scale(${0.85 + 0.15 * a})`;
+      // celebration: pop in with an overshoot, then jump and sway
+      const dt = t - t0;
+      const pop = dt < 0.45 ? 0.55 + 0.6 * Math.sin(clamp(dt / 0.45) * Math.PI * 0.62) : 1;
+      const live = clamp((dt - 0.35) / 0.3);
+      const jump = -Math.abs(Math.sin(dt * Math.PI * 2.4)) * 34 * live;
+      const sway = Math.sin(dt * Math.PI * 1.7 + i) * 5 * live;
+      const squash = 1 + Math.sin(dt * Math.PI * 4.8) * 0.025 * live;
+      av.style.transform = `translateX(-50%) translateY(${jump}px) rotate(${sway}deg) scale(${pop * squash}, ${pop / squash})`;
+      glow.style.opacity = 0.55 + 0.35 * Math.sin(dt * Math.PI * 2.4) * live;
+      glow.style.transform = `translateX(-50%) scale(${0.9 + 0.15 * Math.abs(Math.sin(dt * Math.PI * 1.2))})`;
+      conf(t - t0);
     };
   });
+}
+
+// Confetti for a player's celebration: same pieces every render (seeded), falling and spinning.
+function confetti(root, team, seed) {
+  let x = 1234567 + seed * 7919;
+  const rnd = () => ((x = (x * 16807) % 2147483647) / 2147483647);
+  const cols = ['#ffd90f', '#ecf39e', '#2f8a35', '#ffffff', team.color[0], team.color[1]];
+  const box = el('div', 'p-conf'); root.appendChild(box);
+  const bits = Array.from({ length: 46 }, () => {
+    const b = el('i'); b.style.background = cols[Math.floor(rnd() * cols.length)];
+    b.style.width = `${10 + rnd() * 14}px`; b.style.height = `${18 + rnd() * 18}px`;
+    box.appendChild(b);
+    return { b, x0: rnd() * 1080, vy: 420 + rnd() * 520, drift: (rnd() - 0.5) * 220, spin: (rnd() - 0.5) * 900, delay: 0.25 + rnd() * 0.6, y0: -60 - rnd() * 300 };
+  });
+  return (dt) => {
+    for (const c of bits) {
+      const u = dt - c.delay;
+      c.b.style.opacity = u > 0 ? Math.min(1, u * 4) * clamp((2.9 - dt) / 0.4) : 0;
+      c.b.style.transform = `translate(${c.x0 + c.drift * Math.sin(u * 2)}px, ${c.y0 + c.vy * Math.max(0, u)}px) rotate(${c.spin * u}deg)`;
+    }
+  };
 }
 
 // Pitch positions: formation "4-2-3-1" -> lines from the back, players left to right.
