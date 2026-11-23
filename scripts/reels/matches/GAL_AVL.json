@@ -2,13 +2,62 @@
  "competition": "UEFA Champions League",
  "kickoff_label": "Tue 24 Nov · 17:45 UTC",
  "espn_event": "401915300",
- "odds": [2.85, 4.00, 2.25],
- "home": {"name": "Galatasaray", "short": "GAL", "espn_id": "432", "league": "tur.1", "crest": "UCL_GAL",
-          "color": ["#a90432", "#fdb912"], "star": "Batrakov",
-          "eleven": ["Ugurcan Çakir", "Davinson Sánchez", "Abdülkerim Bardakçi", "Ismail Jakobs", "Eren Elmali",
-                     "Lucas Torreira", "Gabriel Sara", "Yunus Akgün", "Alexey Batrakov", "Roland Sallai", "Victor Osimhen"]},
- "away": {"name": "Aston Villa", "short": "AVL", "espn_id": "362", "league": "eng.1", "crest": "EPL_AVL",
-          "color": ["#670e36", "#95bfe5"], "star": null,
-          "eleven": ["Zion Suzuki", "Matty Cash", "Victor Lindelöf", "Pau Torres", "Ian Maatsen",
-                     "Boubacar Kamara", "John McGinn", "Emiliano Buendía", "Johan Manzambi", "Alysson", "Nicolas Jackson"]}
+ "odds": [
+  2.85,
+  4.0,
+  2.25
+ ],
+ "home": {
+  "name": "Galatasaray",
+  "short": "GAL",
+  "espn_id": "432",
+  "league": "tur.1",
+  "crest": "UCL_GAL",
+  "color": [
+   "#a90432",
+   "#fdb912"
+  ],
+  "star": "Batrakov",
+  "eleven": [
+   "Ugurcan Çakir",
+   "Eren Elmali",
+   "Abdülkerim Bardakçi",
+   "Wilfried Singo",
+   "Kaan Ayhan",
+   "Gabriel Sara",
+   "Lucas Torreira",
+   "Baris Alper Yilmaz",
+   "Alexey Batrakov",
+   "Yunus Akgün",
+   "Victor Osimhen"
+  ],
+  "formation": "4-2-3-1"
+ },
+ "away": {
+  "name": "Aston Villa",
+  "short": "AVL",
+  "espn_id": "362",
+  "league": "eng.1",
+  "crest": "EPL_AVL",
+  "color": [
+   "#670e36",
+   "#95bfe5"
+  ],
+  "star": null,
+  "eleven": [
+   "Zion Suzuki",
+   "Ian Maatsen",
+   "Pau Torres",
+   "Taylor Harwood-Bellis",
+   "Aaron Wan-Bissaka",
+   "Boubacar Kamara",
+   "Leon Goretzka",
+   "Johan Manzambi",
+   "Emiliano Buendía",
+   "Alysson",
+   "Nicolas Jackson"
+  ],
+  "formation": "4-2-3-1"
+ },
+ "lineup_note": "Last league eleven (21-22 Nov, ESPN); Galatasaray with Osimhen for Deniz Gul. Replace with the real line-ups ~16:45 UTC."
 }

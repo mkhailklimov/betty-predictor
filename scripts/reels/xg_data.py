@@ -31,6 +31,11 @@ def fold(s):
     return ''.join(c for c in unicodedata.normalize('NFKD', s) if not unicodedata.combining(c)).lower().replace('ı', 'i')
 
 
+def avatar_name(short, name):
+    """File name of a player's avatar: GAL_OSIMHEN.png (surname, plain letters)."""
+    return f"{short}_{fold(name).split()[-1].upper().replace('-', '_')}.png"
+
+
 def squad(league, team_id):
     url = f'https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/teams/{team_id}/roster'
     with urllib.request.urlopen(url, timeout=20) as r:
@@ -89,7 +94,7 @@ def side(team, sq):
         s = p['stats']
         apps = max(s.get('appearances', 0), 1)
         on, shots, goals = s.get('shotsOnTarget', 0), s.get('totalShots', 0), s.get('totalGoals', 0)
-        raw.append((0.30 * on + 0.06 * (shots - on) + 0.3 * goals) / apps + 0.005)
+        raw.append((0.30 * on + 0.06 * (shots - on) + 0.3 * goals) / apps + 0.012)
     return gk, save, outfield, raw
 
 
@@ -108,7 +113,7 @@ def main():
     h_gk_eff = round(clip((AVG_SAVE - h_save) * t_away), 2)
     a_gk_eff = round(clip((AVG_SAVE - a_save) * t_home), 2)
 
-    def players(out, raw, total, star):
+    def players(out, raw, total, star, short):
         scale = total / sum(raw)
         rows = [{'name': p['name'], 'number': p['number'], 'pos': p['pos'],
                  'xg': round(r * scale, 2), 'goals': int(p['stats'].get('totalGoals', 0)),
@@ -121,17 +126,19 @@ def main():
         top = [r for r in ranked if star and fold(star) in fold(r['name'])][:1]
         top += [r for r in ranked if r not in top][:3 - len(top)]
         top.sort(key=lambda r: r['xg'])   # build up to the biggest
+        for r in top:
+            r['avatar'] = avatar_name(short, r['name'])
         return rows, top
 
-    h_rows, h_top = players(h_out, h_raw, t_home - a_gk_eff, h.get('star'))
-    a_rows, a_top = players(a_out, a_raw, t_away - h_gk_eff, a.get('star'))
+    h_rows, h_top = players(h_out, h_raw, t_home - a_gk_eff, h.get('star'), h['short'])
+    a_rows, a_top = players(a_out, a_raw, t_away - h_gk_eff, a.get('star'), a['short'])
     pct = whole_percents(probs)
     data = {**{k: m[k] for k in ('competition', 'kickoff_label')},
-            'home': {'name': h['name'], 'short': h['short'], 'crest': h['crest'], 'color': h['color'],
+            'home': {'name': h['name'], 'short': h['short'], 'crest': h['crest'], 'color': h['color'], 'formation': h.get('formation', '4-4-2'),
                      'players': h_rows, 'top': h_top,
                      'gk': {'name': h_gk['name'], 'number': h_gk['number'], 'save': round(h_save * 100), 'effect': h_gk_eff},
                      'total': round(t_home, 2)},
-            'away': {'name': a['name'], 'short': a['short'], 'crest': a['crest'], 'color': a['color'],
+            'away': {'name': a['name'], 'short': a['short'], 'crest': a['crest'], 'color': a['color'], 'formation': a.get('formation', '4-4-2'),
                      'players': a_rows, 'top': a_top,
                      'gk': {'name': a_gk['name'], 'number': a_gk['number'], 'save': round(a_save * 100), 'effect': a_gk_eff},
                      'total': round(t_away, 2)},
