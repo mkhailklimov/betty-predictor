@@ -60,8 +60,14 @@ Owner: the v1 stickers look like kindergarten (Man Utd devil in a nappy). Rewrit
 
 ### All crest prompts v5 (final), to generate
 Golden balance: catchy, aggressive, not scary. Every creature in motion with sharp eyes under angry brows and a confident roar or smirk (the Brentford hornet formula); every object armed or in action (fire, sparks, blades). Only these prompts are current.
-Done, do not regenerate: Man Utd devil (`EPL_MAN.png`, wired), Brentford hornet (`EPL_BRE.png`, approved).
+Done, do not regenerate: Brentford hornet (`EPL_BRE.png`, approved). Man Utd: REDO with the prompt below (owner, 23 Nov: red devil with a trident, like the club's devil).
 Save each as `betty-release-2.1/frontend/public/teams/Cards/<CODE>.png`. Order: week 48 clubs first (top 10), then the rest.
+
+#### Manchester United - `EPL_MAN.png` (REDO, 23 Nov)
+
+```
+A grinning red devil in full figure, striding forward in an attacking pose, holding a long black trident raised diagonally across his body like a weapon ready to strike: bright red skin, short curved black horns, sharp focused eyes under angry brows, a cheeky confident smirk, a long pointed tail curling behind him. Drawn as a modern professional sports team mascot logo, like NBA or NHL team logos: simplified bold shapes, clean thick outlines, two-tone shading with a little shine. Bold, mischievous and aggressive, full of energy, catchy rather than scary: no armour, no gore, no dark horror look. The devil and trident are large and fill most of the shield. Placed on a golden-yellow shield with a thick black and red trim, shown as a die-cut sticker with a thick white border, flat with no drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers.
+```
 
 #### Galatasaray - `UCL_GAL.png`
 
