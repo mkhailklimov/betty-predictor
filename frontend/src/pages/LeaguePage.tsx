@@ -122,10 +122,10 @@ export const LeaguePage: React.FC = () => {
         <div className="table-header">
           <div className="col rank">#</div>
           <div className="col player">Player</div>
-          <div className="col lg-num">Wk</div>
-          <div className="col lg-num">Res</div>
-          <div className="col lg-num lg-exact">Exact</div>
-          <div className="col lg-pts">Pts</div>
+          <div className="col lg-num">Week</div>
+          <div className="col lg-num">Results</div>
+          <div className="col lg-num lg-exact">Exact score</div>
+          <div className="col lg-pts">Points</div>
         </div>
         <div className="table-body">
           {visible.map(renderRow)}
@@ -139,7 +139,8 @@ export const LeaguePage: React.FC = () => {
       </div>
 
       <p className="league-legend">
-        Wk = weeks played, Res = correct results, Exact = exact scores. You still play for the weekly
+        Week = weeks played, Results = correct results (1 point), Exact score = exact scores (3 points).
+        You still play for the weekly
         100 and 50 Stars with everyone.
       </p>
 
