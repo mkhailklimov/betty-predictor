@@ -31,3 +31,10 @@
 - Release 2.2 stays on Mon 30 Nov.
 - Week 49 plan approved as in the sheet (rows 62-71, 10 EPL matches, 2-6 Dec). Matches 9 and 10 (Newcastle v Sunderland, Tottenham v Arsenal) checked at ESPN: times match.
 - Week 48 (rows 52-61) publishes Mon 23 Nov by the cron.
+
+## 23 Nov morning: fixes live, week 47 closed
+- LIVE frontend deployed from release-2.1 (b3f660a, https://9a51827e.betty-scores-app.pages.dev): 0:0 auto-pick + Man Utd crest. Worker not touched.
+- Week 48 published by the Monday cron (10 cards, Galatasaray v Aston Villa first, Tue 24 Nov 17:45 UTC).
+- Week 47 RESOLVED (all 10 scores checked at ESPN, Full Time): Switzerland 4:0 Scotland, Wales 2:3 Portugal, Hungary 1:1 Northern Ireland, Man City 1:1 Fulham, Bournemouth 2:0 Forest, Aston Villa 0:0 Sunderland, Chelsea 1:4 Leeds, Tottenham 2:0 Ipswich, Newcastle 2:2 Arsenal, Liverpool 4:0 Man Utd.
+- No exact score by anyone. Table: harrypohhher 5, urbanflik 3, MikeKlimov 3, then nine players on 2 (12 players).
+- Prizes recorded by the close: 1st harrypohhher 100 Stars, 2nd urbanflik 50 Stars (tie with MikeKlimov on 3 points, broken by the close). NOT marked paid: owner sends the Stars, then confirms.
