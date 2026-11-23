@@ -106,8 +106,8 @@
 
 .cc__shield {
   position: relative;
-  /* the crest fills the box (no club name under it any more) */
-  width: 94%;
+  /* the crest fills the box, straight, with an even margin to the border (a tilt made wide crests stick out) */
+  width: 90%;
   aspect-ratio: 1;
   transform-style: preserve-3d;
   /* a sticker: white die-cut edge, then the shadow on the floor */
@@ -115,8 +115,6 @@
   filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.45)) drop-shadow(0 2px 1px rgba(0, 0, 0, 0.35));
 }
 
-.cc__shield-box--home .cc__shield { transform: rotateY(10deg) rotateZ(3deg); }
-.cc__shield-box--away .cc__shield { transform: rotateY(-10deg) rotateZ(-3deg); }
 
 /* the lightning bolt between the two pictures */
 .cc__bolt { display: inline-flex; width: 30px; flex: 0 0 30px; justify-content: center; }
