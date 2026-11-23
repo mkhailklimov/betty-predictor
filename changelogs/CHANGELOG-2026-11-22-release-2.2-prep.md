@@ -69,3 +69,10 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 
 ## Week 47 PAID
 - Owner sent the Stars: harrypohhher 100 (rank 1), urbanflik 50 (rank 2). Marked paid with `betty-admin.sh paid 2026_47 1` and `2`.
+
+## 24 Nov: crests fit their boxes, new Man Utd devil
+- Owner's screenshot: Arsenal crest sticking out over the left border of its box. Cause: the 3D tilt (rotateY with perspective) brought one side of each crest closer, so it grew; wide pictures crossed the border.
+- Fix: crests straight (tilt removed), 90% of the box, even margin; `CREST_VERSION` -> `2026-11-24` so phones reload.
+- New Man Utd devil (red devil with black trident on a gold shield, no shadow) from the owner (`teams/Cards/MUN.png`), cut with `cut.py` into `avatars/clubs/EPL_MAN.png`. Original moved out of the app to `C:\Users\mihel\betty-crests\v6\` (`EPL_MAN.png` source, `MUN_original.png`).
+- All 10 week 48 cards checked in a local build: every crest inside its box. Desktop: `betty_crests_straight.png`.
+- Commits: main d24d8d9, release-2.1 c1a865b. NOT deployed (needs owner's "deploy").
