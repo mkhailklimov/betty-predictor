@@ -76,3 +76,13 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - New Man Utd devil (red devil with black trident on a gold shield, no shadow) from the owner (`teams/Cards/MUN.png`), cut with `cut.py` into `avatars/clubs/EPL_MAN.png`. Original moved out of the app to `C:\Users\mihel\betty-crests\v6\` (`EPL_MAN.png` source, `MUN_original.png`).
 - All 10 week 48 cards checked in a local build: every crest inside its box. Desktop: `betty_crests_straight.png`.
 - Commits: main d24d8d9, release-2.1 c1a865b. NOT deployed (needs owner's "deploy").
+
+## 24 Nov: crests LIVE, Master League decisions
+- LIVE frontend deployed from release-2.1 (e86c0a1, https://4ec4ab41.betty-scores-app.pages.dev): straight crests at 90%, new Man Utd devil, `CREST_VERSION` 2026-11-24. Dev not updated (main has it).
+- League table headers now full words: Week, Results, Exact score, Points (main c4c416f, release 2.2 only). Checked in a local 2.2 build.
+- Master League crest: prompt in `design/prompts/master-league-crest.md` (gothic black M L on an emerald shield, black-and-white ball, sticker, no shadow). Waiting for the owner's picture `teams/Cards/LEAGUE_MASTER.png`; then cut, show as the league's crest (League tab header, the "Master League" tag).
+- Owner decisions: joining by link OK; tags in Champions / Hall of Fame OK; members OK; Arvin's 500 Stars deal DONE (paid).
+- Arvin posts the link on Mon 30 Nov, right after the release (week 49 first match Wed 2 Dec).
+- Everything stays in English (no Persian translation).
+- Arvin writes his own post (knows his audience; uses his 500 Stars for traffic).
+- Prize plan: prizes grow with the audience. If the Master League reaches 100 players by 31 Dec: 250 / 100 / 100 Stars for the league's top 3 (owner pays). Until then the usual weekly 100 / 50 for everyone.
