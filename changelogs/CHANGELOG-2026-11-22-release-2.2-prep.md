@@ -38,3 +38,11 @@
 - Week 47 RESOLVED (all 10 scores checked at ESPN, Full Time): Switzerland 4:0 Scotland, Wales 2:3 Portugal, Hungary 1:1 Northern Ireland, Man City 1:1 Fulham, Bournemouth 2:0 Forest, Aston Villa 0:0 Sunderland, Chelsea 1:4 Leeds, Tottenham 2:0 Ipswich, Newcastle 2:2 Arsenal, Liverpool 4:0 Man Utd.
 - No exact score by anyone. Table: harrypohhher 5, urbanflik 3, MikeKlimov 3, then nine players on 2 (12 players).
 - Prizes recorded by the close: 1st harrypohhher 100 Stars, 2nd urbanflik 50 Stars (tie with MikeKlimov on 3 points, broken by the close). NOT marked paid: owner sends the Stars, then confirms.
+
+## 23 Nov: crests too small in their boxes (owner's phone screenshots, Arsenal v Dortmund, Sporting v Man Utd)
+- Owner: week 47 channel post published; Stars for harrypohhher (100) and urbanflik (50) to be sent today (not marked paid yet).
+- Phone still showed the OLD Man Utd picture (with shadow): Telegram's web view keeps the file. Fix: crest links now carry `?v=2026-11-23` (`CREST_VERSION` in `frontend/src/data/avatars.ts`); raise it whenever a crest picture is replaced.
+- Crest 86% -> 94% of the box; the extra 2px white CSS edge removed (pictures have their own white edge, it was doubled); tilt softened (rotateY 18 -> 10, rotateZ 7 -> 3, no rotateX).
+- Before/after of all 10 week 48 cards: Desktop `betty_crests_before_after.png`.
+- Arsenal: the picture itself is the problem (cannon smoke breaks out of the shield); needs a new picture.
+- Commits: release-2.1 dca7f4b, main f12221f. NOT deployed (needs owner's "deploy").
