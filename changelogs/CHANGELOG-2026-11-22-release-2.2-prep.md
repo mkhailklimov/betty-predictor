@@ -46,3 +46,23 @@
 - Before/after of all 10 week 48 cards: Desktop `betty_crests_before_after.png`.
 - Arsenal: the picture itself is the problem (cannon smoke breaks out of the shield); needs a new picture.
 - Commits: release-2.1 dca7f4b, main f12221f. NOT deployed (needs owner's "deploy").
+
+## 23 Nov: crest fix LIVE, open task for next session
+- LIVE frontend deployed from release-2.1 (3b1ee16, https://83e3110d.betty-scores-app.pages.dev): crests 94% of the box, no doubled white edge, softer tilt, `?v=2026-11-23` on crest links. Worker not touched. Dev NOT updated with this (main f12221f has it; run deploy-dev-frontend next time).
+- Owner: Arsenal stays as it is ("I like when our stickers are a bit crazy").
+- Man Utd: new prompt written (red devil in full figure with a black trident, gold shield, black and red trim, flat with NO drop shadow), placed first in `design/prompts/club-crests.md` and in the 16 Nov changelog; the old "done, do not regenerate" note replaced. Waiting for the owner's picture at `betty-release-2.1/frontend/public/teams/Cards/EPL_MAN.png`; then cut, centre, show, deploy on "deploy", raise `CREST_VERSION`.
+- Owner verdict on the live crests: "a bit better, but still needed to improve".
+
+### OPEN TASK (next session): fit every crest to its box border
+Owner's words: crests are smaller than the sticker borders; adjust crests to their borders. Worst cases seen on the phone: Arsenal v Dortmund, Sporting v Man Utd.
+What to do:
+1. Take phone-size screenshots of all 27 crests in their boxes (script: scratchpad `shot/new48.py` pattern, live API, viewport 390 wide).
+2. Per crest, trim the picture to its own outline (white sticker edge) and scale so the shield, not the whole picture with smoke/wings, fills the box evenly; same visual size for all 27. Tall shields vs wide ones (Arsenal cannon, Liverpool wings, Man City ship) may need a per-crest scale in `shields.ts`/`avatars.json` or a re-cut with fixed padding.
+3. Decide with the owner: keep the tilt (now rotateY 10 / rotateZ 3) or set crests straight.
+4. Show a before/after sheet of all 27 on the Desktop, get the owner's OK, deploy live + dev, raise `CREST_VERSION` in `frontend/src/data/avatars.ts`.
+Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/ChallengeCard.css` (`.cc__shield` width 94%, tilt), originals in `C:\Users\mihel\betty-crests\v5` (Man Utd original `C:\Users\mihel\betty-crests\EPL_MAN.jpg`), cutter `C:\Users\mihel\betty-crests\cut.py`.
+
+### Also open
+- Stars for week 47 (harrypohhher 100, urbanflik 50): owner pays today, then mark paid.
+- Release 2.2 on Mon 30 Nov (PROD_BRANCH=main, deploy-worker + deploy-frontend from betty-predictor). Master League: invite link only, 1 member (Th7Arvin). Week 49 approved.
+- Proposed admin commands league-members / league-remove: not built (owner: start with the link only, decide later).
