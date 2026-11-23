@@ -66,3 +66,6 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - Stars for week 47 (harrypohhher 100, urbanflik 50): owner pays today, then mark paid.
 - Release 2.2 on Mon 30 Nov (PROD_BRANCH=main, deploy-worker + deploy-frontend from betty-predictor). Master League: invite link only, 1 member (Th7Arvin). Week 49 approved.
 - Proposed admin commands league-members / league-remove: not built (owner: start with the link only, decide later).
+
+## Week 47 PAID
+- Owner sent the Stars: harrypohhher 100 (rank 1), urbanflik 50 (rank 2). Marked paid with `betty-admin.sh paid 2026_47 1` and `2`.
