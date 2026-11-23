@@ -1,0 +1,14 @@
+{
+ "competition": "UEFA Champions League",
+ "kickoff_label": "Tue 24 Nov · 17:45 UTC",
+ "espn_event": "401915300",
+ "odds": [2.85, 4.00, 2.25],
+ "home": {"name": "Galatasaray", "short": "GAL", "espn_id": "432", "league": "tur.1", "crest": "UCL_GAL",
+          "color": ["#a90432", "#fdb912"], "star": "Batrakov",
+          "eleven": ["Ugurcan Çakir", "Davinson Sánchez", "Abdülkerim Bardakçi", "Ismail Jakobs", "Eren Elmali",
+                     "Lucas Torreira", "Gabriel Sara", "Yunus Akgün", "Alexey Batrakov", "Roland Sallai", "Victor Osimhen"]},
+ "away": {"name": "Aston Villa", "short": "AVL", "espn_id": "362", "league": "eng.1", "crest": "EPL_AVL",
+          "color": ["#670e36", "#95bfe5"], "star": null,
+          "eleven": ["Zion Suzuki", "Matty Cash", "Victor Lindelöf", "Pau Torres", "Ian Maatsen",
+                     "Boubacar Kamara", "John McGinn", "Emiliano Buendía", "Johan Manzambi", "Alysson", "Nicolas Jackson"]}
+}

@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;600;800&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #070b16; }
+  body { font-family: 'Inter', sans-serif; color: #f4f6fb; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: radial-gradient(900px 900px at 0% 18%, var(--h1g), transparent 70%),
+                radial-gradient(900px 900px at 100% 82%, var(--a1g), transparent 70%), #070b16; }
+  /* faint pitch lines */
+  #pitch { position: absolute; inset: 0; opacity: .07;
+    background:
+      linear-gradient(#fff, #fff) center 960px / 1080px 3px no-repeat,
+      radial-gradient(circle at 540px 960px, transparent 178px, #fff 179px, #fff 182px, transparent 183px); }
+  .top { position: absolute; top: 70px; left: 0; right: 0; text-align: center; }
+  .top .comp { font-family: 'Oswald'; font-weight: 600; font-size: 40px; letter-spacing: 6px; color: #c9d3ea; text-transform: uppercase; }
+  .top .when { margin-top: 8px; font-size: 30px; color: #8d9abb; letter-spacing: 1px; }
+  .tag { position: absolute; top: 200px; left: 50%; transform: translateX(-50%); padding: 10px 26px; border-radius: 40px;
+    border: 2px solid #ecf39e; color: #ecf39e; font-family: 'Oswald'; font-size: 30px; letter-spacing: 5px; white-space: nowrap; }
+  .foot { position: absolute; bottom: 70px; left: 0; right: 0; text-align: center; font-family: 'Oswald';
+    font-size: 34px; letter-spacing: 4px; color: #8d9abb; }
+  .foot b { color: #ecf39e; font-weight: 600; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .crest { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 18px 30px rgba(0,0,0,.55)); }
+
+  /* intro */
+  .intro-crests { position: absolute; top: 560px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 70px; }
+  .intro-crests .c { width: 380px; height: 380px; }
+  .intro-vs { font-family: 'Oswald'; font-size: 80px; font-weight: 700; color: #ecf39e; }
+  .intro-names { position: absolute; top: 1030px; left: 0; right: 0; text-align: center; font-family: 'Oswald'; font-weight: 700;
+    font-size: 104px; line-height: 1.05; text-transform: uppercase; letter-spacing: 2px; }
+  .intro-names .v { font-size: 50px; color: #8d9abb; display: block; margin: 12px 0; letter-spacing: 8px; }
+  .intro-q { position: absolute; top: 1480px; left: 90px; right: 90px; text-align: center; font-size: 44px; line-height: 1.35; color: #c9d3ea; }
+
+  /* player */
+  .p-crest { position: absolute; top: 330px; left: 50%; width: 300px; height: 300px; transform: translateX(-50%); }
+  .p-count { position: absolute; top: 340px; right: 80px; font-family: 'Oswald'; font-size: 40px; color: #8d9abb; letter-spacing: 3px; }
+  .p-num { position: absolute; top: 560px; left: 0; right: 0; text-align: center; font-family: 'Oswald'; font-weight: 700; font-size: 360px;
+    line-height: 1; color: transparent; -webkit-text-stroke: 4px rgba(255,255,255,.22); }
+  .p-name { position: absolute; top: 900px; left: 60px; right: 60px; text-align: center; font-family: 'Oswald'; font-weight: 700;
+    font-size: 112px; line-height: 1.02; text-transform: uppercase; }
+  .p-meta { position: absolute; top: 1150px; left: 60px; right: 60px; text-align: center; font-size: 38px; color: #aab5cf; }
+  .p-xg-l { position: absolute; top: 1290px; left: 0; right: 0; text-align: center; font-family: 'Oswald'; font-size: 40px; letter-spacing: 8px; color: #8d9abb; }
+  .p-xg { position: absolute; top: 1340px; left: 0; right: 0; text-align: center; font-family: 'Oswald'; font-weight: 700; font-size: 230px; line-height: 1; }
+  .p-bar { position: absolute; top: 1630px; left: 140px; width: 800px; height: 26px; border-radius: 13px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .p-bar i { display: block; height: 100%; width: 0; border-radius: 13px; }
+
+  /* eleven */
+  .x-head { position: absolute; top: 300px; left: 80px; right: 80px; display: flex; align-items: center; gap: 26px; }
+  .x-head .c { width: 120px; height: 120px; flex: none; }
+  .x-head .t { font-family: 'Oswald'; font-weight: 700; font-size: 64px; text-transform: uppercase; line-height: 1; }
+  .x-head .s { font-size: 30px; color: #8d9abb; margin-top: 8px; letter-spacing: 2px; }
+  .x-rows { position: absolute; top: 470px; left: 80px; right: 80px; }
+  .x-row { display: flex; align-items: center; height: 84px; gap: 22px; border-bottom: 1px solid rgba(255,255,255,.08); opacity: 0; }
+  .x-row .n { width: 64px; height: 64px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center;
+    font-family: 'Oswald'; font-weight: 600; font-size: 30px; color: #070b16; }
+  .x-row .nm { flex: 1; font-size: 38px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .x-row .ps { width: 50px; font-size: 26px; color: #8d9abb; text-align: center; }
+  .x-row .bar { width: 170px; height: 14px; border-radius: 7px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .x-row .bar i { display: block; height: 100%; }
+  .x-row .v { width: 100px; text-align: right; font-family: 'Oswald'; font-weight: 600; font-size: 40px; }
+  .x-row.gk { margin-top: 18px; border: 2px dashed rgba(236,243,158,.5); border-radius: 18px; padding: 0 18px; height: 96px; }
+  .x-row.gk .nm { font-size: 34px; }
+  .x-row.gk .v { width: 230px; font-size: 32px; color: #ecf39e; }
+  .x-row.carry { border: 2px dashed rgba(236,243,158,.5); border-radius: 18px; padding: 0 18px; margin-bottom: 14px; }
+  .x-row.carry .nm { font-size: 32px; color: #c9d3ea; }
+  .x-total { position: absolute; top: 1560px; left: 80px; right: 80px; height: 190px; border-radius: 28px; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 44px; background: rgba(255,255,255,.06); border: 2px solid rgba(255,255,255,.12); }
+  .x-total .l { font-family: 'Oswald'; font-size: 40px; letter-spacing: 3px; color: #c9d3ea; text-transform: uppercase; line-height: 1.15; }
+  .x-total .l small { display: block; font-family: 'Inter'; font-size: 26px; letter-spacing: 0; color: #8d9abb; margin-top: 6px; text-transform: none; }
+  .x-total .v { font-family: 'Oswald'; font-weight: 700; font-size: 130px; }
+
+  /* totals */
+  .t-title, .o-title { position: absolute; top: 300px; left: 0; right: 0; text-align: center; font-family: 'Oswald'; font-weight: 700;
+    font-size: 70px; text-transform: uppercase; letter-spacing: 3px; }
+  .t-cols { position: absolute; top: 440px; left: 120px; right: 120px; height: 960px; display: flex; justify-content: space-around; align-items: flex-end; }
+  .t-col { width: 300px; display: flex; flex-direction: column; align-items: center; }
+  .t-col .val { font-family: 'Oswald'; font-weight: 700; font-size: 150px; line-height: 1; margin-bottom: 18px; }
+  .t-col .bar { width: 230px; border-radius: 22px 22px 6px 6px; height: 0; box-shadow: 0 0 60px rgba(0,0,0,.4) inset; }
+  .t-col .c { width: 170px; height: 170px; margin-top: 26px; }
+  .t-col .nt { margin-top: 10px; font-size: 26px; color: #8d9abb; text-align: center; line-height: 1.3; }
+  .t-fc { position: absolute; top: 1440px; left: 0; right: 0; text-align: center; }
+  .t-fc .l { font-family: 'Oswald'; font-size: 44px; letter-spacing: 8px; color: #8d9abb; }
+  .t-fc .s { font-family: 'Oswald'; font-weight: 700; font-size: 200px; line-height: 1.05; color: #ecf39e; }
+  .t-src { position: absolute; top: 1690px; left: 90px; right: 90px; text-align: center; font-size: 24px; color: #6f7b98; }
+
+  /* outcomes */
+  .o-cols { position: absolute; top: 470px; left: 70px; right: 70px; height: 950px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .o-col { width: 280px; display: flex; flex-direction: column; align-items: center; }
+  .o-col .val { font-family: 'Oswald'; font-weight: 700; font-size: 120px; line-height: 1; margin-bottom: 18px; }
+  .o-col .bar { width: 220px; height: 0; border-radius: 22px 22px 6px 6px; }
+  .o-col .lb { margin-top: 26px; font-family: 'Oswald'; font-size: 40px; text-transform: uppercase; letter-spacing: 2px; text-align: center; line-height: 1.15; }
+  .o-src { position: absolute; top: 1600px; left: 0; right: 0; text-align: center; font-size: 26px; color: #6f7b98; }
+
+  /* call to action */
+  .cta-crests { position: absolute; top: 470px; left: 0; right: 0; display: flex; justify-content: center; gap: 60px; }
+  .cta-crests .c { width: 300px; height: 300px; }
+  .cta-q { position: absolute; top: 880px; left: 60px; right: 60px; text-align: center; font-family: 'Oswald'; font-weight: 700;
+    font-size: 120px; text-transform: uppercase; line-height: 1.05; }
+  .cta-s { position: absolute; top: 1200px; left: 80px; right: 80px; text-align: center; font-size: 46px; line-height: 1.35; color: #c9d3ea; }
+  .cta-b { position: absolute; top: 1420px; left: 50%; transform: translateX(-50%); padding: 30px 60px; border-radius: 60px; background: #ecf39e;
+    color: #0b1a10; font-family: 'Oswald'; font-weight: 700; font-size: 60px; letter-spacing: 2px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="pitch"></div>
+  <div class="top"><div class="comp" id="comp"></div><div class="when" id="when"></div></div>
+  <div class="tag">BETTY xG FORECAST</div>
+  <div id="scenes"></div>
+  <div class="foot">PREDICT THE SCORE &nbsp;<b>@bettyscores_bot</b></div>
+</div>
+<script src="xg_reel.js"></script>
+</body>
+</html>

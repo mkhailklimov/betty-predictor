@@ -1,0 +1,287 @@
+{
+ "competition": "UEFA Champions League",
+ "kickoff_label": "Tue 24 Nov · 17:45 UTC",
+ "home": {
+  "name": "Galatasaray",
+  "short": "GAL",
+  "crest": "UCL_GAL",
+  "color": [
+   "#a90432",
+   "#fdb912"
+  ],
+  "players": [
+   {
+    "name": "Davinson Sánchez",
+    "number": "6",
+    "pos": "D",
+    "xg": 0.06,
+    "goals": 1,
+    "shots": 10,
+    "apps": 11
+   },
+   {
+    "name": "Abdülkerim Bardakçi",
+    "number": "42",
+    "pos": "D",
+    "xg": 0.11,
+    "goals": 2,
+    "shots": 11,
+    "apps": 10
+   },
+   {
+    "name": "Ismail Jakobs",
+    "number": "4",
+    "pos": "D",
+    "xg": 0.03,
+    "goals": 0,
+    "shots": 7,
+    "apps": 10
+   },
+   {
+    "name": "Eren Elmali",
+    "number": "17",
+    "pos": "D",
+    "xg": 0.03,
+    "goals": 0,
+    "shots": 3,
+    "apps": 12
+   },
+   {
+    "name": "Lucas Torreira",
+    "number": "34",
+    "pos": "M",
+    "xg": 0.07,
+    "goals": 2,
+    "shots": 8,
+    "apps": 11
+   },
+   {
+    "name": "Gabriel Sara",
+    "number": "8",
+    "pos": "M",
+    "xg": 0.16,
+    "goals": 2,
+    "shots": 26,
+    "apps": 12
+   },
+   {
+    "name": "Yunus Akgün",
+    "number": "11",
+    "pos": "F",
+    "xg": 0.13,
+    "goals": 3,
+    "shots": 20,
+    "apps": 12
+   },
+   {
+    "name": "Alexey Batrakov",
+    "number": "83",
+    "pos": "M",
+    "xg": 0.11,
+    "goals": 2,
+    "shots": 12,
+    "apps": 10
+   },
+   {
+    "name": "Roland Sallai",
+    "number": "7",
+    "pos": "F",
+    "xg": 0.1,
+    "goals": 1,
+    "shots": 15,
+    "apps": 10
+   },
+   {
+    "name": "Victor Osimhen",
+    "number": "45",
+    "pos": "F",
+    "xg": 0.67,
+    "goals": 9,
+    "shots": 57,
+    "apps": 8
+   }
+  ],
+  "top": [
+   {
+    "name": "Alexey Batrakov",
+    "number": "83",
+    "pos": "M",
+    "xg": 0.11,
+    "goals": 2,
+    "shots": 12,
+    "apps": 10
+   },
+   {
+    "name": "Gabriel Sara",
+    "number": "8",
+    "pos": "M",
+    "xg": 0.16,
+    "goals": 2,
+    "shots": 26,
+    "apps": 12
+   },
+   {
+    "name": "Victor Osimhen",
+    "number": "45",
+    "pos": "F",
+    "xg": 0.67,
+    "goals": 9,
+    "shots": 57,
+    "apps": 8
+   }
+  ],
+  "gk": {
+   "name": "Ugurcan Çakir",
+   "number": "1",
+   "save": 66,
+   "effect": 0.07
+  },
+  "total": 1.43
+ },
+ "away": {
+  "name": "Aston Villa",
+  "short": "AVL",
+  "crest": "EPL_AVL",
+  "color": [
+   "#670e36",
+   "#95bfe5"
+  ],
+  "players": [
+   {
+    "name": "Matty Cash",
+    "number": "2",
+    "pos": "D",
+    "xg": 0.02,
+    "goals": 0,
+    "shots": 3,
+    "apps": 8
+   },
+   {
+    "name": "Victor Lindelöf",
+    "number": "3",
+    "pos": "D",
+    "xg": 0.03,
+    "goals": 0,
+    "shots": 1,
+    "apps": 10
+   },
+   {
+    "name": "Pau Torres",
+    "number": "14",
+    "pos": "D",
+    "xg": 0.03,
+    "goals": 0,
+    "shots": 4,
+    "apps": 8
+   },
+   {
+    "name": "Ian Maatsen",
+    "number": "22",
+    "pos": "D",
+    "xg": 0.12,
+    "goals": 0,
+    "shots": 11,
+    "apps": 8
+   },
+   {
+    "name": "Boubacar Kamara",
+    "number": "8",
+    "pos": "M",
+    "xg": 0.02,
+    "goals": 0,
+    "shots": 3,
+    "apps": 11
+   },
+   {
+    "name": "John McGinn",
+    "number": "7",
+    "pos": "M",
+    "xg": 0.17,
+    "goals": 2,
+    "shots": 10,
+    "apps": 11
+   },
+   {
+    "name": "Emiliano Buendía",
+    "number": "10",
+    "pos": "M",
+    "xg": 0.2,
+    "goals": 1,
+    "shots": 19,
+    "apps": 10
+   },
+   {
+    "name": "Johan Manzambi",
+    "number": "44",
+    "pos": "M",
+    "xg": 0.34,
+    "goals": 2,
+    "shots": 20,
+    "apps": 8
+   },
+   {
+    "name": "Alysson",
+    "number": "47",
+    "pos": "F",
+    "xg": 0.18,
+    "goals": 2,
+    "shots": 9,
+    "apps": 10
+   },
+   {
+    "name": "Nicolas Jackson",
+    "number": "11",
+    "pos": "F",
+    "xg": 0.46,
+    "goals": 6,
+    "shots": 24,
+    "apps": 10
+   }
+  ],
+  "top": [
+   {
+    "name": "Emiliano Buendía",
+    "number": "10",
+    "pos": "M",
+    "xg": 0.2,
+    "goals": 1,
+    "shots": 19,
+    "apps": 10
+   },
+   {
+    "name": "Johan Manzambi",
+    "number": "44",
+    "pos": "M",
+    "xg": 0.34,
+    "goals": 2,
+    "shots": 20,
+    "apps": 8
+   },
+   {
+    "name": "Nicolas Jackson",
+    "number": "11",
+    "pos": "F",
+    "xg": 0.46,
+    "goals": 6,
+    "shots": 24,
+    "apps": 10
+   }
+  ],
+  "gk": {
+   "name": "Zion Suzuki",
+   "number": "1",
+   "save": 73,
+   "effect": -0.04
+  },
+  "total": 1.64
+ },
+ "forecast": [
+  1,
+  2
+ ],
+ "pct": [
+  34,
+  24,
+  42
+ ]
+}
