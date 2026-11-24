@@ -91,3 +91,5 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - Owner: the two lion crests (Galatasaray, Aston Villa) looked the same. The card now shows Batrakov (83) and Jackson (11) from the reel avatars instead (`PLAYER_SHIELDS` in ChallengeCard.tsx, by ESPN event id 401915300; images in `frontend/public/avatars/players/`).
 - Commits: release-2.1 e76237b, main a5abf07. LIVE frontend deployed 24 Nov 13:10 UTC (https://32efc8b2.betty-scores-app.pages.dev).
 - Owner saw tilted crests: that was the DEV app (still 18 Nov build, rotateY 18deg). DEV frontend redeployed 24 Nov from main 1239b58: straight crests 90%, new Man Utd, GAL v AVL player stickers, league headers. Live already straight since 24 Nov morning.
+
+- 24 Nov: owner: crests still tilted. Cause = the pictures are drawn as turned 3D stickers (rotating them made it worse). Owner chose option 1: frame boxes removed, crest at full width. Dev deployed (main e0ad120), release-2.1 fb06aa8 committed, NOT deployed live (waiting for "deploy").
