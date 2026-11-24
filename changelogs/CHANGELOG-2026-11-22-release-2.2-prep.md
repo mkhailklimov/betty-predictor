@@ -95,3 +95,4 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - 24 Nov: owner: crests still tilted. Cause = the pictures are drawn as turned 3D stickers (rotating them made it worse). Owner chose option 1: frame boxes removed, crest at full width. Dev deployed (main e0ad120), release-2.1 fb06aa8 committed, NOT deployed live (waiting for "deploy").
 - 24 Nov: crest frames removed DEPLOYED LIVE (release-2.1 fb06aa8), verified on app.bettyscores.com.
 - 24 Nov: owner: the white sticker edges were the "frames". Cut the white edge off all 27 crests (script scratchpad noedge.py, originals in git history before fa3ce7b). Dev deployed main fa3ce7b; release-2.1 committed, NOT live yet.
+- 24 Nov: crest white edges cut DEPLOYED LIVE (release-2.1 e9e7ee6), verified.
