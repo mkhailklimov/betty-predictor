@@ -97,17 +97,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  perspective: 420px;
-  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0) 60%),
-    linear-gradient(160deg, #2f5a2a, #18301a);
-  border: 2px solid rgba(236, 243, 158, 0.35);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 18px rgba(0, 0, 0, 0.35);
+  /* no box: the crests are drawn as turned 3D stickers, a straight frame made them look crooked (24 Nov) */
 }
 
 .cc__shield {
   position: relative;
-  /* the crest fills the box, straight, with an even margin to the border (a tilt made wide crests stick out) */
-  width: 90%;
+  /* the crest fills its place; there is no frame around it */
+  width: 100%;
   aspect-ratio: 1;
   transform-style: preserve-3d;
   /* a sticker: white die-cut edge, then the shadow on the floor */
