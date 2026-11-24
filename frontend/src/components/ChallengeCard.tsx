@@ -44,6 +44,12 @@ const TYPE_ICON: Record<string, string> = {
   exact_score: '\u{1F3B0}',
 }
 
+// Player stickers in place of the two crests, by ESPN event id.
+const PLAYER_SHIELDS: Record<string, { home: string; away: string }> = {
+  // Galatasaray v Aston Villa, 24 Nov: two lion crests looked the same
+  '401915300': { home: '/avatars/players/GAL_BATRAKOV.png?v=1', away: '/avatars/players/AVL_JACKSON.png?v=1' },
+}
+
 const RELEASE21_STICKERS: Record<string, { src: string; alt: string }> = {
   '1': {
     src: '/stickers/ENG_CRO.png',
@@ -164,8 +170,11 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({ challenge, locked,
   const homeName = challenge.home_team || m?.home_team || null
   const awayName = challenge.away_team || m?.away_team || null
   // Club cards with no sticker: the two club shields, each in its own box.
-  const homeShield = sticker || teamCards ? null : clubBadge(homeName)
-  const awayShield = sticker || teamCards ? null : clubBadge(awayName)
+  // Some matches show a player sticker in each box instead of the club crest
+  // (when the two crests look too alike), keyed by the ESPN event id.
+  const players = PLAYER_SHIELDS[challenge.source_id || '']
+  const homeShield = sticker || teamCards ? null : players?.home || clubBadge(homeName)
+  const awayShield = sticker || teamCards ? null : players?.away || clubBadge(awayName)
   const shields = homeShield && awayShield ? { home: homeShield, away: awayShield } : null
   const fixture = stickerKey === '5'
     ? 'Chelsea vs Bournemouth'
