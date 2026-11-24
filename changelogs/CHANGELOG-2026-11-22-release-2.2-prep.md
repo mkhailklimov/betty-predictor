@@ -93,3 +93,4 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - Owner saw tilted crests: that was the DEV app (still 18 Nov build, rotateY 18deg). DEV frontend redeployed 24 Nov from main 1239b58: straight crests 90%, new Man Utd, GAL v AVL player stickers, league headers. Live already straight since 24 Nov morning.
 
 - 24 Nov: owner: crests still tilted. Cause = the pictures are drawn as turned 3D stickers (rotating them made it worse). Owner chose option 1: frame boxes removed, crest at full width. Dev deployed (main e0ad120), release-2.1 fb06aa8 committed, NOT deployed live (waiting for "deploy").
+- 24 Nov: crest frames removed DEPLOYED LIVE (release-2.1 fb06aa8), verified on app.bettyscores.com.
