@@ -86,3 +86,7 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - Everything stays in English (no Persian translation).
 - Arvin writes his own post (knows his audience; uses his 500 Stars for traffic).
 - Prize plan: prizes grow with the audience. If the Master League reaches 100 players by 31 Dec: 250 / 100 / 100 Stars for the league's top 3 (owner pays). Until then the usual weekly 100 / 50 for everyone.
+
+## 24 Nov: GAL v AVL card with player stickers, LIVE
+- Owner: the two lion crests (Galatasaray, Aston Villa) looked the same. The card now shows Batrakov (83) and Jackson (11) from the reel avatars instead (`PLAYER_SHIELDS` in ChallengeCard.tsx, by ESPN event id 401915300; images in `frontend/public/avatars/players/`).
+- Commits: release-2.1 e76237b, main a5abf07. LIVE frontend deployed 24 Nov 13:10 UTC (https://32efc8b2.betty-scores-app.pages.dev).
