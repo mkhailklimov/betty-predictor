@@ -96,3 +96,4 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - 24 Nov: crest frames removed DEPLOYED LIVE (release-2.1 fb06aa8), verified on app.bettyscores.com.
 - 24 Nov: owner: the white sticker edges were the "frames". Cut the white edge off all 27 crests (script scratchpad noedge.py, originals in git history before fa3ce7b). Dev deployed main fa3ce7b; release-2.1 committed, NOT live yet.
 - 24 Nov: crest white edges cut DEPLOYED LIVE (release-2.1 e9e7ee6), verified.
+- 24 Nov: owner did not believe the live check. Live screenshot at 3x showed a grey shadow rim still on Arsenal + Dortmund (first cut took only bright white). Second cut (grey too, wider band; Arsenal widest) -> dev deployed + checked in the dev app, main e14f077 / release-2.1 3044fc0, live waiting for "deploy". LESSON: check at phone sharpness (3x) before saying done.
