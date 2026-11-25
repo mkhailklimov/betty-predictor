@@ -33,7 +33,7 @@ const CLUB_BY_NAME = new Map(
 
 // "?v=" makes phones fetch a crest again after its picture is replaced
 // (Telegram's web view keeps the old file otherwise). Raise it with each new set.
-const CREST_VERSION = '2026-11-25'
+const CREST_VERSION = '2026-11-25b'
 export const clubBadge = (name?: string | null): string | null => {
   const src = (name && (CLUB_BY_NAME.get(name) || EXTRA_SHIELDS[name])) || null
   return src ? `${src}?v=${CREST_VERSION}` : null
