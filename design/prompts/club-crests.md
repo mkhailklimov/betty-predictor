@@ -6,10 +6,10 @@ Golden balance: catchy, aggressive, not scary. Every creature in motion with sha
 Done, do not regenerate: Brentford hornet (`EPL_BRE.png`, approved). Man Utd: REDO with the prompt below (owner, 23 Nov: red devil with a trident, like the club's devil).
 Save each as `betty-release-2.1/frontend/public/teams/Cards/<CODE>.png`. Order: week 48 clubs first (top 10), then the rest.
 
-#### Manchester United - `EPL_MAN.png` (REDO, 23 Nov)
+#### Manchester United - `EPL_MAN.png` (REDO, 25 Nov)
 
 ```
-A grinning red devil in full figure, striding forward in an attacking pose, holding a long black trident raised diagonally across his body like a weapon ready to strike: bright red skin, short curved black horns, sharp focused eyes under angry brows, a cheeky confident smirk, a long pointed tail curling behind him. Drawn as a modern professional sports team mascot logo, like NBA or NHL team logos: simplified bold shapes, clean thick outlines, two-tone shading with a little shine. Bold, mischievous and aggressive, full of energy, catchy rather than scary: no armour, no gore, no dark horror look. The devil and trident are large and fill most of the shield. Placed on a golden-yellow shield with a thick black and red trim, shown as a die-cut sticker with a thick white border, flat with no drop shadow, centred on a plain light grey background, square image. No text, no letters, no numbers.
+A bold cartoon sticker of a small, slim, impish red devil like the devil on the Manchester United crest: a lean wiry little figure in side view facing left, standing on one leg with the other knee raised, holding a long trident upright in front of him with both hands, small pointed horns, pointed ears, a sly cheeky grin, a long thin tail ending in an arrow tip curling up behind him. Thin arms and legs, no big muscles, not a bodybuilder: playful and mischievous like a classic heraldic devil. Bright red with simple bold shading and one shiny highlight, the trident black. Drawn as a modern sports team logo, like NBA or NHL team logos: simplified bold shapes, clean thick outlines, bright punchy colours. On a shield seen straight from the front, upright and symmetrical, not tilted: a bright golden-yellow shield with a thick red border and a thin black line inside it. Shown as a die-cut sticker with an even white edge that follows the shield, centred on a plain light grey background, square image. No text, no letters, no numbers.
 ```
 
 #### Galatasaray - `UCL_GAL.png`

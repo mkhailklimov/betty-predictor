@@ -102,3 +102,4 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - 25 Nov: Man City white edge DEPLOYED LIVE (release-2.1 ab6f4c1), checked live at 3x. Arsenal: owner wants the wooden block under the cannon gone -> prompt updated, waiting for new picture.
 - 25 Nov: Arsenal v2 (no wooden block) on DEV, checked at 3x; live waits for "deploy".
 - 25 Nov: Arsenal v2 DEPLOYED LIVE (release-2.1 618f116), checked live at 3x. New crest style (straight sticker, even white edge) agreed; other clubs to follow one by one.
+- 25 Nov: Liverpool new Liver bird on DEV, checked at 3x; Man Utd prompt redone (slim impish devil, not bodybuilder), waiting picture.
