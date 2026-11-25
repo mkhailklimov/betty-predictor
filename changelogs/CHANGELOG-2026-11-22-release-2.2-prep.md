@@ -100,3 +100,4 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - 25 Nov: tilts dropped. New crest style = simple sticker, shield straight from the front, even white edge (prompt in club-crests.md). Arsenal redrawn (bright red, fat cannon), original in betty-crests/v7, on DEV, checked at 3x. Live untouched. Next: same style for other clubs one by one.
 - 25 Nov: new Arsenal DEPLOYED LIVE (release-2.1 6d28083), checked live at 3x. Man City: white sticker edge added (same as Arsenal), dev deployed + checked at 3x; live waits for "deploy".
 - 25 Nov: Man City white edge DEPLOYED LIVE (release-2.1 ab6f4c1), checked live at 3x. Arsenal: owner wants the wooden block under the cannon gone -> prompt updated, waiting for new picture.
+- 25 Nov: Arsenal v2 (no wooden block) on DEV, checked at 3x; live waits for "deploy".
