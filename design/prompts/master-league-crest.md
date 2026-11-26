@@ -1,9 +1,10 @@
-# Master League crest prompt (24 Nov)
+# Master League crest prompt (26 Nov, new crest style)
 
 Owner's brief: a crest with two gothic letters ML, green background, black letters, a black-and-white ball.
-Same sticker style as the club crests: die-cut, thick white border, no drop shadow (a shadow pushes the crest off-centre).
+New crest style (25 Nov): shield straight from the front, even white sticker edge, no tilt.
 Save as `betty-predictor/frontend/public/teams/Cards/LEAGUE_MASTER.png`; it is cut and wired like the club crests.
+Also used as the profile picture of Arvin's league channel.
 
 ```
-Football league emblem in sticker style, square image. A classic heraldic shield with a bright emerald-green field and a thick black and gold trim. In the centre, two large bold gothic blackletter capital letters "M" and "L" side by side, solid black with a thin gold edge, sharp and elegant like an old championship trophy engraving. Behind the letters, a classic black-and-white football (white hexagons, black pentagons), partly showing above and below the letters, with a little shine. Drawn as a modern professional sports logo: simplified bold shapes, clean thick outlines, two-tone shading with a little shine. Confident and prestigious, catchy rather than threatening. The shield is large and fills most of the image. Shown as a die-cut sticker with a thick white border, flat with no drop shadow, centred on a plain light grey background. Only the two letters M and L, no other text, no numbers.
+A bold cartoon sticker of a football league crest. Two large gothic blackletter capital letters "M" and "L" side by side in the centre, solid black with a thin gold edge, sharp and elegant like an old trophy engraving. Behind the letters a classic black-and-white football, showing above and below the letters, with simple bold shading and one shiny highlight. Drawn as a modern sports team logo, like NBA or NHL team logos: simplified bold shapes, clean thick outlines, bright punchy colours. On a shield seen straight from the front, upright and symmetrical, not tilted: a bright emerald-green shield with a thick black border and a thin gold line inside it. Shown as a die-cut sticker with an even white edge that follows the shield, centred on a plain light grey background, square image. Only the two letters M and L, no other text, no numbers.
 ```
