@@ -105,3 +105,4 @@ Files: `frontend/public/avatars/clubs/*.png` (512 px), `frontend/src/styles/Chal
 - 25 Nov: Liverpool new Liver bird on DEV, checked at 3x; Man Utd prompt redone (slim impish devil, not bodybuilder), waiting picture.
 - 25 Nov: Man Utd new demon (lean, hooves, trident over the border) on DEV, checked at 3x. END OF DAY: Liverpool + Man Utd on dev, committed on release-2.1, NOT live -> owner says "deploy" next session. Next clubs in the new style: owner picks one by one.
 - 25 Nov: Liverpool + Man Utd DEPLOYED LIVE (release-2.1 e97a6d7), both checked live at 3x.
+- 26 Nov: Master League crest = owner's old Knightsbridge knight-on-bridge shield, banner text replaced with "Master League" (Old English Text MT). Files design/league/ (crest + 1024 round-safe channel picture), copies on Desktop. Proposed to Arvin; not yet wired into the app.
