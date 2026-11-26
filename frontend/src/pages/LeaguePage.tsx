@@ -107,7 +107,7 @@ export const LeaguePage: React.FC = () => {
         {/* the league's crest, if it has one: public/leagues/<id>.png */}
         <img
           className="league-crest"
-          src={`/leagues/${league.id}.png?v=2026-11-26`}
+          src={`/leagues/${league.id}.png?v=2026-11-26b`}
           alt=""
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
         />
