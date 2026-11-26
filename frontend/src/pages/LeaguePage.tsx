@@ -104,6 +104,13 @@ export const LeaguePage: React.FC = () => {
   return (
     <div className="leaderboard-page league-page">
       <div className="page-header">
+        {/* the league's crest, if it has one: public/leagues/<id>.png */}
+        <img
+          className="league-crest"
+          src={`/leagues/${league.id}.png?v=2026-11-26`}
+          alt=""
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+        />
         <h1>{league.name}</h1>
         <p className="league-sub">
           {league.members} {league.members === 1 ? 'player' : 'players'}
