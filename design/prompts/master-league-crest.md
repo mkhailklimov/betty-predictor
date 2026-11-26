@@ -1,10 +1,10 @@
-# Master League crest prompt (26 Nov, new crest style)
+# Master League crest (26 Nov)
 
-Owner's brief: a crest with two gothic letters ML, green background, black letters, a black-and-white ball.
-New crest style (25 Nov): shield straight from the front, even white sticker edge, no tilt.
-Save as `betty-predictor/frontend/public/teams/Cards/LEAGUE_MASTER.png`; it is cut and wired like the club crests.
-Also used as the profile picture of Arvin's league channel.
+Variant A (done): owner's knight-on-bridge shield with "Master League" in the banner, files in design/league/.
+Variant B (this prompt): the same idea in an oriental style. The banner is left EMPTY on purpose;
+"Master League" is lettered in afterwards (picture models misspell words).
+Save as `betty-predictor/frontend/public/teams/Cards/LEAGUE_MASTER_B.png`.
 
 ```
-A bold cartoon sticker of a football league crest. Two large gothic blackletter capital letters "M" and "L" side by side in the centre, solid black with a thin gold edge, sharp and elegant like an old trophy engraving. Behind the letters a classic black-and-white football, showing above and below the letters, with simple bold shading and one shiny highlight. Drawn as a modern sports team logo, like NBA or NHL team logos: simplified bold shapes, clean thick outlines, bright punchy colours. On a shield seen straight from the front, upright and symmetrical, not tilted: a bright emerald-green shield with a thick black border and a thin gold line inside it. Shown as a die-cut sticker with an even white edge that follows the shield, centred on a plain light grey background, square image. Only the two letters M and L, no other text, no numbers.
+A football league crest in an oriental style, square image. The crest is shaped like an ornate pointed ogee arch (the shape of a Persian or Mughal palace window), seen straight from the front, upright and symmetrical. At the top, a plain empty black banner across the arch with a small gold eight-pointed star at each end, the banner left completely empty for text to be added later. Below it, a deep emerald-green field with a fine gold arabesque pattern in the corners. In the centre, a horseman in flowing robes and a turban on a rearing black Arabian horse, holding a long spear raised high, cape and horse mane flying, drawn in black with thin white outlines. Under the horse, a black-and-white football resting on a gold stepped base. The arch has a thick black border with a thin gold line inside it. Flat bold heraldic emblem, clean shapes, black, emerald green, gold and white only, centred on a plain white background. No text, no letters, no numbers anywhere.
 ```
