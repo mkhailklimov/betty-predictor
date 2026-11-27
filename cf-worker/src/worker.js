@@ -30,6 +30,17 @@ const INTERNAL_TG_IDS = new Set(['1056798742', '8513208258', '7653593987', 'test
 
 // Who can be ranked for the weekly Stars: Telegram players, and browser guests
 // who chose a nickname (default guest name is 'Guest'). Takes a silver dimUser row.
+// One line per step of a Stars purchase (migration 0011). Never breaks the payment itself.
+async function logPayment(env, userId, tgId, payload, step, stars) {
+  try {
+    await env.DB.prepare(
+      'INSERT INTO payment_log (user_id, tg_id, payload, step, stars) VALUES (?, ?, ?, ?, ?)'
+    ).bind(userId, tgId, payload || null, step, stars).run();
+  } catch (e) {
+    console.error('payment_log failed:', e && e.message);
+  }
+}
+
 function isPrizeEligible(u) {
   if (u.is_internal) return false;
   if (!String(u.tg_id).startsWith('guest:')) return true;
@@ -902,7 +913,8 @@ export default {
         if (!token) return json({ detail: 'Unauthorized' }, 401);
         const user = await env.DB.prepare('SELECT * FROM users WHERE tg_id = ?').bind(token).first();
         if (!user) return json({ detail: 'User not found' }, 401);
-        // Release 2.2: avatars are free for everyone.
+        // Avatars cost 50 Stars (owner, 27 Nov): only players who paid may pick one.
+        if (user.is_premium !== 1) return json({ detail: 'Premium required' }, 403);
         const body = await request.json();
         const code = (body && body.team_code) ? String(body.team_code).toUpperCase() : '';
         if (!ALLOWED_TEAMS.has(code)) return json({ detail: 'Invalid team_code' }, 400);
@@ -937,7 +949,25 @@ export default {
         });
         const tgJson = await tgRes.json();
         if (!tgJson.ok) return json({ detail: 'Failed to create invoice', tg: tgJson.description }, 502);
+        await logPayment(env, user.id, user.tg_id, payload, 'opened', 50);
         return json({ invoice_url: tgJson.result, payload });
+      }
+
+      // POST /api/payments/status {"payload": "...", "status": "cancelled" | "failed" | "paid"}
+      // The app reports how the payment window closed (Telegram tells only the app about a cancel).
+      if (method === 'POST' && path === '/api/payments/status') {
+        const token = await resolveTgIdStr(request, env);
+        if (!token) return json({ detail: 'Unauthorized' }, 401);
+        const user = await env.DB.prepare('SELECT id, tg_id FROM users WHERE tg_id = ?').bind(token).first();
+        if (!user) return json({ detail: 'User not found' }, 404);
+        const body = await request.json().catch(() => ({}));
+        const payload = String(body.payload || '');
+        const status = String(body.status || '');
+        if (!['cancelled', 'failed', 'paid', 'pending'].includes(status)) return json({ detail: 'Invalid status' }, 400);
+        // only the player's own invoices: the payload carries their tg_id
+        if (!payload.startsWith(`premium_${user.tg_id}_`)) return json({ detail: 'Invalid payload' }, 400);
+        await logPayment(env, user.id, user.tg_id, payload, `app_${status}`, null);
+        return json({ ok: true });
       }
 
       // POST /tg/webhook → Telegram bot update handler.
@@ -971,6 +1001,7 @@ export default {
 
         if (update.pre_checkout_query) {
           const q = update.pre_checkout_query;
+          await logPayment(env, null, String(q.from && q.from.id), q.invoice_payload, 'checkout', q.total_amount);
           await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/answerPreCheckoutQuery`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -993,6 +1024,7 @@ export default {
                VALUES (?, ?, ?, ?, ?)`
             ).bind(user.id, tgId, sp.total_amount, sp.telegram_payment_charge_id, sp.invoice_payload).run();
           }
+          await logPayment(env, user ? user.id : null, tgId, sp.invoice_payload, 'paid', sp.total_amount);
           return json({ ok: true });
         }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { leaderboardApi, userApi, guestApi } from '../services/api'
+import WebApp from '@twa-dev/sdk'
+import { leaderboardApi, userApi, guestApi, paymentsApi } from '../services/api'
 import { LeaderboardEntry, User } from '../types'
 import { FlagPickerModal } from '../components/FlagPickerModal'
 import { getAvatar } from '../data/avatars'
@@ -14,6 +15,7 @@ export const LeaderboardPage: React.FC = () => {
   const [nickError, setNickError] = useState<string | null>(null)
   const [nickBusy, setNickBusy] = useState(false)
   const [showFlagPicker, setShowFlagPicker] = useState(false)
+  const [payStatus, setPayStatus] = useState<'idle' | 'loading' | 'failed'>('idle')
   const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
@@ -76,6 +78,39 @@ export const LeaderboardPage: React.FC = () => {
       <div className="col stars stars-bold">{entry.stars_earned ?? 0}</div>
     </div>
   )
+
+  // Avatars cost 50 Stars (owner, 27 Nov). Payments work only inside Telegram.
+  const isPremium = !!me?.is_premium
+  const inTelegram = !!WebApp.initData
+  const buyAvatar = async () => {
+    setPayStatus('loading')
+    try {
+      const { data } = await paymentsApi.createStarsInvoice()
+      WebApp.openInvoice(data.invoice_url, async (status) => {
+        paymentsApi.reportStatus(data.payload, status).catch(() => {})
+        if (status === 'paid') {
+          setPayStatus('idle')
+          // Telegram's payment message can reach the server a moment after this callback.
+          for (let attempt = 0; attempt < 10; attempt++) {
+            try {
+              const { data: meData } = await userApi.getMe()
+              setMe(meData)
+              if (meData.is_premium) break
+            } catch {}
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+          }
+          setShowFlagPicker(true)
+        } else if (status === 'cancelled') {
+          setPayStatus('idle')
+        } else {
+          setPayStatus('failed')
+        }
+      })
+    } catch (e) {
+      console.error('createStarsInvoice failed:', e)
+      setPayStatus('failed')
+    }
+  }
 
   // Release 2.2: any player may choose a nickname (Latin letters, digits, spaces, _ . - #).
   const saveNick = async (e: React.FormEvent) => {
@@ -169,11 +204,25 @@ export const LeaderboardPage: React.FC = () => {
         ) : (
           <div className="me-zone__buttons">
             <button className="premium-btn" onClick={() => { setNick(me?.username || ''); setEditing(true) }}>Change name</button>
-            <button className="premium-btn" onClick={() => setShowFlagPicker(true)}>{me?.fav_team ? 'Change avatar' : 'Pick avatar'}</button>
+            {isPremium ? (
+              <button className="premium-btn" onClick={() => setShowFlagPicker(true)}>{me?.fav_team ? 'Change avatar' : 'Pick avatar'}</button>
+            ) : inTelegram ? (
+              <button className="premium-btn" onClick={buyAvatar} disabled={payStatus === 'loading'}>
+                {payStatus === 'loading' ? 'Opening...' : 'Get avatar for 50 Stars'}
+              </button>
+            ) : null}
           </div>
         )}
         {nickError && <p className="premium-error">{nickError}</p>}
-        <p className="me-zone__hint">Latin letters, digits, spaces and _ . - # (3 to 20). Avatars: any nation, Premier League or European club.</p>
+        {payStatus === 'failed' && <p className="premium-error">Couldn&apos;t start payment. Try again later.</p>}
+        <p className="me-zone__hint">
+          Name: Latin letters, digits, spaces and _ . - # (3 to 20).
+          {isPremium
+            ? ' Avatar: any nation, Premier League or European club.'
+            : inTelegram
+              ? ' Avatar: any nation, Premier League or European club, 50 Stars once, yours for good.'
+              : ' Avatars are bought with Stars in Telegram: open Betty in Telegram.'}
+        </p>
       </div>
 
       {showFlagPicker && (

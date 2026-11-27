@@ -122,6 +122,9 @@ export const leagueApi = {
 export const paymentsApi = {
   createStarsInvoice: () =>
     api.post<{ invoice_url: string; payload: string }>('/api/payments/create-stars-invoice'),
+  // how the payment window closed (payment log, release 2.2)
+  reportStatus: (payload: string, status: string) =>
+    api.post<{ ok: boolean }>('/api/payments/status', { payload, status }),
   setFavTeam: (team_code: string) =>
     api.post<{ ok: boolean; fav_team: string }>('/api/user/fav-team', { team_code }),
 }
